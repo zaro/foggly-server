@@ -55,11 +55,11 @@ class DockerCtl(Client):
             port_bindings={
                 22: SSH_PORT,
                 80: WWW_PORT
-            }
+            },
+            mem_limit=(options.get('mem_limit') or '128m'),
         )
         container = self.create_container(
             image=containerId, hostname=domain,
-            mem_limit=(options.get('mem_limit') or '128m'),
             volumes=volumes,
             ports=[22, 80],
             host_config=host_config,
