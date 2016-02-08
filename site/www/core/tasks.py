@@ -77,5 +77,23 @@ def startDomain(cfg):
     hostCfg = CfgGen(d.filename('.hostcfg'))
     if not d.exists() or not hostCfg.exists():
         return {'error': 'Invalid user/domain'}
-    DockerCtl().runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
+    # start container
+    dctl = DockerCtl()
+    dctl.stopContainer(cfg['user'], cfg['domain'])
+    dctl.rmContainer(cfg['user'], cfg['domain'])
+    dctl.runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
+    # open ssh port
+    d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
+    return {'success': True}
+
+@shared_task
+def stopDomain(cfg):
+    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+    hostCfg = CfgGen(d.filename('.hostcfg'))
+    # stop container
+    dctl = DockerCtl()
+    dctl.stopContainer(cfg['user'], cfg['domain'])
+    dctl.rmContainer(cfg['user'], cfg['domain'])
+    # open ssh port
+    d.run('firewall-cmd --zone=public --remove-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
     return {'success': True}

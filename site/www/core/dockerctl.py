@@ -28,6 +28,11 @@ class DockerCtl(Client):
         u,g,_ = response.split(b'\n')
         return (int(u), int(g))
 
+    def stopContainer(self, username, domain, **options):
+        self.stop(domain)
+    def rmContainer(self, username, domain, **options):
+        self.remove_container(domain)
+
     def runContainer(self, username, domain, containerId, **options):
         dataDir = getDomainDir(username, domain).path
         if containerId.find(':') < 0:
@@ -59,7 +64,9 @@ class DockerCtl(Client):
             mem_limit=(options.get('mem_limit') or '128m'),
         )
         container = self.create_container(
-            image=containerId, hostname=domain,
+            image=containerId,
+            hostname=domain,
+            name=domain,
             #volumes=volumes,
             #ports=[22, 80],
             host_config=host_config,
