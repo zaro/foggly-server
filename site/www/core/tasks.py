@@ -92,6 +92,8 @@ def startDomain(cfg):
     dctl.runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
     # open ssh port
     d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
+    # reload nginx config
+    d.run('systemctl reload nginx')
     return {'success': True}
 
 @shared_task
@@ -109,4 +111,6 @@ def stopDomain(cfg):
             dctl.rmContainer(cfg['user'], cfg['domain'])
     # close ssh port
     d.run('firewall-cmd --zone=public --remove-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
+    # reload nginx config
+    d.run('systemctl reload nginx')
     return {'success': True}
