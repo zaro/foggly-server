@@ -1,4 +1,8 @@
 #!/bin/sh
 
-postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/vmailbox
-postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/virtual
+pushd /srv/home/www
+if [ -r composer.json ]; then
+  composer install
+  composer update
+fi
+popd

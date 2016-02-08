@@ -10,7 +10,7 @@ RUN apt-get clean && \
     apt-get install -y php7.0 php7.0-mysql php7.0-curl php7.0-gd php7.0-opcache php7.0-json php7.0-mcrypt php7.0-intl && \
     apt-get clean && \
     a2enmod rewrite && \
-    (cd /usr/local/bin; curl -sS https://getcomposer.org/installer | php; mv composer.phar composer) && \
+    (cd /usr/local/bin; curl -sS https://getcomposer.org/installer | php; ln -s composer.phar composer) && \
     sed -i 's,mysqli\?\.default_socket *=,\0/var/lib/mysql/mysql.sock,;' /etc/php/7.0/apache2/php.ini /etc/php/7.0/cli/php.ini && \
     rm -rf /usr/share/locale/* \
       /usr/share/doc/* \
@@ -29,6 +29,7 @@ RUN sed -i 's,;upload_tmp_dir =,upload_tmp_dir =/srv/home/tmp,;s,upload_max_file
 
 COPY setup_container /usr/local/setup_container.d/php7
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord-php7.conf
+COPY deploy_hook /usr/local/deploy_hook
 
 ENV WWW_ROOT=$ROOT_DIR/www
 
