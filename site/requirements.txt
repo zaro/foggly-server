@@ -5,3 +5,4 @@ django-extensions
 bootstrap-admin
 django-object-actions
 Jinja2
+docker-py

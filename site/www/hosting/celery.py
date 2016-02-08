@@ -10,6 +10,11 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hosting.settings')
 from django.conf import settings  # noqa
 
 app = Celery('hosting_tasks', broker='redis://', backend="redis://")
+app.conf.update(
+    CELERY_TASK_SERIALIZER='json',
+    CELERY_RESULT_SERIALIZER='json',
+    CELERY_ACCEPT_CONTENT=['json']
+)
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.

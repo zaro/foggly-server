@@ -103,3 +103,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+DOCKER_BASE_URL='tcp://127.0.0.1:2375'
