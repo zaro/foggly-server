@@ -28,6 +28,15 @@ class DockerCtl(Client):
         u,g,_ = response.split(b'\n')
         return (int(u), int(g))
 
+    def getContainerStatus(self, username, domain, **options):
+        containers = self.containers()
+        name = '/' + domain
+        for container in containers:
+            if name in container['Names']:
+                #status will be on of ['up, 'exited', 'restarting', 'removal', 'dead']
+                # explanation about dead/removal : http://stackoverflow.com/questions/30550472/docker-container-with-status-dead-after-consul-healthcheck-runs
+                return container['Status'].split(' ')[0].lower()
+        return None
     def stopContainer(self, username, domain, **options):
         self.stop(domain)
     def rmContainer(self, username, domain, **options):

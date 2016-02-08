@@ -79,8 +79,16 @@ def startDomain(cfg):
         return {'error': 'Invalid user/domain'}
     # start container
     dctl = DockerCtl()
-    dctl.stopContainer(cfg['user'], cfg['domain'])
-    dctl.rmContainer(cfg['user'], cfg['domain'])
+    status  = dctl.getContainerStatus(cfg['user'], cfg['domain'])
+    if status != None:
+        # stop/rm container
+        if status == 'up':
+            dctl.stopContainer(cfg['user'], cfg['domain'])
+            dctl.rmContainer(cfg['user'], cfg['domain'])
+        elif status == 'exited':
+            dctl.rmContainer(cfg['user'], cfg['domain'])
+        else:
+            return {'error': 'Cannot start {} container'.format(status) }
     dctl.runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
     # open ssh port
     d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
@@ -90,10 +98,15 @@ def startDomain(cfg):
 def stopDomain(cfg):
     d = getDomainDir(cfg['user'] ,  cfg['domain'])
     hostCfg = CfgGen(d.filename('.hostcfg'))
-    # stop container
     dctl = DockerCtl()
-    dctl.stopContainer(cfg['user'], cfg['domain'])
-    dctl.rmContainer(cfg['user'], cfg['domain'])
-    # open ssh port
+    status  = dctl.getContainerStatus(cfg['user'], cfg['domain'])
+    if status != None:
+        # stop/rm container
+        if status == 'up':
+            dctl.stopContainer(cfg['user'], cfg['domain'])
+            dctl.rmContainer(cfg['user'], cfg['domain'])
+        elif status == 'exited':
+            dctl.rmContainer(cfg['user'], cfg['domain'])
+    # close ssh port
     d.run('firewall-cmd --zone=public --remove-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
     return {'success': True}
