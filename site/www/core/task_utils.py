@@ -12,6 +12,7 @@ class CfgGen:
         self.usedValues = {}
         self.currentValues = {}
         self.override = override
+        self.existing = False
         if path :
             for f in glob.glob(path):
                 self.readFile(f, self.addUsedValue)
@@ -19,6 +20,10 @@ class CfgGen:
             self.currentValues[k]=v
         if os.path.exists(cfgFile):
             self.readFile(cfgFile, updateCV)
+            self.existing = True
+
+    def exists(self):
+        return self.existing != None
 
     def readFile(self, path, handler):
         print("Reading: ", path)
@@ -116,6 +121,8 @@ class DirCreate:
             self._mkdir(uid, gid, mode)
             self.popd()
     def exists(self, *paths):
+        if len(paths) == 0:
+            return os.path.exists( self.path )
         for path in paths:
             if not os.path.exists( os.path.join( self.path, path ) ):
                 return False

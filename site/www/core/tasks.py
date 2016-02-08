@@ -75,4 +75,7 @@ def createDomainDir(cfg):
 def startDomain(cfg):
     d = getDomainDir(cfg['user'] ,  cfg['domain'])
     hostCfg = CfgGen(d.filename('.hostcfg'))
+    if not d.exists() or not hostCfg.exists():
+        return {'error': 'Invalid user/domain'}
     DockerCtl().runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
+    return {'success': True}
