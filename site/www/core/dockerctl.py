@@ -3,7 +3,7 @@ from docker import Client
 from core.task_utils import getDomainDir
 
 
-from core.task_utils import CfgGen
+from core.task_utils import DomainConfig
 
 import os, tarfile, io
 
@@ -48,7 +48,7 @@ class DockerCtl(Client):
             containerId += ':latest'
         if not os.path.exists( dataDir ):
             raise Exception('Invalid username and/or domain')
-        cfg = CfgGen(os.path.join(dataDir, '.hostcfg'))
+        cfg = DomainConfig(os.path.join(dataDir, '.hostcfg'))
         try:
             WWW_PORT=int(cfg.get('WWW_PORT'))
             SSH_PORT=int(cfg.get('SSH_PORT'))

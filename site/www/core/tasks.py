@@ -49,7 +49,7 @@ def createDomainDir(cfg):
         d.run("ssh-keygen -q -f id_rsa -N '' -t rsa -C '{domain}'".format(domain=cfg['domain']))
     d.popd()
 
-    hostCfg = CfgGen(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
+    hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
     hostCfg.set('USE_CONTAINER', 'zaro/php7')
     hostCfg.set('DOMAIN', cfg['domain'])
     hostCfg.set('DOMAIN_ID', cfg['domain'].translate(str.maketrans(".-","__")))
@@ -74,7 +74,7 @@ def createDomainDir(cfg):
 @shared_task
 def startDomain(cfg):
     d = getDomainDir(cfg['user'] ,  cfg['domain'])
-    hostCfg = CfgGen(d.filename('.hostcfg'))
+    hostCfg = DomainConfig(d.filename('.hostcfg'))
     if not d.exists() or not hostCfg.exists():
         return {'error': 'Invalid user/domain'}
     # start container
@@ -102,7 +102,7 @@ def startDomain(cfg):
 @shared_task
 def stopDomain(cfg):
     d = getDomainDir(cfg['user'] ,  cfg['domain'])
-    hostCfg = CfgGen(d.filename('.hostcfg'))
+    hostCfg = DomainConfig(d.filename('.hostcfg'))
     dctl = DockerCtl()
     status  = dctl.getContainerStatus(cfg['user'], cfg['domain'])
     if status != None:

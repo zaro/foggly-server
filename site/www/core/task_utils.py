@@ -5,7 +5,7 @@ import re, random
 
 from jinja2 import Template
 
-class CfgGen:
+class DomainConfig:
     def __init__(self, cfgFile, path=None, override=False):
         self.path = path
         self.cfgFile = cfgFile
