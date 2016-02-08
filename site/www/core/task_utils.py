@@ -134,6 +134,9 @@ class DirCreate:
             except FileNotFoundError:
                 pass
 
+    def mv(self, fromFile, toFile):
+        os.rename( os.path.join( self.path, fromFile ), os.path.join( self.path, toFile ) )
+
     def run(self, cmd, *args):
         subprocess.check_call(cmd, shell=True, cwd=self.path, *args)
 

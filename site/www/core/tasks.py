@@ -93,6 +93,9 @@ def startDomain(cfg):
     # open ssh port
     d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
     # reload nginx config
+    d.pushd('etc')
+    if d.exists('site.conf.disabled'):
+        d.mv('site.conf.disabled', 'site.conf')
     d.run('systemctl reload nginx')
     return {'success': True}
 
@@ -112,5 +115,8 @@ def stopDomain(cfg):
     # close ssh port
     d.run('firewall-cmd --zone=public --remove-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
     # reload nginx config
+    d.pushd('etc')
+    if d.exists('site.conf'):
+        d.mv('site.conf', 'site.conf.disabled')
     d.run('systemctl reload nginx')
     return {'success': True}
