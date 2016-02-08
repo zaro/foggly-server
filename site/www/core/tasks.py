@@ -65,6 +65,6 @@ def createDomainDir(cfg):
             d.run("ssh-keygen -q -f {hKey} -N '' -t {algo} ".format(algo=algo, hKey=hKey))
     d.popd()
 
-    td = TemplateDir(os.path.join(THIS_FILE_DIR,'../../etc_template/'), hostCfg.asDict())
+    td = TemplateDir(os.path.join(THIS_FILE_DIR,'../../../etc_template/'), hostCfg.asDict())
     td.copyTo(d.path)
     return {'success': True}
