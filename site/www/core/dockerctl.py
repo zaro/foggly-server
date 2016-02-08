@@ -43,11 +43,11 @@ class DockerCtl(Client):
         volumes=[dataDir, '/var/lib/mysql/'],
         host_config=self.create_host_config(
             binds={
-                '/srv/home' : {
-                    'bind': dataDir,
+                dataDir : {
+                    'bind': '/srv/home',
                     'mode': 'rw',
                 },
-                '/var/run/mysql/': {
+                '/var/lib/mysql/': {
                     'bind': '/var/lib/mysql/',
                     'mode': 'ro',
                 }
@@ -60,8 +60,8 @@ class DockerCtl(Client):
         )
         container = self.create_container(
             image=containerId, hostname=domain,
-            volumes=volumes,
-            ports=[22, 80],
+            #volumes=volumes,
+            #ports=[22, 80],
             host_config=host_config,
         )
         self.start( container )
