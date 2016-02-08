@@ -123,7 +123,7 @@ class DirCreate:
                 pass
 
     def run(self, cmd, *args):
-        subprocess.run(cmd, shell=True, check=True, cwd=self.path, *args)
+        subprocess.check_call(cmd, shell=True, cwd=self.path, *args)
 
 class TemplateDir:
     def __init__(self, path, cfg):
