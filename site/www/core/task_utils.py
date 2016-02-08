@@ -6,15 +6,15 @@ import re, random
 from jinja2 import Template
 
 class CfgGen:
-    def __init__(self, cfgFile,path='/srv/*/*/.hostcfg', override=False):
+    def __init__(self, cfgFile, path=None, override=False):
         self.path = path
         self.cfgFile = cfgFile
         self.usedValues = {}
         self.currentValues = {}
         self.override = override
-        for f in glob.glob(path):
-            self.readFile(f, self.addUsedValue)
-        print('Used values:', self.usedValues)
+        if path :
+            for f in glob.glob(path):
+                self.readFile(f, self.addUsedValue)
         def updateCV(k,v):
             self.currentValues[k]=v
         if os.path.exists(cfgFile):
@@ -64,6 +64,11 @@ class CfgGen:
             for k,v in self.currentValues.items():
                 cfgFile.write("{}={}\n".format(k,shlex.quote(v)))
 
+def getDomainDir(user, domain):
+    d = DirCreate('/srv')
+    d.pushd( user )
+    d.pushd( domain )
+    return d
 
 class DirCreate:
     def __init__(self, path):

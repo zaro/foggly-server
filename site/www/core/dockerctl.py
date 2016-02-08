@@ -1,13 +1,14 @@
 from django.conf import settings
 from docker import Client
+from core.task_utils import getDomainDir
+
 
 from core.task_utils import CfgGen
 
 import os, tarfile, io
 
 class DockerCtl(Client):
-    def __init__(self, srvDir='/srv/'):
-        self.srvDir = srvDir
+    def __init__(self):
         super().__init__(base_url=settings.DOCKER_BASE_URL)
 
     def getFileUNFINISHED(self, containerId):
@@ -27,8 +28,8 @@ class DockerCtl(Client):
         u,g,_ = response.split(b'\n')
         return (int(u), int(g))
 
-    def run_container(username, domain, containerId, **options):
-        dataDir = os.path.join(srvDir, username, domain)
+    def runContainer(self, username, domain, containerId, **options):
+        dataDir = getDomainDir(username, domain).path
         if containerId.find(':') < 0:
             containerId += ':latest'
         if not os.path.exists( dataDir ):
@@ -40,7 +41,7 @@ class DockerCtl(Client):
         except:
             raise Exception('Invalid port configuration for domain')
         volumes=[dataDir, '/var/lib/mysql/'],
-        host_config=cli.create_host_config(
+        host_config=self.create_host_config(
             binds={
                 '/srv/home' : {
                     'bind': dataDir,
@@ -63,6 +64,4 @@ class DockerCtl(Client):
             ports=[22, 80],
             host_config=host_config,
         )
-
-if __name__ == '__main__':
-    DockerCtl().getWwwDataUser('zaro/php7')
+        self.start( container )

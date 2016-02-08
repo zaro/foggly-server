@@ -1,5 +1,6 @@
 from celery import shared_task
 from core.task_utils import *
+from core.dockerctl import DockerCtl
 
 import os
 from pwd import getpwnam
@@ -13,13 +14,11 @@ def createDomainDir(cfg):
     nginxUID = 33
     nginxGID = 33
 
-    d = DirCreate('/srv/')
     if 'user' not in cfg:
         return {'error': 'Missing user'}
-    d.pushd( cfg['user'] )
     if 'domain' not in cfg:
         return {'error': 'Missing domain'}
-    d.pushd( cfg['domain'] )
+    d = getDomainDir(cfg['user'] ,  cfg['domain'])
     d.mkdir()
     d.mkdir('tmp', mode=0o777)
     d.mkdir('tmp/rsyslog')
@@ -49,6 +48,7 @@ def createDomainDir(cfg):
     d.popd()
 
     hostCfg = CfgGen(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
+    hostCfg.set('USE_CONTAINER', 'zaro/php7')
     hostCfg.set('DOMAIN', cfg['domain'])
     hostCfg.set('DOMAIN_ID', cfg['domain'].translate(str.maketrans(".-","__")))
     hostCfg.genUniqInt('SSH_PORT', 12300, 12399)
@@ -68,3 +68,9 @@ def createDomainDir(cfg):
     td = TemplateDir(os.path.join(THIS_FILE_DIR,'../../../etc_template/'), hostCfg.asDict())
     td.copyTo(d.path)
     return {'success': True}
+
+@shared_task
+def startDomain(cfg):
+    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+    hostCfg = CfgGen(d.filename('.hostcfg'))
+    DockerCtl().runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
