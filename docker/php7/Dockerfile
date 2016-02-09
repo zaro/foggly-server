@@ -31,7 +31,7 @@ COPY deploy_container /usr/local/deploy_container.d/10-php7
 COPY supervisord-php7.conf /etc/supervisor/conf.d/supervisord-php7.conf
 COPY deploy_hook /usr/local/deploy_hook
 
-ENV WWW_ROOT=$ROOT_DIR/www
+ENV WWW_ROOT=$ROOT_DIR/www/ WWW_ROOT_SUBDIR=""
 
 EXPOSE 80
 CMD ["/usr/bin/supervisord"]
