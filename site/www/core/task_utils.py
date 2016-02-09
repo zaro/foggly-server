@@ -133,6 +133,11 @@ class DirCreate:
                 os.unlink( os.path.join( self.path, path ) )
             except FileNotFoundError:
                 pass
+    def chmod(self, *paths, mode):
+        if len(paths) == 0:
+            return os.chmod( self.path, mode )
+        for path in paths:
+            os.chmod( os.path.join( self.path, path ), mode  )
 
     def mv(self, fromFile, toFile):
         os.rename( os.path.join( self.path, fromFile ), os.path.join( self.path, toFile ) )
