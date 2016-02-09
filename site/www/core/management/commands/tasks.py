@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 import core.tasks as tasks
+import tempfile, os, re
 
 class Command(BaseCommand):
     help = 'Invoke a Celery task'
@@ -18,5 +19,23 @@ class Command(BaseCommand):
         if not task:
             print('Invalid task')
             return
+        if options['task'].endswith('PublicKey'):
+            tfd, path = tempfile.mkstemp()
+            os.write(tfd, b'# paste public key below\n')
+            os.close(tfd)
+            os.system('nano {}'.format(path))
+            with open(path, 'r') as f:
+                lines = f.readlines()
+                line = None
+                for l in lines:
+                    if re.match('\s*#', l) or re.match('\s*$',l):
+                        continue
+                    line = l.strip()
+                    break
+            os.unlink(path)
+            if not line:
+                print('You must specify public key to add')
+                return
+            options['publicKey']=line
         result = task.delay(options)
         print(result.get())

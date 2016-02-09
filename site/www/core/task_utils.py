@@ -177,3 +177,32 @@ class TemplateDir:
     def copyTo(self, destination):
         self.destination = DirCreate(destination)
         self.walk(self.copyDirs, self.copyFiles)
+
+class AuthorizedKeysFile:
+    def __init__(self, domainDir):
+        self.domainDir = domainDir
+        self.readFile()
+
+    def readFile(self):
+        try:
+            with open(self.domainDir.filename('.ssh/authorized_keys'), 'r') as f:
+                self.lines = [ l.strip() for l in f.readlines()]
+        except FileNotFoundError:
+            self.lines = []
+
+    def writeFile(self):
+            with open(self.domainDir.filename('.ssh/authorized_keys'), 'w') as f:
+                f.writelines([l+'\n' for l in self.lines])
+
+    def addKey(self, key):
+        key = key.strip()
+        if key not in self.lines:
+            self.lines.append( key )
+
+    def removeKey(self, key):
+        key = key.strip()
+        while True:
+            try:
+                self.lines.remove(key)
+            except ValueError:
+                break

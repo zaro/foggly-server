@@ -121,3 +121,19 @@ def stopDomain(cfg):
         d.mv('site.conf', 'site.conf.disabled')
     d.run('systemctl reload nginx')
     return {'success': True}
+
+@shared_task
+def addPublicKey(cfg):
+    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+    kf = AuthorizedKeysFile(d)
+    kf.addKey(cfg['publicKey'])
+    kf.writeFile()
+    return {'success': True}
+
+@shared_task
+def removePublicKey(cfg):
+    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+    kf = AuthorizedKeysFile(d)
+    kf.removeKey(cfg['publicKey'])
+    kf.writeFile()
+    return {'success': True}
