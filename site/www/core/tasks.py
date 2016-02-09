@@ -80,6 +80,7 @@ def startDomain(cfg):
     # start container
     dctl = DockerCtl()
     status  = dctl.getContainerStatus(cfg['user'], cfg['domain'])
+    print('Current status :', status)
     if status != None:
         # stop/rm container
         if status == 'up':

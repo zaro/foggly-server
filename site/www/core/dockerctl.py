@@ -29,7 +29,7 @@ class DockerCtl(Client):
         return (int(u), int(g))
 
     def getContainerStatus(self, username, domain, **options):
-        containers = self.containers()
+        containers = self.containers(all=True)
         name = '/' + domain
         for container in containers:
             if name in container['Names']:
