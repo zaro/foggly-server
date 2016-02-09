@@ -27,7 +27,7 @@ COPY default_site.conf /etc/apache2/sites-available/000-default.conf
 RUN sed -i 's,;upload_tmp_dir =,upload_tmp_dir =/srv/home/tmp,;s,upload_max_filesize = 2M,upload_max_filesize = 1024M,;s,post_max_size = 8M,post_max_size = 0,' /etc/php/7.0/apache2/php.ini && \
     rm /etc/apache2/sites-available/default-ssl.conf
 
-COPY setup_container /usr/local/setup_container.d/php7
+COPY setup_container /usr/local/setup_container.d/10-php7
 COPY supervisord-php7.conf /etc/supervisor/conf.d/supervisord-php7.conf
 COPY deploy_hook /usr/local/deploy_hook
 

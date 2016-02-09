@@ -25,12 +25,11 @@ RUN apt-get clean && \
     mkdir -p /var/run/sshd && \
     mkdir -p /usr/local/setup_container.d && \
     printf '#!/bin/bash\n\nrun-parts /usr/local/setup_container.d' > /usr/local/setup_container && \
-    chmod +x /usr/local/setup_container && \
-    printf '\n$SystemLogSocketName /tmp/log' >> /etc/rsyslog.conf
+    chmod +x /usr/local/setup_container
 
-COPY rsyslog.conf /etc/rsyslog.conf 
+COPY rsyslog.conf /etc/rsyslog.conf
 
-COPY setup_container /usr/local/setup_container.d/postfix
+COPY setup_container /usr/local/setup_container.d/00_postfix
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY supervisord-base.conf /etc/supervisor/conf.d/supervisord-base.conf
 
