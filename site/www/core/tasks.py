@@ -19,7 +19,7 @@ def createDomainDir(cfg):
     if 'domain' not in cfg:
         return {'error': 'Missing domain'}
     d = getDomainDir(cfg['user'] ,  cfg['domain'])
-    d.mkdir()
+    d.mkdir(uid=nginxUID, gid=nginxGID)
     d.mkdir('tmp', mode=0o777)
     d.mkdir('tmp/rsyslog')
 
