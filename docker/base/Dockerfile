@@ -25,7 +25,9 @@ RUN apt-get clean && \
     mkdir -p /var/run/sshd && \
     mkdir -p /usr/local/setup_container.d && \
     printf '#!/bin/bash\n\nrun-parts /usr/local/setup_container.d' > /usr/local/setup_container && \
+    printf '#!/bin/bash\n\nrun-parts /usr/local/deploy_container.d' > /usr/local/deploy_container && \
     chmod +x /usr/local/setup_container && \
+    chmod +x /usr/local/deploy_container && \
     ln -s /srv/home/www /www && \
     useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user
 
