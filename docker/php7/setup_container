@@ -1,8 +1,5 @@
 #!/bin/sh
 
 pushd /srv/home/www
-if [ -r composer.json ]; then
-  composer install
-  composer update
-fi
+/usr/local/deploy_hook
 popd

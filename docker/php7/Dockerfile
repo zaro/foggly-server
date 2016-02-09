@@ -28,7 +28,7 @@ RUN sed -i 's,;upload_tmp_dir =,upload_tmp_dir =/srv/home/tmp,;s,upload_max_file
     rm /etc/apache2/sites-available/default-ssl.conf
 
 COPY setup_container /usr/local/setup_container.d/php7
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord-php7.conf
+COPY supervisord-php7.conf /etc/supervisor/conf.d/supervisord-php7.conf
 COPY deploy_hook /usr/local/deploy_hook
 
 ENV WWW_ROOT=$ROOT_DIR/www
