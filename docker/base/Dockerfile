@@ -26,6 +26,7 @@ RUN apt-get clean && \
     mkdir -p /usr/local/setup_container.d && \
     printf '#!/bin/bash\n\nrun-parts /usr/local/setup_container.d' > /usr/local/setup_container && \
     chmod +x /usr/local/setup_container && \
+    ln -s /srv/home/www /www && \
     useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user
 
 COPY rsyslog.conf /etc/rsyslog.conf
