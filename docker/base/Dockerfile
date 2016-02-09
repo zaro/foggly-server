@@ -22,6 +22,7 @@ RUN apt-get clean && \
       /usr/share/linda/*  && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/log/*.log && \
+    mkdir -p /var/run/sshd && \
     ln -s /srv/home/www /www && \
     useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user
 
