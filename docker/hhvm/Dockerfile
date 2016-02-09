@@ -1,17 +1,13 @@
-FROM ubuntu:wily
+FROM zaro/base:latest
 
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449
 RUN echo deb http://dl.hhvm.com/ubuntu wily main | tee /etc/apt/sources.list.d/hhvm.list
-COPY dpkg_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
 
-RUN echo "postfix postfix/mailname string example.com" | debconf-set-selections
-RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
 RUN apt-get clean && \
     apt-get update && \
-    apt-get install -y hhvm psmisc supervisor postfix && \
-    apt-get install -y --no-install-recommends git openssh-server rsyslog && \
+    apt-get install -y hhvm  && \
     apt-get clean && \
     rm -rf /usr/share/locale/* \
       /usr/share/doc/* \
@@ -32,7 +28,7 @@ ENV WWW_ROOT=$ROOT_DIR/www \
     WWW_RUN_DIR=$ROOT_DIR/run \
     WWW_CFG_DIR=$ROOT_DIR/cfg \
     PHP_INI=/etc/hhvm/php.ini \
-    NGINX_USER=nginx \
+    NGINX_USER=www-data \
     NGINX_UID=996 \
     NGINX_GID=995
 
