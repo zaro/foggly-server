@@ -22,18 +22,13 @@ RUN apt-get clean && \
       /usr/share/linda/*  && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/log/*.log && \
-    mkdir -p /var/run/sshd && \
-    mkdir -p /usr/local/setup_container.d && \
-    printf '#!/bin/bash\n\nrun-parts /usr/local/setup_container.d' > /usr/local/setup_container && \
-    printf '#!/bin/bash\n\nrun-parts /usr/local/deploy_container.d' > /usr/local/deploy_container && \
-    chmod +x /usr/local/setup_container && \
-    chmod +x /usr/local/deploy_container && \
     ln -s /srv/home/www /www && \
     useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user
 
 COPY rsyslog.conf /etc/rsyslog.conf
 
-COPY setup_container /usr/local/setup_container.d/00_postfix
+COPY setup_container deploy_container /usr/local/
+COPY setup_container_base /usr/local/setup_container.d/00_postfix
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY supervisord-base.conf /etc/supervisor/conf.d/supervisord-base.conf
 

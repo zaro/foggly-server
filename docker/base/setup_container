@@ -1,6 +1,5 @@
 #!/bin/sh
 
-echo "*** BEGIN Postmap "
-postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/vmailbox
-postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/virtual
-echo "*** END Postmap"
+echo "=== Begin setup contaier `date -Iseconds` ==="
+run-parts /usr/local/setup_container.d
+echo "=== End setup contaier `date -Iseconds` ==="
