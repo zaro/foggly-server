@@ -76,8 +76,7 @@ class DockerCtl(Client):
             image=containerId,
             hostname=domain,
             name=domain,
-            #volumes=volumes,
-            #ports=[22, 80],
             host_config=host_config,
+            environment=cfg.asDict(),
         )
         self.start( container )

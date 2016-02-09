@@ -22,6 +22,9 @@ class DomainConfig:
             self.readFile(cfgFile, updateCV)
             self.existing = True
 
+    def asDict(self):
+        return self.currentValues
+
     def exists(self):
         return self.existing != None
 
