@@ -133,9 +133,9 @@ class DirCreate:
                 os.unlink( os.path.join( self.path, path ) )
             except FileNotFoundError:
                 pass
-    def chmod(self, *paths, mode):
+    def chmod(self, mode, *paths):
         if len(paths) == 0:
-            return os.chmod( self.path, mode )
+            os.chmod( self.path, mode )
         for path in paths:
             os.chmod( os.path.join( self.path, path ), mode  )
 

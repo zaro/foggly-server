@@ -33,11 +33,11 @@ def createDomainDir(cfg):
     d.mkdir([], nginxUID, nginxGID)
     if not d.exists('.git'):
         d.run("git init .")
-        d.run("git config receive.denyCurrentBranch updateInstead")
-        with open(d.filename('.git/hooks/post-receive'), 'w') as f:
-            f.write('!#/bin/bash\n\n[ -x /usr/local/deploy_hook ] && exec /usr/local/deploy_hook\n')
-        d.chmod('.git/hooks/post-receive', 0o755)
-        d.run("chown -R www-data.www-data .git")
+    d.run("git config receive.denyCurrentBranch updateInstead")
+    with open(d.filename('.git/hooks/post-receive'), 'w') as f:
+        f.write('!#/bin/bash\n\n[ -x /usr/local/deploy_hook ] && exec /usr/local/deploy_hook\n')
+    d.chmod(0o755,'.git/hooks/post-receive')
+    d.run("chown -R {}.{} .git".format(nginxUID, nginxGID))
     d.popd()
 
     d.mkdir('run', nginxUID, nginxGID)
