@@ -1,5 +1,4 @@
 #!/bin/sh
 
-pushd /srv/home/www
-/usr/local/deploy_hook
-popd
+cd /srv/home/www
+exec /usr/local/deploy_hook
