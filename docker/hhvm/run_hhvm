@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# NGINX_USER
+# NGINX_UID
+# NGINX_GID
+
+mkdir -p "${WWW_RUN_DIR}"
+rm -f $WWW_RUN_DIR/hhvm_socket
+
+exec /usr/bin/hhvm --mode server --user ${NGINX_USER} -c "$PHP_INI" -vServer.Type=fastcgi -vServer.Port=9000 "-vServer.FileSocket=$WWW_RUN_DIR/hhvm_socket"
+
+#sleep 10000

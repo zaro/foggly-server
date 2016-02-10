@@ -124,3 +124,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+
+CELERY_TASK_SERIALIZER='json'
+CELERY_RESULT_SERIALIZER='json'
+CELERY_ACCEPT_CONTENT=['json']
+
+
+DOCKER_BASE_URL='tcp://127.0.0.1:2375'

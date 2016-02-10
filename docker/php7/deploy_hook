@@ -1,0 +1,14 @@
+#!/bin/bash
+
+[ "$GIT_DIR" ] &&  cd ..
+
+echo '*** BEGIN composer install in '`pwd`
+if /usr/local/bin/composer --no-check-publish  -n -q validate; then
+        /usr/local/bin/composer install
+        /usr/local/bin/composer update
+else
+        echo Invalid composer.json
+        /usr/local/bin/composer validate
+fi
+echo '*** END composer install'
+exit 0

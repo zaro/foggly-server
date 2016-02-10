@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "=== Begin deploy contaier `date -Iseconds` ==="
+run-parts /usr/local/deploy_container.d
+echo "=== End deploy contaier `date -Iseconds` ==="
