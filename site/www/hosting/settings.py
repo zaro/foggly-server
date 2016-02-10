@@ -27,11 +27,30 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Bower
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
+)
+
+BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'components')
+
+BOWER_INSTALLED_APPS = (
+    'lodash',
+    'bootstrap-material-design',
+    'html5shiv',
+    'respond',
+    'bootstrap3-ie10-viewport-bug-workaround',
+)
 
 # Application definition
 
 INSTALLED_APPS = (
-    # 'bootstrap_admin',
+    # 'dockerapp.apps.DockerAppConfig',
+    'grappelli',
+    'djangobower',
+    # 'material',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,7 +77,9 @@ ROOT_URLCONF = 'hosting.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -101,5 +122,5 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'

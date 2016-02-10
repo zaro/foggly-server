@@ -11,4 +11,4 @@ class DomainAdmin(DjangoObjectActions, admin.ModelAdmin):
     objectactions = ('create_domain',)
 
 # Register your models here.
-admin.site.register(models.Domain, DomainAdmin)
+admin.site.register(models.DomainModel, DomainAdmin)

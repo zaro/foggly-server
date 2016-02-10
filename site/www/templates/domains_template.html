@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header"></div>
+<div class="container">
+    <div class="row">
+        <h2 class="form-signin-heading">&nbsp;</h2>
+        <ol class="breadcrumb">
+          <li><a href="#">Dashboard</a></li>
+          <li>Domains</li>
+        </ol>
+        <div class="bs-component">
+            <a class="pull-right btn btn-raised btn-primary btn-xs" title="Add new domain" href="{% url 'domain_add' %}">add</a>
+        </div>
+    </div>
+    <div class="row well">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>domain</th>
+                    <th>application</th>
+                    <th>created at</th>
+                    <th>status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>foggly.net</td>
+                    <td>mysql/php7</td>
+                    <td>03.06.2015</td>
+                    <td>running</td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>fasttrack.org</td>
+                    <td>postgresql/django</td>
+                    <td>02.07.2015</td>
+                    <td>stopped</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <nav>
+            <ul class="pagination pull-right">
+                <li>
+                    <a href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li>
+                    <a href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div> <!-- /container -->
+{% endblock %}
