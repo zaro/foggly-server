@@ -34,5 +34,5 @@ COPY deploy_hook /usr/local/deploy_hook
 
 ENV WWW_ROOT=$ROOT_DIR/www/ WWW_ROOT_SUBDIR=""
 
-EXPOSE 80
+EXPOSE 3000
 CMD ["/usr/bin/supervisord"]
