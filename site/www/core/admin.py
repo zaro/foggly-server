@@ -12,3 +12,4 @@ class DomainAdmin(DjangoObjectActions, admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(models.DomainModel, DomainAdmin)
+admin.site.register(models.DockerContainer)

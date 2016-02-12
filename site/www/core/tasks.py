@@ -1,10 +1,17 @@
 from celery import shared_task
 from core.task_utils import *
 from core.dockerctl import DockerCtl
+from django.db.models import Q
+from core.models import SharedDatabase
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 
+import logging
 import os
 from pwd import getpwnam
 from grp import getgrnam
+
+import MySQLdb
 
 THIS_FILE_DIR=os.path.dirname(os.path.abspath(__file__))
 
@@ -37,7 +44,7 @@ def createDomainDir(cfg):
     with open(d.filename('.git/hooks/post-receive'), 'w') as f:
         f.write('!#/bin/bash\n\n[ -x /usr/local/deploy_hook ] && exec /usr/local/deploy_hook\n')
     d.chmod(0o755,'.git/hooks/post-receive')
-    d.run("chown -R {}.{} .git".format(nginxUID, nginxGID))
+    d.run("chown -R {}:{} .git".format(nginxUID, nginxGID))
     d.popd()
 
     d.mkdir('run', nginxUID, nginxGID)
@@ -78,7 +85,7 @@ def startDomain(cfg):
     d = getDomainDir(cfg['user'] ,  cfg['domain'])
     hostCfg = DomainConfig(d.filename('.hostcfg'))
     if not d.exists() or not hostCfg.exists():
-        return {'error': 'Invalid user/domain'}
+        return {'error': 'Invalid user/domain', 'r':cfg}
     # start container
     dctl = DockerCtl()
     status  = dctl.getContainerStatus(cfg['user'], cfg['domain'])
@@ -123,6 +130,91 @@ def stopDomain(cfg):
         d.mv('site.conf', 'site.conf.disabled')
     d.run('systemctl reload nginx')
     return {'success': True}
+
+@shared_task
+def addMysqlDatabase(cfg):
+    logging.info('addMysqlDatabase({})'.format(cfg))
+    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+    if not cfg.get('mysql_user'):
+        return {'error': 'Missing MySQL user'}
+    if not cfg.get('mysql_password'):
+        return {'error': 'Missing MySQL password'}
+    if not cfg.get('mysql_db'):
+        return {'error': 'Missing MySQL database name'}
+
+    try:
+        user = User.objects.get(username=cfg['user'])
+        print(user)
+    except ObjectDoesNotExist:
+        return {'error':'Invalid username'}
+
+    # Permission check,  don't allow adding user/database if they are already taken by another user
+    for dbentry in SharedDatabase.objects.filter(Q(db_name=cfg['mysql_db']) | Q(db_user=cfg['mysql_user']), db_type="mysql"):
+        if dbentry.user.username != cfg['user']:
+            if dbentry.db_name == cfg['mysql_db']:
+                return {'error': "Database '{}' already exists!".format(cfg['mysql_db']) }
+            if dbentry.db_user == cfg['db_user']:
+                return {'error': "Username '{}' already taken!".format(cfg['mysql_db']) }
+
+    queryList = [ s.format(**cfg) for s in [
+        "CREATE DATABASE IF NOT EXISTS `{mysql_db}`;",
+        "GRANT ALL PRIVILEGES ON `{mysql_db}`.* TO '{mysql_user}'@'localhost' IDENTIFIED BY '{mysql_password}';"
+    ]]
+    db=MySQLdb.connect(user="root")
+    cur = db.cursor()
+    res = []
+    for q in queryList:
+        print("EXEC:", q)
+        cur.execute(q)
+        res += cur.fetchall()
+    dbentry, created = SharedDatabase.objects.get_or_create(
+        user=user,
+        db_user=cfg['mysql_user'],
+        db_pass=cfg['mysql_password'],
+        db_name=cfg['mysql_db'],
+        db_type="mysql"
+        )
+    dbentry.save()
+    return {'success': True, 'result': res }
+
+@shared_task
+def removeMysqlDatabase(cfg):
+    logging.info('addMysqlDatabase({})'.format(cfg))
+    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+    if not cfg.get('mysql_user'):
+        return {'error': 'Missing MySQL user'}
+    if not cfg.get('mysql_db'):
+        return {'error': 'Missing MySQL database name'}
+
+    try:
+        user = User.objects.get(username=cfg['user'])
+        print(user)
+    except ObjectDoesNotExist:
+        return {'error':'Invalid username'}
+
+    dbentry = None
+    # Permission check,  don't allow deleteuser/database if they are already taken by another user
+    for dbentry in  SharedDatabase.objects.filter(db_name=cfg['mysql_db'], db_user=cfg['mysql_user'], db_type="mysql"):
+        if dbentry.user.username != cfg['user']:
+            return {'error': "'{}'' is not owner of Database '{}' already exists!".format(cfg['user'], cfg['mysql_db']) }
+        break
+
+    if not dbentry:
+        return {'error': "No such user/database '{}'/'{}' !".format(cfg['user'], cfg['mysql_db']) }
+
+    queryList = [ s.format(**cfg) for s in [
+        "DROP DATABASE IF EXISTS `{mysql_db}`;",
+        "REVOKE ALL PRIVILEGES ON `{mysql_db}`.* FROM '{mysql_user}'@'localhost';"
+    ]]
+    db=MySQLdb.connect(user="root")
+    cur = db.cursor()
+    res = []
+    for q in queryList:
+        print("EXEC:", q)
+        cur.execute(q)
+        res += cur.fetchall()
+    dbentry.delete()
+    return {'success': True, 'result': res }
 
 @shared_task
 def addPublicKey(cfg):

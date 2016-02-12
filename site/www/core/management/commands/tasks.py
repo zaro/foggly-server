@@ -9,6 +9,9 @@ class Command(BaseCommand):
         parser.add_argument('task', nargs=1, type=str)
         parser.add_argument('user', nargs=1, type=str)
         parser.add_argument('domain', nargs=1, type=str)
+        parser.add_argument('--mysql_user', type=str)
+        parser.add_argument('--mysql_password', type=str)
+        parser.add_argument('--mysql_db', type=str)
 
     def handle(self, *args, **options):
         for k in options.keys():
