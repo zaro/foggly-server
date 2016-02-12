@@ -3,3 +3,4 @@ env
 components/
 *.DS_Store
 __pycache__
+db.sqlite3
