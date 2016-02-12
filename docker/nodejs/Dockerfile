@@ -31,7 +31,7 @@ COPY supervisord-nodejs.conf /etc/supervisor/conf.d/supervisord-php7.conf
 COPY deploy_hook /usr/local/deploy_hook
 COPY start_app /usr/local/start_app
 
-ENV WWW_ROOT=$ROOT_DIR/www/ WWW_PORT=3000
+ENV WWW_ROOT=$ROOT_DIR/www/ HTTP_PORT=3000
 
 EXPOSE 3000
 CMD ["/usr/bin/supervisord"]
