@@ -41,7 +41,7 @@ class DockerContainer(models.Model):
 class DomainModel(TimeStampedModel):
     user = models.ForeignKey(User, related_name='+')
     domain_name = models.CharField(max_length=200)
-    app_type = models.OneToOneField(
+    app_type = models.ForeignKey(
         DockerContainer,
         on_delete=models.SET_NULL,
         blank=True,

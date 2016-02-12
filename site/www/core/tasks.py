@@ -2,7 +2,7 @@ from celery import shared_task
 from core.task_utils import *
 from core.dockerctl import DockerCtl
 from django.db.models import Q
-from core.models import SharedDatabase
+from core.models import SharedDatabase, DomainModel, DockerContainer
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -16,15 +16,31 @@ import MySQLdb
 THIS_FILE_DIR=os.path.dirname(os.path.abspath(__file__))
 
 @shared_task
-def createDomainDir(cfg):
-    # hardcode www-data user for now
-    nginxUID = 33
-    nginxGID = 33
-
+def createDomain(cfg):
     if 'user' not in cfg:
         return {'error': 'Missing user'}
     if 'domain' not in cfg:
         return {'error': 'Missing domain'}
+
+    try:
+        user = User.objects.get(username=cfg['user'])
+    except ObjectDoesNotExist:
+        return {'error':'Invalid username'}
+
+    try:
+        app_type = DockerContainer.objects.get(container_id=cfg.get('app_type', 'zaro/php7'))
+    except ObjectDoesNotExist:
+        return {'error':'Invalid app_type'}
+
+    # Permission check,  don't allow adding user/database if they are already taken by another user
+    for dbentry in DomainModel.objects.filter(domain_name=cfg['domain']):
+        if dbentry.user.username != cfg['user']:
+            return {'error': "Domain '{}' already exists!".format(cfg['domain']) }
+
+    # hardcode www-data user for now
+    nginxUID = 33
+    nginxGID = 33
+
     d = getDomainDir(cfg['user'] ,  cfg['domain'])
     d.mkdir(uid=nginxUID, gid=nginxGID)
     d.mkdir('tmp', mode=0o777)
@@ -78,6 +94,14 @@ def createDomainDir(cfg):
 
     td = TemplateDir(os.path.join(THIS_FILE_DIR,'../../../etc_template/'), hostCfg.asDict())
     td.copyTo(d.path)
+
+    dbentry, created = DomainModel.objects.get_or_create(
+        user=user,
+        domain_name=cfg['domain'],
+        app_type=app_type,
+        )
+    dbentry.save()
+
     return {'success': True}
 
 @shared_task
@@ -144,7 +168,6 @@ def addMysqlDatabase(cfg):
 
     try:
         user = User.objects.get(username=cfg['user'])
-        print(user)
     except ObjectDoesNotExist:
         return {'error':'Invalid username'}
 
