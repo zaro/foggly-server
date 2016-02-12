@@ -77,7 +77,7 @@ class DockerCtl(Client):
             },
             port_bindings={
                 22: SSH_PORT,
-                80: WWW_PORT
+                3000: WWW_PORT
             },
             mem_limit=(options.get('mem_limit') or '128m'),
         )

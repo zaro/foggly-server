@@ -12,6 +12,7 @@ RUN apt-get clean && \
     a2enmod rewrite && \
     (cd /usr/local/bin; curl -sS https://getcomposer.org/installer | php; ln -s composer.phar composer) && \
     sed -i 's,mysqli\?\.default_socket *=,\0/var/lib/mysql/mysql.sock,;' /etc/php/7.0/apache2/php.ini /etc/php/7.0/cli/php.ini && \
+    sed -i 's,Listen *80,Listen 3000,'/etc/apache2/ports.conf && \
     rm -rf /usr/share/locale/* \
       /usr/share/doc/* \
       /usr/share/man/* \

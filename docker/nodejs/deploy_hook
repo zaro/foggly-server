@@ -1,0 +1,9 @@
+#!/bin/bash
+
+[ "$GIT_DIR" ] &&  cd ..
+
+echo '*** BEGIN npm install in '`pwd`
+/usr/local/bin/npm install
+echo '*** END npm install'
+/usr/bin/supervisorctl restart webserver
+exit 0
