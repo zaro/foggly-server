@@ -28,7 +28,7 @@ def createDomain(cfg):
         return {'error':'Invalid username'}
 
     try:
-        app_type = DockerContainer.objects.get(container_id=cfg.get('app_type', 'zaro/php7'))
+        app_type = DockerContainer.objects.get(container_id=(cfg.get('app_type', 'zaro/php7')))
     except ObjectDoesNotExist:
         return {'error':'Invalid app_type'}
 
@@ -98,8 +98,8 @@ def createDomain(cfg):
     dbentry, created = DomainModel.objects.get_or_create(
         user=user,
         domain_name=cfg['domain'],
-        app_type=app_type,
         )
+    dbentry.app_type = app_type
     dbentry.save()
 
     return {'success': True}
