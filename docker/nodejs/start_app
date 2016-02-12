@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cd /srv/home/www
+
+CMD=$(node -e 'fs=require("fs"); a = JSON.parse(fs.readFileSync("package.json")); console.log(a.scripts ? a.scripts.start: undefined)' )
+if [ "$CMD" = "undefined" ]; then
+  for f in index.js app.js run.js; do
+    if [ -f "$f" ]; then
+      CMD="node $f"
+      break
+    fi
+  done
+fi
+
+if [ "$CMD" = "undefined" ]; then
+echo "Cannot find app to start."
+exit 1
+fi
+
+exec $CMD
