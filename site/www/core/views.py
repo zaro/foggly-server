@@ -1,21 +1,21 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.views.generic import View
-from django.contrib.auth import authenticate, login
-from core.forms import DomainForm
-
+from django.conf import settings
+from django.contrib.auth import authenticate, login, logout
+from core.forms import DomainForm, LoginForm
 
 class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
-        view = super(LoginRequiredMixin).as_view(**initkwargs)
+        view = super().as_view(**initkwargs)
         return login_required(view)
 
 class PermissionsRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
-        view = super(PermissionsRequiredMixin).as_view(**initkwargs)
+        view = super().as_view(**initkwargs)
         return permission_required(view)
 
 # Create your views here.
@@ -27,21 +27,41 @@ class HomeView(View):
 
 class LoginView(View):
     template_name = 'login_template.html'
-    form_class = None
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {})
+        # if request.user.is_authenticated:
+            # return redirect(settings.LOGIN_REDIRECT_URL)
+
+        return render(request, self.template_name, {"form": LoginForm()})
 
     def post(self, request, *args, **kwargs):
-        pass
+        form = LoginForm(request.POST)
 
-class PanelView(View):
+        if not form.is_valid():
+            return redirect(settings.LOGIN_URL)
+
+        user = authenticate(
+            username=form.cleaned_data.get('username'),
+            password=form.cleaned_data.get('password'))
+
+        if user is not None and user.is_active:
+            login(request, user)
+            return redirect(settings.LOGIN_REDIRECT_URL)
+
+        return redirect(settings.LOGIN_URL)
+
+class LogoutView(LoginRequiredMixin, View):
+    def get(self, request):
+        logout(request)
+        return redirect(settings.LOGIN_URL)
+
+class DomainView(LoginRequiredMixin, View):
     template_name = 'domains_template.html'
 
     def get(self, request):
         return render(request, self.template_name, {})
 
-class DomainAddView(View):
+class DomainAddView(LoginRequiredMixin, View):
     template_name = 'domain_add_template.html'
 
     def get(self, request):
@@ -49,3 +69,9 @@ class DomainAddView(View):
 
     def post(self, request, *args, **kwargs):
         pass
+
+class SettingsView(LoginRequiredMixin, View):
+    template_name = 'settings_template.html'
+
+    def get(self, request):
+        return render(request, self.template_name, {})

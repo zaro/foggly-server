@@ -47,7 +47,9 @@
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Products <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                  Products <span class="caret"></span>
+             </a>
               <ul class="dropdown-menu">
                 <li><a href="#">Hosting</a></li>
                 <li><a href="#">Software</a></li>
@@ -60,8 +62,22 @@
             </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="/login/">Sign In</a></li>
+            {% if user.is_authenticated %}
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                  Welcome: <b>{{user.username}}</b> <span class="caret"></span>
+             </a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url 'domains' %}">Domains</a></li>
+                <li><a href="{% url 'settings' %}">Settings</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url 'logout' %}">Sign Out</a></li>
+              </ul>
+            </li>
+            {% else %}
+            <li><a href="{% url 'login' %}">Sign In</a></li>
             <li><a href="#">Register</a></li>
+            {% endif %}
           </ul>
         </div><!--/.nav-collapse -->
       </div>

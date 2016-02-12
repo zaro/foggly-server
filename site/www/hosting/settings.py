@@ -26,6 +26,8 @@ SECRET_KEY = 'p!m^kp0mjmi9gpbi+vka*#4l#o@qi$y@7kdc53iwm)%og8gfim'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/domains/'
 
 # Bower
 STATICFILES_FINDERS = (
