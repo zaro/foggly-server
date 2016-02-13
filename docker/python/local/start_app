@@ -1,0 +1,42 @@
+#!/bin/bash
+
+cd /srv/home/www
+
+. /usr/local/deploy_hook.f
+
+activate_pyvenv
+
+WSGI_FILE="undefined"
+
+if [ -r Procfile ]; then
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+      if [[ $line =~ ^([a-zA-Z0-9]+):(.*)$ ]]; then
+          NAME="${BASH_REMATCH[1]}"
+          CMD="${BASH_REMATCH[2]}"
+          f=""
+          if [ -f "$CMD" ]; then
+            f="$CMD"
+          fi
+          if[[ $CMD =~ ^uwsgi +(\S+)]]; then
+            f="${BASH_REMATCH[1]}"
+          fi
+          WSGI_FILE="$f"
+      fi
+  done < Procfile
+fi
+
+if [ "$WSGI_FILE" = "undefined" ]; then
+  for f in wsgi.py index.py app.py run.py ; do
+    if [ -f "$f" ]; then
+      WSGI_FILE="$f"
+      break
+    fi
+  done
+fi
+
+if [ "$COMMAND" = "undefined" ]; then
+  echo "Cannot find app to start."
+  exit 1
+fi
+
+exec uwsgi --plugin python3,http --processes=5 --socket :9000 --wsgi-file "$WSGI_FILE"

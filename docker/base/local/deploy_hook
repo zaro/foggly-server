@@ -1,0 +1,13 @@
+#!/bin/bash
+
+[ "$GIT_DIR" ] &&  cd ..
+
+. /usr/local/deploy_hook.f
+
+deploy_hook_init
+
+deploy_hook_install
+
+deploy_hook_reload
+
+exit 0

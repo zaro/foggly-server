@@ -26,12 +26,8 @@ RUN apt-get clean && \
     ln -s /srv/home/www /www && \
     useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user
 
-COPY rsyslog.conf /etc/rsyslog.conf
-
-COPY setup_container deploy_container procfile_to_supervisor /usr/local/
-COPY setup_container_base /usr/local/setup_container.d/00_postfix
-COPY supervisord.conf /etc/supervisor/supervisord.conf
-COPY supervisord-base.conf /etc/supervisor/conf.d/supervisord-base.conf
+ADD local/  /usr/local/
+ADD etc/  /etc/
 
 ENV ROOT_DIR=/srv/home
 

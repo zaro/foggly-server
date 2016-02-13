@@ -26,10 +26,8 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
   && tar -xzf "node-v$NODE_VERSION-linux-x64.tar.gz" -C /usr/local --strip-components=1 \
   && rm "node-v$NODE_VERSION-linux-x64.tar.gz" SHASUMS256.txt.asc
 
-COPY deploy_container /usr/local/deploy_container.d/10-php7
-COPY supervisord-nodejs.conf /etc/supervisor/conf.d/supervisord-php7.conf
-COPY deploy_hook /usr/local/deploy_hook
-COPY start_app /usr/local/start_app
+ADD local/  /usr/local/
+ADD etc/  /etc/
 
 ENV WWW_ROOT=$ROOT_DIR/www/ HTTP_PORT=3000
 
