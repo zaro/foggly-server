@@ -50,9 +50,12 @@ BOWER_INSTALLED_APPS = (
 
 INSTALLED_APPS = (
     # 'dockerapp.apps.DockerAppConfig',
-    'grappelli',
+    # 'grappelli',
     'djangobower',
     # 'material',
+    'material',
+    # 'material.frontend',
+    'material.admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
