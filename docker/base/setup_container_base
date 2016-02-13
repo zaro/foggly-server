@@ -1,5 +1,8 @@
 #!/bin/sh
 
+mkdir -p /run/supervisor.d/
+chown www-data:www-data /run/supervisor.d/
+
 echo "*** BEGIN Postmap "
 postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/vmailbox
 postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/virtual

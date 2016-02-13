@@ -9,5 +9,5 @@ echo '*** END npm install'
 . /usr/local/procfile_to_supervisor
 
 /usr/bin/supervisorctl reread
-/usr/bin/supervisorctl restart web
+/usr/bin/supervisorctl update
 exit 0
