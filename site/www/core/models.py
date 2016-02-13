@@ -16,11 +16,10 @@ from core.dockerctl import DockerCtl
 #     (2, "Add SSL Support"),
 # )
 
-APP_TYPES = (
-    ("php7-mysql", "PHP 7 / MySQL"),
-    ("php7-postgre", "PHP 7 / PostgreSQL"),
-    ("flask-mongo", "Flask / Mongo"),
-    ("django-postgre", "Django / PostgreSQL"),
+PROXY_TYPES = (
+    ("http", "HTTP"),
+    ("uWSGI", "uWSGI"),
+    ("FastCGI", "FastCGI"),
 )
 
 DATABASE_TYPES = (
@@ -44,6 +43,7 @@ class TimeStampedModel(models.Model):
 class DockerContainer(models.Model):
     container_id = models.CharField(max_length=100, default="zaro/php7")
     description = models.CharField(max_length=200, default="Apache 2.4 / PHP 7.0")
+    proxy_type = models.CharField(max_length=50, choices=PROXY_TYPES, default="http")
 
 class DomainModel(TimeStampedModel):
     user = models.ForeignKey(User, related_name='+')

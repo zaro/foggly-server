@@ -18,7 +18,7 @@ RUN apt-get update && \
 ADD local/  /usr/local/
 ADD etc/  /etc/
 
-ENV WWW_ROOT=$ROOT_DIR/www/ HTTP_PORT=3000
+ENV WWW_ROOT=$ROOT_DIR/www/
 
-EXPOSE 9000
+EXPOSE 3000
 CMD ["/usr/bin/supervisord"]

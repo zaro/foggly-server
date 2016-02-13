@@ -1,12 +1,12 @@
 from django import forms
-from core.models import APP_TYPES, DATABASE_TYPES
+from core.models import DATABASE_TYPES
 from material import Layout
 
 class DomainForm(forms.Form):
     domain_name = forms.CharField()
     domain_name.widget.attrs['class'] = 'form-control'
 
-    app_type = forms.ChoiceField(choices=APP_TYPES)
+    app_type = forms.CharField()
     app_type.widget.attrs['class'] = 'form-control'
 
     layout = Layout('app_type', 'domain_name')
@@ -40,5 +40,3 @@ class DatabaseForm(forms.Form):
     db_pass = forms.CharField(max_length=100, widget=forms.PasswordInput(), required=True)
     db_pass.widget.attrs['class'] = 'form-control'
     db_pass.widget.attrs['placeholder'] = 'Password'
-
-

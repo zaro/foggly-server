@@ -75,7 +75,8 @@ def createDomain(cfg):
     d.popd()
 
     hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
-    hostCfg.set('USE_CONTAINER', 'zaro/php7')
+    hostCfg.set('USE_CONTAINER', app_type.container_id)
+    hostCfg.set('PROXY_TYPE', app_type.proxy_type)
     hostCfg.set('DOMAIN', cfg['domain'])
     hostCfg.set('DOMAIN_ID', cfg['domain'].translate(str.maketrans(".-","__")))
     hostCfg.genUniqInt('SSH_PORT', 12300, 12399)

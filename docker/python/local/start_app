@@ -17,7 +17,7 @@ if [ -r Procfile ]; then
           if [ -f "$CMD" ]; then
             f="$CMD"
           fi
-          if[[ $CMD =~ ^uwsgi +(\S+)]]; then
+          if [[ $CMD =~ ^uwsgi\s+(\S+) ]]; then
             f="${BASH_REMATCH[1]}"
           fi
           WSGI_FILE="$f"
@@ -39,4 +39,4 @@ if [ "$COMMAND" = "undefined" ]; then
   exit 1
 fi
 
-exec uwsgi --plugin python3,http --processes=5 --socket :9000 --wsgi-file "$WSGI_FILE"
+exec uwsgi --plugin python3,http --processes=5 --socket :3000 --wsgi-file "$WSGI_FILE"
