@@ -28,7 +28,7 @@ RUN apt-get clean && \
 
 COPY rsyslog.conf /etc/rsyslog.conf
 
-COPY setup_container deploy_container /usr/local/
+COPY setup_container deploy_container procfile_to_supervisor /usr/local/
 COPY setup_container_base /usr/local/setup_container.d/00_postfix
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY supervisord-base.conf /etc/supervisor/conf.d/supervisord-base.conf

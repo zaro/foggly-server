@@ -5,5 +5,9 @@
 echo '*** BEGIN npm install in '`pwd`
 /usr/local/bin/npm install
 echo '*** END npm install'
-/usr/bin/supervisorctl restart webserver
+
+. /usr/local/procfile_to_supervisor
+
+/usr/bin/supervisorctl reread
+/usr/bin/supervisorctl restart web
 exit 0

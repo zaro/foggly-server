@@ -104,7 +104,7 @@ class Domains(View):
         except ObjectDoesNotExist:
             return JsonResponse( { 'error': 'Invalid domain id: {}'.format(reqData['domain']) } )
         res = startDomain.delay({'user': user.username, 'domain': domain.domain_name})
-        return JsonResponse( { 'completed': False, 'id': res.id })
+        return JsonResponse({ 'completed': False, 'id': res.id })
 
     @handleExceptions
     def delete(self, request):
@@ -117,4 +117,4 @@ class Domains(View):
         except ObjectDoesNotExist:
             return JsonResponse( { 'error': 'Invalid domain id: {}'.format(reqData['domain']) } )
         res = stopDomain.delay({'user': user.username, 'domain': domain.domain_name})
-        return JsonResponse( { 'completed': False, 'id': res.id })
+        return JsonResponse({ 'completed': False, 'id': res.id })
