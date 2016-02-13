@@ -39,4 +39,4 @@ if [ "$COMMAND" = "undefined" ]; then
   exit 1
 fi
 
-exec uwsgi --plugin python3,http --processes=5 --socket :3000 --wsgi-file "$WSGI_FILE"
+exec uwsgi --plugin python3,http --master --virtualenv /srv/home/pyvenv --processes=5 --socket :3000 --wsgi-file "$WSGI_FILE"
