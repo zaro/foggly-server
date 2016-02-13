@@ -1,22 +1,16 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from core.forms import DomainForm, LoginForm
+from django.core.paginator import Paginator
 
-class LoginRequiredMixin(object):
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super().as_view(**initkwargs)
-        return login_required(view)
-
-class PermissionsRequiredMixin(object):
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super().as_view(**initkwargs)
-        return permission_required(view)
+from core.mixins import LoginRequiredMixin, PermissionsRequiredMixin
+from core.forms import (
+    DomainForm,
+    LoginForm,
+    DatabaseForm,
+)
 
 # Create your views here.
 class HomeView(View):
@@ -70,8 +64,22 @@ class DomainAddView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         pass
 
-class SettingsView(LoginRequiredMixin, View):
-    template_name = 'settings_template.html'
+class DatabaseView(LoginRequiredMixin, View):
+    template_name = 'dbs_template.html'
 
     def get(self, request):
         return render(request, self.template_name, {})
+
+class DatabaseAddView(LoginRequiredMixin, View):
+    template_name = 'dbs_add_template.html'
+
+    def get(self, request):
+        return render(request, self.template_name, {"form": DatabaseForm()})
+
+    def post(self, request, *args, **kwargs):
+        form = DatabaseForm(request.POST)
+
+        if not form.is_valid():
+            return
+
+        

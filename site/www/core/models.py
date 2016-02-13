@@ -23,6 +23,13 @@ APP_TYPES = (
     ("django-postgre", "Django / PostgreSQL"),
 )
 
+DATABASE_TYPES = (
+    ("mysql", "MySQL"),
+    ("postgre", "PostgreSQL"),
+    ("mongo", "Mongo"),
+    ("couchdb", "CouchDB"),
+)
+
 class TimeStampedModel(models.Model):
     """
     An abstract base class model that provides self-
@@ -53,7 +60,7 @@ class SharedDatabase(TimeStampedModel):
     db_user = models.CharField(max_length=50)
     db_pass = models.CharField(max_length=50)
     db_name = models.CharField(max_length=50)
-    db_type = models.CharField(max_length=50)
+    db_type = models.CharField(max_length=50, choices=DATABASE_TYPES)
 
 class DockerImage(models.Model):
     pass

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header"></div>
+<div class="container">
+    <div class="row">
+        <h2 class="form-signin-heading">&nbsp;</h2>
+        <ol class="breadcrumb">
+          <li><a href="#">Dashboard</a></li>
+          <li>Databases</li>
+        </ol>
+        <div class="bs-component">
+            <a class="pull-right btn btn-raised btn-primary btn-xs" title="Add new database" href="{% url 'dbs_add' %}">add</a>
+        </div>
+    </div>
+    <div class="row well">
+        <table class="table table-striped" id="domainsTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>type</th>
+                    <th>database name</th>
+                    <th>database type</th>
+                    <th width="50%">actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for db in databases %}
+                <tr>
+                    <td>#</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="row ">{% include 'pager.html' %}</div>
+</div> <!-- /container -->
+{% endblock %}
