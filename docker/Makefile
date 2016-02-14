@@ -1,4 +1,4 @@
-all: base nodejs php7
+all: base nodejs python php7
 
 base:
 	cd base && docker build -t zaro/base .
@@ -11,5 +11,8 @@ php7:
 
 python:
 	cd python && docker build -t zaro/python .
+
+clean_junk_images:
+	docker rmi `docker images | grep '^<none>' | awk '{ print $3 }'`
 
 .PHONY: base nodejs php7 python

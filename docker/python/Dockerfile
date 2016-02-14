@@ -3,7 +3,7 @@ FROM zaro/base:latest
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 
 RUN apt-get update && \
-    apt-get install -y uwsgi uwsgi-plugin-python3 python3-venv && \
+    apt-get install -y uwsgi uwsgi-plugin-python3 python3.5 python3.5-venv python3.5-dev make gcc g++ && \
     apt-get clean && \
     rm -rf /usr/share/locale/* \
       /usr/share/doc/* \

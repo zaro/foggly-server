@@ -1,12 +1,24 @@
 #!/bin/bash
 
+function procfile_entry_to_supervisor {
+  NAME="$1"
+  CMD="$2"
+  printf "[program:${NAME}]\ncommand=${CMD}\n" > "/run/supervisor.d/Procfile_${NAME}.conf"
+}
+
+if [ "$(type -t procfile_entry)" != "function" ]; then
+
+  function procfile_entry {
+    procfile_entry_to_supervisor "$@"
+  }
+
+fi
+
 if [ -r Procfile ]; then
   rm -f /run/supervisor.d/Procfile_*.conf
   while IFS='' read -r line || [[ -n "$line" ]]; do
       if [[ $line =~ ^([a-zA-Z0-9]+):(.*)$ ]]; then
-          NAME="${BASH_REMATCH[1]}"
-          CMD="${BASH_REMATCH[2]}"
-          printf "[program:${NAME}]\ncommand=${CMD}\n" > "/run/supervisor.d/Procfile_${NAME}.conf"
+          procfile_entry "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
       fi
   done < Procfile
 fi
