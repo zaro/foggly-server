@@ -18,8 +18,8 @@ from core.dockerctl import DockerCtl
 
 PROXY_TYPES = (
     ("http", "HTTP"),
-    ("uWSGI", "uWSGI"),
-    ("FastCGI", "FastCGI"),
+    ("uwsgi", "uWSGI"),
+    ("fastcgi", "FastCGI"),
 )
 
 DATABASE_TYPES = (
