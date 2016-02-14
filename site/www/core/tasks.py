@@ -75,6 +75,7 @@ def createDomain(cfg):
     d.popd()
 
     hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
+    hostCfg.set('OWNER', user.username)
     hostCfg.set('USE_CONTAINER', app_type.container_id)
     hostCfg.set('PROXY_TYPE', app_type.proxy_type)
     hostCfg.set('DOMAIN', cfg['domain'])

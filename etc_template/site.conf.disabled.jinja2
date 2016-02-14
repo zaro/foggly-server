@@ -19,8 +19,8 @@ server {
 	ssl_certificate_key /etc/letsencrypt/live/{{DOMAIN}}/privkey.pem;
 	{% endif %}
 
-	access_log	/srv/{{DOMAIN}}/log/nginx/acess.log	main;
-	error_log	/srv/{{DOMAIN}}/log/nginx/error.log info;
+	access_log	/srv/{{OWNER}}/{{DOMAIN}}/log/nginx/acess.log	main;
+	error_log	/srv/{{OWNER}}/{{DOMAIN}}/log/nginx/error.log info;
 
 	client_max_body_size 0;
 
