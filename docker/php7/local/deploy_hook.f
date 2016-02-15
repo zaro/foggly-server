@@ -3,12 +3,11 @@
 function deploy_hook_init {
 }
 
+# More info on how composer install vs update work:
+#    https://adamcod.es/2013/03/07/composer-install-vs-composer-update.html#fn2
 function deploy_hook_install {
   echo '*** BEGIN composer install in '`pwd`
-  if /usr/local/bin/composer --no-check-publish  -n -q validate; then
-          /usr/local/bin/composer install
-          /usr/local/bin/composer update
-  fi
+  /usr/local/bin/composer install
   echo '*** END composer install'
 }
 
