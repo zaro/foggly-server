@@ -79,6 +79,7 @@ def createDomain(cfg):
     hostCfg.set('USE_CONTAINER', app_type.container_id)
     hostCfg.set('PROXY_TYPE', app_type.proxy_type)
     hostCfg.set('DOMAIN', cfg['domain'])
+    hostCfg.set('VHOST_DOMAIN', cfg['domain'])
     hostCfg.set('DOMAIN_ID', cfg['domain'].translate(str.maketrans(".-","__")))
     hostCfg.genUniqInt('SSH_PORT', 12300, 12399)
     hostCfg.genUniqInt('WWW_PORT', 8800, 8899)
@@ -160,7 +161,7 @@ def stopDomain(cfg):
 @shared_task
 def addMysqlDatabase(cfg):
     logging.info('addMysqlDatabase({})'.format(cfg))
-    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+
     if not cfg.get('mysql_user'):
         return {'error': 'Missing MySQL user'}
     if not cfg.get('mysql_password'):
@@ -204,8 +205,8 @@ def addMysqlDatabase(cfg):
 
 @shared_task
 def removeMysqlDatabase(cfg):
-    logging.info('addMysqlDatabase({})'.format(cfg))
-    d = getDomainDir(cfg['user'] ,  cfg['domain'])
+    logging.info('removeMysqlDatabase({})'.format(cfg))
+
     if not cfg.get('mysql_user'):
         return {'error': 'Missing MySQL user'}
     if not cfg.get('mysql_db'):
