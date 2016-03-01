@@ -7,7 +7,7 @@ RUN echo deb http://ppa.launchpad.net/ondrej/php/ubuntu wily main  | tee /etc/ap
 
 RUN apt-get clean && \
     apt-get update && \
-    apt-get install -y php7.0 php7.0-mysql php7.0-curl php7.0-gd php7.0-opcache php7.0-json php7.0-mcrypt php7.0-intl && \
+    apt-get install -y apache2 php7.0 php7.0-mysql php7.0-curl php7.0-gd php7.0-opcache php7.0-json php7.0-mcrypt php7.0-intl php7.0-zip php7.0-bz2 php7.0-xml php7.0-mbstring php7.0-soap php7.0-readline php7.0-enchant php7.0-xmlrpc php7.0-sqlite3 && \
     apt-get clean && \
     a2enmod rewrite && \
     (cd /usr/local/bin; curl -sS https://getcomposer.org/installer | php; ln -s composer.phar composer) && \
