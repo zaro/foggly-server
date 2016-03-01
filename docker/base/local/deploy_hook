@@ -1,6 +1,26 @@
 #!/bin/bash
 
-[ "$GIT_DIR" ] &&  cd ..
+if [[ "$GIT_DIR" ]]; then
+    cd ..
+    # don't mess up following git invocations
+    unset GIT_DIR
+fi
+
+# Supress annoying perl messages about the locale
+[[ -z "$LANG" ]] && export LANG=C
+[[ -z "$LANGUAGE" ]] && export LANGUAGE=C
+[[ -z "$LC_ALL" ]] && export LC_ALL=C
+[[ -z "$LC_CTYPE" ]] && export LC_CTYPE=C
+
+# Set ssh command that ignores hostchecks
+export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+
+if [[ -f .gitmodules ]]; then
+  # Handle git submodules
+  echo "Process git submodule in `pwd`"
+  git submodule  init
+  git submodule  update
+fi
 
 . /usr/local/deploy_hook.f
 
