@@ -1,30 +1,18 @@
 
-env-create:
+env-create: ## Create Python virtual environment
 	mkdir -p env
 	virtualenv -p `which python3.5` env/
 
-pip-upgrade:
+pip-upgrade: ## Upgrade pip packages
 	pip install --upgrade pip
 
-pip-save:
+pip-save: ## Save curretnly installed packages as requirements.txt
 	pip freeze > requirements.txt
 
-pip-install:
+pip-install: ## Run pip install
 	pip install -r requirements.txt
 
-# OSX users only
+.PHONY: help
 
-# We've installed your MySQL database without a root password. To secure it run:
-#     mysql_secure_installation
-#
-# To connect run:
-#     mysql -uroot
-#
-# To have launchd start mysql at login:
-#   ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
-# Then to load mysql now:
-#   launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
-# Or, if you don't want/need launchctl, you can just run:
-#   mysql.server start
-# ==> Summary
-# 🍺  /usr/local/Cellar/mysql/5.7.10: 12,677 files, 433.2M
+help:
+		@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
