@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.fields.related import ManyToManyField
 
 from core.dockerctl import DockerCtl
 
@@ -37,10 +38,26 @@ class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+    def __repr__(self):
+        return self.__class__.__name__ + '(' + str(self.to_dict()) + ')'
+
+    def to_dict(self):
+        opts = self._meta
+        data = {}
+        for f in opts.concrete_fields + opts.many_to_many:
+            if isinstance(f, ManyToManyField):
+                if self.pk is None:
+                    data[f.name] = []
+                else:
+                    data[f.name] = list(f.value_from_object(self).values_list('pk', flat=True))
+            else:
+                data[f.name] = f.value_from_object(self)
+        return data
+
     class Meta:
         abstract = True
 
-class DockerContainer(models.Model):
+class DockerContainer(TimeStampedModel):
     container_id = models.CharField(max_length=100, default="zaro/php7")
     description = models.CharField(max_length=200, default="Apache 2.4 / PHP 7.0")
     proxy_type = models.CharField(max_length=50, choices=PROXY_TYPES, default="http")
