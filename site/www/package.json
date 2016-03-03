@@ -1,0 +1,23 @@
+{
+  "name": "foggly-server",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Svetlozar Argirov <zarrro@gmail.com>",
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-core": "^6.6.0",
+    "babel-loader": "^6.2.4",
+    "babel-plugin-transform-react-jsx": "^6.6.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-react": "^6.5.0",
+    "css-loader": "^0.23.1",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.8.5",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "source-map-loader": "^0.1.5",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.14",
+    "webpack-bundle-tracker": "0.0.93"
+  }
+}

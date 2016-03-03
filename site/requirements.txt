@@ -3,13 +3,13 @@ anyjson==0.3.3
 billiard==3.3.0.22
 celery==3.1.20
 Django==1.8.6
-django-bower==5.1.0
 django-celery==3.1.17
 django-extensions==1.6.1
 django-grappelli==2.7.3
 django-material==0.5.1
 django-model-utils==2.4
 django-object-actions==0.7.0
+django-webpack-loader
 docker-py==1.7.0
 kombu==3.0.33
 pytz==2015.7

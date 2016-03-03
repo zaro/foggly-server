@@ -1,6 +1,10 @@
 env
 *.pyc
-components/
+site/www/node_modules/
+site/www/bower_components/
+site/www/static/
+site/www/webpack-stats.json
+site/www/assets/bundles/
 *.DS_Store
 __pycache__
 db.sqlite3

@@ -1,5 +1,5 @@
-
 {% load static %}
+{% load render_bundle from webpack_loader %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,27 +14,32 @@
     <title>foggly.net quick hosting</title>
 
     <!-- Bootstrap core CSS -->
+    <!--
     <link href="/static/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/bootstrap-material-design/dist/css/bootstrap-material-design.css" rel="stylesheet">
     <link href="/static/bootstrap-material-design/dist/css/bootstrap-material-design.css" rel="stylesheet">
-
+    -->
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!--
     <link href="/static/bootstrap-material-design/docs/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-
+    -->
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!--
     <script src="/static/bootstrap-material-design/docs/assets/js/ie-emulation-modes-warning.js"></script>
+    -->
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="/static/html5shiv/dist/html5shiv.min.js"></script>
       <script src="/static/respond/src/respond.js"></script>
     <![endif]-->
-    <script src="/static/jquery/dist/jquery.min.js"></script>
+    <!-- <script src="/static/jquery/dist/jquery.min.js"></script> -->
+    {% render_bundle 'vendor' %}
   </head>
   <body>
 
       <!-- Fixed navbar -->
-    <nav class="navbar navbar-default navbar-fixed-top">
+    <nav class="navbar navbar-default">
       <div class="container">
         <div class="navbar-header">
           <!-- The mobile navbar-toggle button can be safely removed since you do not need it in a non-responsive implementation -->
@@ -52,7 +57,9 @@
     {% endblock%}
 
       <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <!--
       <script src="/static/bootstrap/dist/js/bootstrap.min.js"></script>
       <script src="/static/bootstrap3-ie10-viewport-bug-workaround/ie10-viewport-bug-workaround.js"></script>
+      -->
   </body>
 </html>

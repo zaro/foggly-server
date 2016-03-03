@@ -1,0 +1,15 @@
+{
+  "name": "foggly-server",
+  "authors": [
+    "Svetlozar Argirov <zarrro@gmail.com>"
+  ],
+  "private": true,
+  "ignore": [
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "lodash": "^4.6.1",
+    "bootstrap-material-design": "^0.5.9"
+  }
+}

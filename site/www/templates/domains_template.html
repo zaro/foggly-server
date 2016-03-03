@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
 
 {% block content %}
 <div class="page-header"></div>
@@ -14,129 +15,8 @@
         </div>
     </div>
     <div class="row well">
-        <table class="table table-striped" id="domainsTable">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>domain</th>
-                    <th>application</th>
-                    <th>created at</th>
-                    <th>status</th>
-                    <th>actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+      <div id="domains-table"></div>
+      {% render_bundle 'domainstable' %}
     </div>
-    <div class="row">
-        <nav>
-            <ul class="pagination pull-right">
-                <li>
-                    <a href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <li><a href="#">1</a></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-                <li><a href="#">4</a></li>
-                <li><a href="#">5</a></li>
-                <li>
-                    <a href="#" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    <script>
-      $.ajax('/api/domains',{dataType:'json'}).done(function (data) {
-        var c = 1;
-        for(var row of data.response){
-            var tbody = $("#domainsTable tbody");
-            console.log(row);
-            var tr= '<tr id="row'+ c +'" style="color:' +(row.state=='up' ? 'green': 'red')+ '">' +
-              '<td>'+ c + '</td>' +
-              '<td>'+ row.domain + '</td>' +
-              '<td>'+ row.type + '</td>' +
-              '<td>'+ (row.created ? new Date(row.created) : '-' ) + '</td>' +
-              '<td id="status'+ c +'">'+ row.status + '</td>' +
-              '<td>'+
-                '<a class="btn btn-raised btn-primary btn-xs" title="Start domain" href="#" id="domainStart'+c+'">start</a>' +
-                '<a class="btn btn-raised btn-primary btn-xs" title="Stop domain" href="#" id="domainStop'+c+'">stop</a>' +
-              '</td>' +
-            '</tr>';
-            tbody.append(tr);
-            (function (domain, c) {
-              $('#domainStart'+c).click(function () {
-                console.log('Starting domain:', domain.domain);
-                $('#row'+c).css('color','brown');
-                $('#status'+c).html('starting');
-                $.ajax('/api/domains',{
-                      dataType:'json',method: "POST",
-                      contentType: "application/json; charset=utf-8",
-                      data: JSON.stringify({'domain': domain.domain})}).done(function (data) {
-                  console.log(data);
-                  var doPoll = function () {
-                    $.ajax('/api/task?id='+data.id,{dataType:'json'}).done(function (data) {
-                      console.log(data);
-                      if(data.completed){
-                        $('#row'+c).css('color','green');
-                        $('#status'+c).html('Started');
-                      } else {
-                        setTimeout(doPoll, 1000);
-                      }
-                    });
-                  };
-                  if(data.error){
-                    console.error(data.error);
-                    return;
-                  }
-                  if(data.id){
-                    doPoll();
-                  } else {
-                    console.error('WTF:',data);
-                  }
-                });
-              });
-              $('#domainStop'+c).click(function () {
-                console.log('Stoping domain:', domain.domain);
-                $('#row'+c).css('color','brown');
-                $('#status'+c).html('starting');
-                $.ajax('/api/domains',{
-                      dataType:'json',method: "DELETE",
-                      contentType: "application/json; charset=utf-8",
-                      data: JSON.stringify({'domain': domain.domain})}).done(function (data) {
-                  console.log(data);
-                  var doPoll = function () {
-                    $.ajax('/api/task?id='+data.id,{dataType:'json'}).done(function (data) {
-                      console.log(data);
-                      if(data.completed){
-                        $('#row'+c).css('color','red');
-                        $('#status'+c).html('Stopped');
-                      } else {
-                        setTimeout(doPoll, 1000);
-                      }
-                    });
-                  };
-                  if(data.error){
-                    console.error(data.error);
-                    return;
-                  }
-                  if(data.id){
-                    doPoll();
-                  } else {
-                    console.error('WTF:',data);
-                  }
-                });
-              });
-            })(row, c);
-        }
-      }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.log(textStatus);
-        console.log(errorThrown);
-      })
-    </script>
 </div> <!-- /container -->
 {% endblock %}
