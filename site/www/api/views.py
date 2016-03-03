@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.contrib.auth.models import User
 from core.dockerctl import DockerCtl
-from core.models import DomainModel
+import core.models
 from core.tasks import *
 
 from celery.result import AsyncResult
@@ -26,9 +26,12 @@ def parseJson(body):
 
 
 def mandatoryParams(reqData, *params):
+    out = {}
     for param in params:
         if reqData.get(param) == None:
             raise InvalidParam(param, None)
+        out[param] = reqData.get(param)
+    return out
 
 def handleExceptions(method):
     def _handler(self, request):
@@ -79,7 +82,7 @@ class Domains(View):
             }
 
         response = []
-        for domain in  DomainModel.objects.filter(user=user):
+        for domain in  core.models.DomainModel.objects.filter(user=user):
             if domain.domain_name in containers:
                 response.append( containers[domain.domain_name] )
             else :
@@ -100,7 +103,7 @@ class Domains(View):
         # Filter for current user
         user = User.objects.get(username='admin')
         try:
-            domain = DomainModel.objects.get(domain_name=reqData['domain'], user=user)
+            domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
         except ObjectDoesNotExist:
             return JsonResponse( { 'error': 'Invalid domain id: {}'.format(reqData['domain']) } )
         res = startDomain.delay({'user': user.username, 'domain': domain.domain_name})
@@ -113,8 +116,38 @@ class Domains(View):
         # Filter for current user
         user = User.objects.get(username='admin')
         try:
-            domain = DomainModel.objects.get(domain_name=reqData['domain'], user=user)
+            domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
         except ObjectDoesNotExist:
             return JsonResponse( { 'error': 'Invalid domain id: {}'.format(reqData['domain']) } )
         res = stopDomain.delay({'user': user.username, 'domain': domain.domain_name})
+        return JsonResponse({ 'completed': False, 'id': res.id })
+
+# Create your views here.
+class MysqlDatabase(View):
+    def get(self, request):
+        # Filter for current user
+        user = User.objects.get(username='admin')
+        response = []
+        for database in  core.models.SharedDatabase.objects.filter(user=user, db_type='mysql'):
+            response.append(database.to_dict())
+        return JsonResponse( {'response': response } )
+
+    @handleExceptions
+    def post(self, request):
+        reqData = parseJson(request.body)
+        params = mandatoryParams(reqData, 'mysql_user', 'mysql_password', 'mysql_db')
+        # Filter for current user
+        user = User.objects.get(username='admin')
+        params['user'] = user.username
+        res = addMysqlDatabase.delay(params)
+        return JsonResponse({ 'completed': False, 'id': res.id })
+
+    @handleExceptions
+    def delete(self, request):
+        reqData = parseJson(request.body)
+        params = mandatoryParams(reqData, 'mysql_user', 'mysql_db')
+        # Filter for current user
+        user = User.objects.get(username='admin')
+        params['user'] = user.username
+        res = removeMysqlDatabase.delay(params)
         return JsonResponse({ 'completed': False, 'id': res.id })
