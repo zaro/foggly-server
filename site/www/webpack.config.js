@@ -7,7 +7,7 @@ module.exports = {
   context: __dirname,
 
   entry: {
-      domainstable: './app/js/domainstable',
+      domainspage: './app/js/domainspage',
       vendor: ["./app/css/vendor.js", "react", "react-dom", "react-bootstrap", "jquery", "lodash", "bootstrap", "bootstrap-material-design"],
   }, // entry point of our app. app/js/index.js should require other js modules and dependencies it needs
 

@@ -4,12 +4,21 @@ import ReactDom from 'react-dom';
 import DomainsTable from './domains/table';
 import DomainAdd from  './domains/add';
 
+var addDialog;
+var domainsTable;
+
 var el = document.getElementById('domains-table');
-ReactDom.render(<DomainsTable />, el);
+domainsTable = ReactDom.render(<DomainsTable />, el);
+
+function refreshDomainsTable() {
+  domainsTable.fetch()
+}
 
 $('#domain-add-button').click( (e) =>{
   e.preventDefault();
   var el = document.getElementById('domains-add');
-  var addDialog = ReactDom.render(<DomainAdd />, el);
+  if(!addDialog){
+    addDialog = ReactDom.render(<DomainAdd onClose={refreshDomainsTable}/>, el);
+  }
   addDialog.show();
 });

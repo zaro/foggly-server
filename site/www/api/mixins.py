@@ -4,15 +4,12 @@ from jwt_auth.mixins import JSONWebTokenAuthMixin
 from jwt_auth import exceptions
 import json
 
-import logging
-logger = logging.getLogger('api')
 
 class ApiLoginRequiredMixin(AccessMixin, JSONWebTokenAuthMixin):
     """
     Mixin which verifies that the current user is authenticated or has valid web token
     """
     def dispatch(self, request, *args, **kwargs):
-        logger.info(request.user.is_authenticated())
         if not request.user.is_authenticated():
             acceptsHtml = False
             for t in request.META.get('HTTP_ACCEPT').split(','):

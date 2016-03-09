@@ -10,6 +10,9 @@ from api.mixins import ApiLoginRequiredMixin
 from celery.result import AsyncResult
 import json
 
+import logging
+logger = logging.getLogger('api')
+
 class InvalidJson(Exception):
     def __init__(self, error):
         super().__init__('Invalid json [{}]'.format(error))
@@ -19,6 +22,7 @@ class InvalidParam(Exception):
         super().__init__('Invalid value for parameter [{}]:[{}]'.format(param, value))
 
 def parseJson(body):
+    #logger.debug('Parsing:' + body.decode('utf8'))
     if len(body) == 0:
         raise InvalidJson('Empty')
     try:
@@ -86,6 +90,7 @@ class Domains(ApiLoginRequiredMixin, View):
 
         response = []
         for domain in  core.models.DomainModel.objects.filter(user=user):
+            logger.debug('D:' + str(domain.to_dict()))
             if domain.domain_name in containers:
                 response.append( containers[domain.domain_name] )
             else :
