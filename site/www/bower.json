@@ -10,6 +10,7 @@
   ],
   "dependencies": {
     "lodash": "^4.6.1",
-    "bootstrap-material-design": "^0.5.9"
+    "bootstrap-material-design": "^0.5.9",
+    "font-awesome": "fontawesome#^4.5.0"
   }
 }

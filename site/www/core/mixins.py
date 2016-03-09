@@ -2,12 +2,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import JsonResponse
 import json
 
-class LoginRequiredMixin(object):
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super().as_view(**initkwargs)
-        return login_required(view)
-
 class PermissionsRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):

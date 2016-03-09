@@ -5,12 +5,18 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 
-from core.mixins import LoginRequiredMixin, PermissionsRequiredMixin
+from core.mixins import PermissionsRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from core.forms import (
     DomainForm,
     LoginForm,
     DatabaseForm,
 )
+from core.models import (
+    DockerContainer,
+)
+
 
 # Create your views here.
 class HomeView(View):
@@ -53,7 +59,7 @@ class DomainView(LoginRequiredMixin, View):
     template_name = 'domains_template.html'
 
     def get(self, request):
-        return render(request, self.template_name, {})
+        return render(request, self.template_name, {'appTypes': DockerContainer.objects.all()})
 
 class DomainAddView(LoginRequiredMixin, View):
     template_name = 'domain_add_template.html'
@@ -81,5 +87,3 @@ class DatabaseAddView(LoginRequiredMixin, View):
 
         if not form.is_valid():
             return
-
-        

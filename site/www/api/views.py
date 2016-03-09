@@ -5,6 +5,8 @@ from core.dockerctl import DockerCtl
 import core.models
 from core.tasks import *
 
+from api.mixins import ApiLoginRequiredMixin
+
 from celery.result import AsyncResult
 import json
 
@@ -43,7 +45,8 @@ def handleExceptions(method):
             return JsonResponse( { 'error': str(e) } )
     return _handler
 
-class Task(View):
+# Task polling
+class Task(ApiLoginRequiredMixin, View):
     def get(self, request):
         taskId = request.GET.get('id', None )
         if not taskId:
@@ -53,8 +56,8 @@ class Task(View):
             return JsonResponse( { 'completed': False, 'response': None } )
         return JsonResponse( { 'completed': True, 'response': result.get() , 'status': result.status } )
 
-# Create your views here.
-class Domains(View):
+# Domains controller
+class Domains(ApiLoginRequiredMixin, View):
     def get(self, request):
         """
             Return  list with current user domains , for each domain :
@@ -122,8 +125,37 @@ class Domains(View):
         res = stopDomain.delay({'user': user.username, 'domain': domain.domain_name})
         return JsonResponse({ 'completed': False, 'id': res.id })
 
+class DomainsAdd(ApiLoginRequiredMixin, View):
+    @handleExceptions
+    def post(self, request):
+        reqData = parseJson(request.body)
+        reqData = mandatoryParams(reqData, 'domain', 'app_type')
+        # Filter for current user
+        reqData['user'] = request.user.username
+        try:
+            domain = core.models.DomainModel.objects.get( domain_name=reqData['domain'] )
+            return JsonResponse( { 'error': 'Domain already exists: {}'.format(reqData['domain']) } )
+        except ObjectDoesNotExist:
+            pass
+        res = createDomain.delay(reqData)
+        return JsonResponse({ 'completed': False, 'id': res.id })
+
+class DomainsDelete(ApiLoginRequiredMixin, View):
+    @handleExceptions
+    def post(self, request):
+        reqData = parseJson(request.body)
+        mandatoryParams(reqData, 'domain')
+        # Filter for current user
+        user = User.objects.get(username='admin')
+        try:
+            domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
+        except ObjectDoesNotExist:
+            return JsonResponse( { 'error': 'Invalid domain id: {}'.format(reqData['domain']) } )
+        res = startDomain.delay({'user': user.username, 'domain': domain.domain_name})
+        return JsonResponse({ 'completed': False, 'id': res.id })
+
 # Create your views here.
-class MysqlDatabase(View):
+class MysqlDatabase(ApiLoginRequiredMixin, View):
     def get(self, request):
         # Filter for current user
         user = User.objects.get(username='admin')

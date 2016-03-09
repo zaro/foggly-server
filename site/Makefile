@@ -6,11 +6,11 @@ env-create: ## Create Python virtual environment
 pip-upgrade: ## Upgrade pip packages
 	pip install --upgrade pip
 
-pip-save: ## Save curretnly installed packages as requirements.txt
-	pip freeze > requirements.txt
+pip-save: ## Save curretnly installed packages as requirements.frozen.txt
+	pip freeze > requirements.frozen.txt
 
-pip-install: ## Run pip install
-	pip install -r requirements.txt
+pip-install: ## Run pip install from requirements.frozen.txt
+	pip install -r requirements.frozen.txt
 
 .PHONY: help
 

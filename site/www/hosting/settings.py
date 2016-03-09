@@ -27,9 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/domains/'
+LOGIN_REDIRECT_URL = '/'
 
-# Bower
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -39,10 +38,8 @@ STATICFILES_FINDERS = (
 # Application definition
 
 INSTALLED_APPS = (
-    # 'dockerapp.apps.DockerAppConfig',
-    # 'grappelli',
     'material',
-    # 'material.frontend',
+    'material.frontend',
     'material.admin',
     'webpack_loader',
     'django.contrib.admin',
@@ -99,6 +96,24 @@ DATABASES = {
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'api': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+            #'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

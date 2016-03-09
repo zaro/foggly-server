@@ -2,21 +2,27 @@
 {% load render_bundle from webpack_loader %}
 
 {% block content %}
+<script>
+  if(!window.fConfig){
+    window.fConfig = {};
+  }
+  window.fConfig.appTypes = {
+    {% for appType in appTypes %}
+    "{{ appType.container_id }}" : "{{ appType.description }}",
+    {% endfor %}
+  };
+</script>
 <div class="page-header"></div>
 <div class="container">
     <div class="row">
-        <h2 class="form-signin-heading">&nbsp;</h2>
-        <ol class="breadcrumb">
-          <li><a href="#">Dashboard</a></li>
-          <li>Domains</li>
-        </ol>
         <div class="bs-component">
-            <a class="pull-right btn btn-raised btn-primary btn-xs" title="Add new domain" href="{% url 'domain_add' %}">add</a>
+            <a class="pull-right btn btn-raised btn-primary btn-xs" id="domain-add-button" title="Add new domain" href="{% url 'domain_add' %}">add</a>
         </div>
     </div>
     <div class="row well">
       <div id="domains-table"></div>
+      <div id="domains-add"></div>
       {% render_bundle 'domainstable' %}
     </div>
-</div> <!-- /container -->
+</div>
 {% endblock %}

@@ -1,4 +1,4 @@
-module.exports = function (taskId, debug) {
+export default function (taskId, debug) {
   return new Promise(function(resolve, reject){
     var doPoll = function(){
       $.ajax('/api/task?id='+taskId,{dataType:'json'})
