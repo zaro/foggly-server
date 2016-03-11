@@ -1,12 +1,13 @@
-export default function (taskId, debug) {
+export default function (taskId) {
   return new Promise(function(resolve, reject){
     var doPoll = function(){
       $.ajax('/api/task?id='+taskId,{dataType:'json'})
         .done(function (data) {
-          if(debug){
-            console.log(data);
-          }
           if(data.completed){
+            if(data.response.error){
+              reject(data);
+              return;
+            }
             resolve(data);
           } else {
             setTimeout(doPoll, 1000);
@@ -16,7 +17,7 @@ export default function (taskId, debug) {
           if(debug){
             console.log(textStatus);
           }
-          reject(errorThrown, textStatus);
+          reject(null, errorThrown, textStatus);
         });
     };
     doPoll();

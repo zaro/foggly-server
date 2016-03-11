@@ -1,21 +1,18 @@
 <ul class="nav navbar-nav">
-  <li class="active"><a href="/">Home</a></li>
-  <li><a href="#about">About</a></li>
-  <li><a href="#contact">Contact</a></li>
+  {% if user.is_authenticated %}
+  {% url 'domains' as domains_url %}
+  {% url 'databases' as databases_url %}
+  {% if request.get_full_path == home_url %}class="active"{% endif %}
+  <li {% if request.get_full_path == domains_url %}class="active"{% endif %}><a href="{{ domains_url }}">Domains</a></li>
   <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-        Products <span class="caret"></span>
+        Databases
    </a>
-    <ul class="dropdown-menu">
-      <li><a href="#">Hosting</a></li>
-      <li><a href="#">Software</a></li>
-      <li><a href="#">Consultations</a></li>
-      <li role="separator" class="divider"></li>
-      <li class="dropdown-header">Open Source</li>
-      <li><a href="#">Django Packages</a></li>
-      <li><a href="#">Python Packages</a></li>
-    </ul>
+   <ul class="dropdown-menu">
+     <li {% if request.get_full_path == databases_url %}class="active"{% endif %}><a href="{{ databases_url }}">Mysql</a></li>
+   </ul>
   </li>
+  {% endif %}
 </ul>
 <ul class="nav navbar-nav navbar-right">
   {% if user.is_authenticated %}
@@ -24,8 +21,6 @@
         Welcome: <b>{{user.username}}</b> <span class="caret"></span>
    </a>
     <ul class="dropdown-menu">
-      <li><a href="{% url 'domains' %}">Domains</a></li>
-      <li><a href="{% url 'dbs' %}">Databasses</a></li>s
       <li role="separator" class="divider"></li>
       <li><a href="{% url 'logout' %}">Sign Out</a></li>
     </ul>

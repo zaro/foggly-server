@@ -160,10 +160,9 @@ class DomainsDelete(ApiLoginRequiredMixin, View):
         return JsonResponse({ 'completed': False, 'id': res.id })
 
 # Create your views here.
-class MysqlDatabase(ApiLoginRequiredMixin, View):
+class DatabasesMysql(ApiLoginRequiredMixin, View):
     def get(self, request):
-        # Filter for current user
-        user = User.objects.get(username='admin')
+        user = request.user
         response = []
         for database in  core.models.SharedDatabase.objects.filter(user=user, db_type='mysql'):
             response.append(database.to_dict())
@@ -172,19 +171,15 @@ class MysqlDatabase(ApiLoginRequiredMixin, View):
     @handleExceptions
     def post(self, request):
         reqData = parseJson(request.body)
-        params = mandatoryParams(reqData, 'mysql_user', 'mysql_password', 'mysql_db')
-        # Filter for current user
-        user = User.objects.get(username='admin')
-        params['user'] = user.username
+        params = mandatoryParams(reqData, 'db_user', 'db_pass', 'db_name')
+        params['user'] = request.user.username
         res = addMysqlDatabase.delay(params)
         return JsonResponse({ 'completed': False, 'id': res.id })
 
     @handleExceptions
     def delete(self, request):
         reqData = parseJson(request.body)
-        params = mandatoryParams(reqData, 'mysql_user', 'mysql_db')
-        # Filter for current user
-        user = User.objects.get(username='admin')
-        params['user'] = user.username
+        params = mandatoryParams(reqData, 'db_user', 'db_name')
+        params['user'] = request.user.username
         res = removeMysqlDatabase.delay(params)
         return JsonResponse({ 'completed': False, 'id': res.id })

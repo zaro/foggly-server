@@ -14,9 +14,9 @@ export default function (endPoint, data, opts) {
       }
       if(data.id){
         taskPoll(data.id).then((taskStatus)=>{
-          resolve(data);
-        }).catch((error)=>{
-          reject(null, error)
+          resolve(data)
+        }).catch((error, e1, e2)=>{
+          reject(error, e1, e2)
         });
       } else {
         resolve(data);

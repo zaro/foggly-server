@@ -14,6 +14,10 @@ class DomainAdmin(DjangoObjectActions, admin.ModelAdmin):
 class ContainerAdmin(admin.ModelAdmin):
     list_display = ['container_id', 'description']
 
+class SharedDatabaseAdmin(admin.ModelAdmin):
+    list_display = ['user', 'db_user', 'db_pass', 'db_name', 'db_type']
+
 # Register your models here.
 admin.site.register(models.DomainModel, DomainAdmin)
 admin.site.register(models.DockerContainer, ContainerAdmin)
+admin.site.register(models.SharedDatabase, SharedDatabaseAdmin)

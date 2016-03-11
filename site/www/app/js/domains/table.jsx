@@ -1,6 +1,20 @@
 import React from 'react';
 import apiCall from '../common/apicall';
 
+class DomainHeaderRow extends React.Component {
+  render() {
+    return (
+      <tr>
+        <th>domain</th>
+        <th>application</th>
+        <th>created at</th>
+        <th>status</th>
+        <th>actions</th>
+      </tr>
+    )
+  }
+}
+
 class DomainRow extends React.Component {
   constructor(props) {
     super(props);

@@ -4,19 +4,6 @@ from django.db.models.fields.related import ManyToManyField
 
 from core.dockerctl import DockerCtl
 
-# Create your models here.
-# TASK_STATUS = (
-#     (1, "New"),
-#     (2, "Pending"),
-#     (3, "Progress"),
-#     (4, "Finished"),
-# )
-#
-# TASK_TYPE = (
-#     (1, "Setup"),
-#     (2, "Add SSL Support"),
-# )
-
 PROXY_TYPES = (
     ("http", "HTTP"),
     ("uwsgi", "uWSGI"),

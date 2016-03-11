@@ -8,6 +8,7 @@ module.exports = {
 
   entry: {
       domainspage: './app/js/domainspage',
+      databasesmysqlpage: './app/js/databasesmysqlpage',
       vendor: ["./app/css/vendor.js", "react", "react-dom", "react-bootstrap", "jquery", "lodash", "bootstrap", "bootstrap-material-design"],
   }, // entry point of our app. app/js/index.js should require other js modules and dependencies it needs
 
@@ -47,7 +48,7 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel-loader',
         query: {
-          presets: ['es2015', 'react']
+          presets: ['es2015', 'stage-0' , 'stage-1' , 'react']
         }
       }, // to transform JSX into JS
       {

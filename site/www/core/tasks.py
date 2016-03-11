@@ -162,11 +162,11 @@ def stopDomain(cfg):
 def addMysqlDatabase(cfg):
     logging.info('addMysqlDatabase({})'.format(cfg))
 
-    if not cfg.get('mysql_user'):
+    if not cfg.get('db_user'):
         return {'error': 'Missing MySQL user'}
-    if not cfg.get('mysql_password'):
+    if not cfg.get('db_pass'):
         return {'error': 'Missing MySQL password'}
-    if not cfg.get('mysql_db'):
+    if not cfg.get('db_name'):
         return {'error': 'Missing MySQL database name'}
 
     try:
@@ -175,16 +175,16 @@ def addMysqlDatabase(cfg):
         return {'error':'Invalid username'}
 
     # Permission check,  don't allow adding user/database if they are already taken by another user
-    for dbentry in SharedDatabase.objects.filter(Q(db_name=cfg['mysql_db']) | Q(db_user=cfg['mysql_user']), db_type="mysql"):
+    for dbentry in SharedDatabase.objects.filter(Q(db_name=cfg['db_name']) | Q(db_user=cfg['db_user']), db_type="mysql"):
         if dbentry.user.username != cfg['user']:
-            if dbentry.db_name == cfg['mysql_db']:
-                return {'error': "Database '{}' already exists!".format(cfg['mysql_db']) }
+            if dbentry.db_name == cfg['db_name']:
+                return {'error': "Database '{}' already exists!".format(cfg['db_name']) }
             if dbentry.db_user == cfg['db_user']:
-                return {'error': "Username '{}' already taken!".format(cfg['mysql_db']) }
+                return {'error': "Username '{}' already taken!".format(cfg['db_name']) }
 
     queryList = [ s.format(**cfg) for s in [
-        "CREATE DATABASE IF NOT EXISTS `{mysql_db}`;",
-        "GRANT ALL PRIVILEGES ON `{mysql_db}`.* TO '{mysql_user}'@'localhost' IDENTIFIED BY '{mysql_password}';"
+        "CREATE DATABASE IF NOT EXISTS `{db_name}`;",
+        "GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';"
     ]]
     db=MySQLdb.connect(user="root")
     cur = db.cursor()
@@ -195,9 +195,9 @@ def addMysqlDatabase(cfg):
         res += cur.fetchall()
     dbentry, created = SharedDatabase.objects.get_or_create(
         user=user,
-        db_user=cfg['mysql_user'],
-        db_pass=cfg['mysql_password'],
-        db_name=cfg['mysql_db'],
+        db_user=cfg['db_user'],
+        db_pass=cfg['db_pass'],
+        db_name=cfg['db_name'],
         db_type="mysql"
         )
     dbentry.save()
@@ -207,9 +207,9 @@ def addMysqlDatabase(cfg):
 def removeMysqlDatabase(cfg):
     logging.info('removeMysqlDatabase({})'.format(cfg))
 
-    if not cfg.get('mysql_user'):
+    if not cfg.get('db_user'):
         return {'error': 'Missing MySQL user'}
-    if not cfg.get('mysql_db'):
+    if not cfg.get('db_name'):
         return {'error': 'Missing MySQL database name'}
 
     try:
@@ -220,17 +220,17 @@ def removeMysqlDatabase(cfg):
 
     dbentry = None
     # Permission check,  don't allow deleteuser/database if they are already taken by another user
-    for dbentry in  SharedDatabase.objects.filter(db_name=cfg['mysql_db'], db_user=cfg['mysql_user'], db_type="mysql"):
+    for dbentry in  SharedDatabase.objects.filter(db_name=cfg['db_name'], db_user=cfg['db_user'], db_type="mysql"):
         if dbentry.user.username != cfg['user']:
-            return {'error': "'{}'' is not owner of Database '{}' already exists!".format(cfg['user'], cfg['mysql_db']) }
+            return {'error': "'{}'' is not owner of Database '{}' already exists!".format(cfg['user'], cfg['db_name']) }
         break
 
     if not dbentry:
-        return {'error': "No such user/database '{}'/'{}' !".format(cfg['user'], cfg['mysql_db']) }
+        return {'error': "No such user/database '{}'/'{}' !".format(cfg['user'], cfg['db_name']) }
 
     queryList = [ s.format(**cfg) for s in [
-        "DROP DATABASE IF EXISTS `{mysql_db}`;",
-        "REVOKE ALL PRIVILEGES ON `{mysql_db}`.* FROM '{mysql_user}'@'localhost';"
+        "DROP DATABASE IF EXISTS `{db_name}`;",
+        "REVOKE ALL PRIVILEGES ON `{db_name}`.* FROM '{db_user}'@'localhost';"
     ]]
     db=MySQLdb.connect(user="root")
     cur = db.cursor()

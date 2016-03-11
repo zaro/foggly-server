@@ -20,10 +20,13 @@ from core.models import (
 
 # Create your views here.
 class HomeView(View):
-    template_name = 'home_template.html'
 
     def get(self, request):
-        return render(request, self.template_name, {})
+        template_name = 'home_template.html'
+        templateVars = {}
+        if request.user.is_authenticated() :
+            template_name = 'dashboard_template.html'
+        return render(request, template_name, templateVars)
 
 class LoginView(View):
     template_name = 'login_template.html'
