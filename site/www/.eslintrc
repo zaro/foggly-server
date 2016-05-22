@@ -1,7 +1,10 @@
 {
+  "parser": "babel-eslint",
   "extends": "airbnb",
   "rules": {
     "space-in-parens": 0,
-    "max-len": [1, {"code": 160, "tabWidth": 2, "ignoreUrls": true}]
+    "no-console": 0,
+    "max-len": [1, {"code": 160, "tabWidth": 2, "ignoreUrls": true}],
+    "no-unused-vars": [2, { "argsIgnorePattern": "^_", "varsIgnorePattern" : "^_" }]
   }
 }

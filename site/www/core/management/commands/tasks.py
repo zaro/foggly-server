@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-import core.tasks as tasks
+import core.hostjobs as tasks
 import tempfile, os, re
 
 class Command(BaseCommand):

@@ -5,6 +5,7 @@ import re, random
 
 from jinja2 import Template
 
+
 class DomainConfig:
     def __init__(self, cfgFile, path=None, override=False):
         self.path = path
@@ -13,11 +14,12 @@ class DomainConfig:
         self.currentValues = {}
         self.override = override
         self.existing = False
-        if path :
+        if path:
             for f in glob.glob(path):
                 self.readFile(f, self.addUsedValue)
-        def updateCV(k,v):
-            self.currentValues[k]=v
+
+        def updateCV(k, v):
+            self.currentValues[k] = v
         if os.path.exists(cfgFile):
             self.readFile(cfgFile, updateCV)
             self.existing = True
@@ -26,7 +28,7 @@ class DomainConfig:
         return self.currentValues
 
     def exists(self):
-        return self.existing != None
+        return self.existing is not None
 
     def readFile(self, path, handler):
         print("Reading: ", path)
@@ -38,17 +40,16 @@ class DomainConfig:
             if mo:
                 handler(mo.group(1), mo.group(2))
 
-
     def addUsedValue(self, name, value):
         if name not in self.usedValues:
             self.usedValues[name] = []
         self.usedValues[name].append( value )
 
     def genUniqInt(self, name, minVal, maxVal):
-        if name in self.currentValues and self.override == False:
+        if name in self.currentValues and self.override is False:
             return
         used = {}
-        while len(used) <= (maxVal-minVal):
+        while len(used) <= (maxVal - minVal):
             i = str(random.randint(minVal, maxVal))
             if name not in self.usedValues or i not in self.usedValues[name]:
                 self.set(name, i)
@@ -57,26 +58,25 @@ class DomainConfig:
         raise Exception('Failed to find free uniq int in range [{},{}] for {}'.format(minVal, maxVal, name))
 
     def set(self, name, val):
-        if name in self.currentValues and self.override == False:
+        if name in self.currentValues and self.override is False:
             return
         self.currentValues[name] = val
 
     def get(self, name):
         return self.currentValues.get(name)
 
-    def asDict(self):
-        return self.currentValues
-
     def write(self ):
         with open(self.cfgFile, 'w') as cfgFile:
-            for k,v in self.currentValues.items():
-                cfgFile.write("{}={}\n".format(k,shlex.quote(v)))
+            for k, v in self.currentValues.items():
+                cfgFile.write("{}={}\n".format(k, shlex.quote(v)))
+
 
 def getDomainDir(user, domain):
     d = DirCreate('/srv')
     d.pushd( user )
     d.pushd( domain )
     return d
+
 
 class DirCreate:
     def __init__(self, path):
@@ -88,17 +88,17 @@ class DirCreate:
         return DirCreate(self.base)
 
     def pushd(self, path):
-        if path :
+        if path:
             self.paths.append(path)
             self.path = os.path.join( *self.paths )
             self.path = os.path.abspath(self.path)
-        print("pushd :" , self.path)
+        print("pushd :", self.path)
 
     def popd(self):
         self.paths.pop()
         self.path = os.path.join( *self.paths )
         self.path = os.path.abspath(self.path)
-        print("popd " , self.path)
+        print("popd ", self.path)
 
     def filename(self, filename):
         return os.path.join( self.path, filename )
@@ -114,7 +114,7 @@ class DirCreate:
             os.chmod(self.path, mode)
 
     def mkdir(self, paths=None, uid=-1, gid=-1, mode=None):
-        if not paths or len(paths)==0:
+        if not paths or len(paths) == 0:
             return self._mkdir(uid, gid, mode)
 
         if type(paths) != list:
@@ -123,6 +123,7 @@ class DirCreate:
             self.pushd(path)
             self._mkdir(uid, gid, mode)
             self.popd()
+
     def exists(self, *paths):
         if len(paths) == 0:
             return os.path.exists( self.path )
@@ -130,12 +131,21 @@ class DirCreate:
             if not os.path.exists( os.path.join( self.path, path ) ):
                 return False
         return True
+
     def rm(self, *paths):
         for path in paths:
             try:
                 os.unlink( os.path.join( self.path, path ) )
             except FileNotFoundError:
                 pass
+
+    def rmtree(self, *paths):
+        for path in paths:
+            try:
+                shutil.rmtree( os.path.join( self.path, path ), ignore_errors=True )
+            except FileNotFoundError:
+                pass
+
     def chmod(self, mode, *paths):
         if len(paths) == 0:
             os.chmod( self.path, mode )
@@ -147,6 +157,7 @@ class DirCreate:
 
     def run(self, cmd, *args):
         subprocess.check_call(cmd, shell=True, cwd=self.path, *args)
+
 
 class TemplateDir:
     def __init__(self, path, cfg):
@@ -171,11 +182,11 @@ class TemplateDir:
             srcName = os.path.join(root, f)
             if f.endswith('.jinja2'):
                 content = "???FAILED TEMPLATE PROCESSING"
-                with open(srcName,'r') as fd:
+                with open(srcName, 'r') as fd:
                     t = Template(fd.read())
                     content = t.render(self.cfg)
                 newFileName = f[0:-7]
-                with open(self.destination.filename(newFileName),'w') as wfd:
+                with open(self.destination.filename(newFileName), 'w') as wfd:
                     wfd.write(content)
             else:
                 shutil.copyfile(srcName, self.destination.filename(f))
@@ -185,6 +196,7 @@ class TemplateDir:
     def copyTo(self, destination):
         self.destination = DirCreate(destination)
         self.walk(self.copyDirs, self.copyFiles)
+
 
 class AuthorizedKeysFile:
     def __init__(self, domainDir):
@@ -200,7 +212,7 @@ class AuthorizedKeysFile:
 
     def writeFile(self):
             with open(self.domainDir.filename('.ssh/authorized_keys'), 'w') as f:
-                f.writelines([l+'\n' for l in self.lines])
+                f.writelines([l + '\n' for l in self.lines])
 
     def addKey(self, key):
         key = key.strip()

@@ -22,7 +22,7 @@ class ApiLoginRequiredMixin(AccessMixin, JSONWebTokenAuthMixin):
                     request.user, request.token = self.authenticate(request)
                 except exceptions.AuthenticationFailed as e:
                     response = HttpResponse(
-                        json.dumps({'errors': [str(e)]}),
+                        json.dumps({'error': str(e)}),
                         status=401,
                         content_type='application/json'
                     )

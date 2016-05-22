@@ -1,11 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django.core.paginator import Paginator
 
-from core.mixins import PermissionsRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from core.forms import (
@@ -15,6 +12,7 @@ from core.forms import (
 )
 from core.models import (
     DockerContainer,
+    Host,
 )
 
 
@@ -24,9 +22,10 @@ class HomeView(View):
     def get(self, request):
         template_name = 'home_template.html'
         templateVars = {}
-        if request.user.is_authenticated() :
+        if request.user.is_authenticated():
             template_name = 'dashboard_template.html'
         return render(request, template_name, templateVars)
+
 
 class LoginView(View):
     template_name = 'login_template.html'
@@ -53,16 +52,22 @@ class LoginView(View):
 
         return redirect(settings.LOGIN_URL)
 
+
 class LogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         return redirect(settings.LOGIN_URL)
 
+
 class DomainView(LoginRequiredMixin, View):
     template_name = 'domains_template.html'
 
     def get(self, request):
-        return render(request, self.template_name, {'appTypes': DockerContainer.objects.all()})
+        return render(request, self.template_name, {
+            'appTypes': DockerContainer.objects.all(),
+            'hosts': Host.objects.all(),
+        })
+
 
 class DomainAddView(LoginRequiredMixin, View):
     template_name = 'domain_add_template.html'
@@ -73,11 +78,13 @@ class DomainAddView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         pass
 
+
 class DatabaseView(LoginRequiredMixin, View):
     template_name = 'dbs_template.html'
 
     def get(self, request):
         return render(request, self.template_name, {})
+
 
 class DatabaseAddView(LoginRequiredMixin, View):
     template_name = 'dbs_add_template.html'

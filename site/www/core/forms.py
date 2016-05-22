@@ -2,6 +2,7 @@ from django import forms
 from core.models import DATABASE_TYPES
 from material import Layout
 
+
 class DomainForm(forms.Form):
     domain_name = forms.CharField()
     domain_name.widget.attrs['class'] = 'form-control'

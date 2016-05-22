@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from kombu import Exchange, Queue
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -110,7 +111,7 @@ LOGGING = {
             'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
-            #'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            # 'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         },
     },
 }
@@ -129,7 +130,8 @@ USE_L10N = True
 USE_TZ = True
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'assets'), # We do this so that django's collectstatic copies or our bundles to the STATIC_ROOT or syncs them to whatever storage we use.
+    # We do this so that django's collectstatic copies or our bundles to the STATIC_ROOT or syncs them to whatever storage we use.
+    os.path.join(BASE_DIR, 'assets'),
 )
 
 WEBPACK_LOADER = {
@@ -145,9 +147,13 @@ WEBPACK_LOADER = {
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-CELERY_TASK_SERIALIZER='json'
-CELERY_RESULT_SERIALIZER='json'
-CELERY_ACCEPT_CONTENT=['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_ENABLE_UTC = True
+CELERY_DEFAULT_QUEUE = 'host_ctrl'
+CELERY_QUEUES = (
+    Queue('host_ctrl', Exchange('host_ctrl'), routing_key='host_ctrl.#'),
+)
 
-
-DOCKER_BASE_URL='tcp://127.0.0.1:2375'
+DOCKER_BASE_URL = 'tcp://127.0.0.1:2375'

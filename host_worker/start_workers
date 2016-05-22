@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ -z "$WORKER_QUEUE" ]]; then
+  WORKER_QUEUE=`hostname -f`
+fi
+
+echo "Running worker for quueue: $WORKER_QUEUE"
+exec celery worker --loglevel=info --queues "$WORKER_QUEUE,any_host"

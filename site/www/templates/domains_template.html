@@ -11,6 +11,11 @@
     "{{ appType.container_id }}" : "{{ appType.description }}",
     {% endfor %}
   };
+  window.fConfig.hosts = {
+    {% for host in hosts %}
+    "{{ host.main_domain }}" : "{{ host.description }}",
+    {% endfor %}
+  };
 </script>
 <div class="container">
     <div class="row">

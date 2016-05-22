@@ -2,6 +2,8 @@ from django.contrib import admin
 from core import models
 from django_object_actions import DjangoObjectActions
 
+
+@admin.register(models.DomainModel)
 class DomainAdmin(DjangoObjectActions, admin.ModelAdmin):
 
     def create_domain(self, request, obj):
@@ -9,15 +11,21 @@ class DomainAdmin(DjangoObjectActions, admin.ModelAdmin):
     create_domain.label = "Create structure"
     create_domain.short_description = "Run create domain layout structure"
     objectactions = ('create_domain',)
-    list_display = ['user', 'domain_name', 'app_type']
+    list_display = ['user', 'domain_name', 'app_type', 'host']
+
 
 class ContainerAdmin(admin.ModelAdmin):
     list_display = ['container_id', 'description']
 
+
 class SharedDatabaseAdmin(admin.ModelAdmin):
     list_display = ['user', 'db_user', 'db_pass', 'db_name', 'db_type']
 
+
+class HostAdmin(admin.ModelAdmin):
+    list_display = ['description', 'main_domain', 'ip', 'controller_ip', 'docker_port']
+
 # Register your models here.
-admin.site.register(models.DomainModel, DomainAdmin)
 admin.site.register(models.DockerContainer, ContainerAdmin)
 admin.site.register(models.SharedDatabase, SharedDatabaseAdmin)
+admin.site.register(models.Host, HostAdmin)
