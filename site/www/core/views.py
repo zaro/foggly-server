@@ -83,7 +83,10 @@ class DatabaseView(LoginRequiredMixin, View):
     template_name = 'dbs_template.html'
 
     def get(self, request):
-        return render(request, self.template_name, {})
+        return render(request, self.template_name, {
+            'appTypes': DockerContainer.objects.all(),
+            'hosts': Host.objects.all(),
+        })
 
 
 class DatabaseAddView(LoginRequiredMixin, View):

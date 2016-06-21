@@ -1,101 +1,59 @@
 /* global _ */
 import React from 'react';
 import apiCall from '../common/apicall';
-import { ButtonInput, Modal, Input, Alert } from 'react-bootstrap';
+import InputDialog from '../common/inputdialog';
+import { FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
-export default class DomainAdd extends React.Component {
-  static propTypes = {
-    onClose: React.PropTypes.func.isRequired,
-  };
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      showModal: true,
-      working: false,
-      valid: false,
-      error: null,
-    };
-  }
-  show = () => {
-    this.setState({ showModal: true, working: false, error: null });
-  }
-
-  close = () => {
-    this.setState({ showModal: false, working: false });
-    if (this.props.onClose) {
-      this.props.onClose();
-    }
-  }
-
-  submit = (e) => {
-    e.preventDefault();
-    this.addDomain();
-  }
+export default
+class DatabaseAdd extends InputDialog {
 
   validate = () => {
-    const domain = this.refs.domainName.getValue();
-    const appType = this.refs.appType.getValue();
-    this.setState({
-      valid: domain.length > 0 && appType.length > 0,
-    });
+    let valid = true;
+    for (const refName of ['domainName', 'appType', 'host']) {
+      valid = valid && (this.getInputValue(refName).length > 0);
+    }
+    this.setState({ valid });
   }
 
-  addDomain() {
+  onSubmit() {
     this.setState({ working: true, error: null });
     const postData = {
-      domain: this.refs.domainName.getValue(),
-      app_type: this.refs.appType.getValue(),
-      host: this.refs.host.getValue(),
+      domain: this.getInputValue('domainName'),
+      app_type: this.getInputValue('appType'),
+      host: this.getInputValue('host'),
     };
     console.log('Adding domain:', postData);
     apiCall('/api/domains/add', postData, { method: 'POST' }).then((_data) => {
       this.close();
-    }).catch((data, error, textStatus) => {
-      console.log(data);
-      console.log(textStatus);
-      console.log(error);
-      this.setState({ showModal: true, working: false, error: data.error });
+    }).catch((error) => {
+      console.error(error);
+      this.setState({ showModal: true, working: false, error });
     });
   }
 
-  render() {
-    let spinner: string;
-    let error;
-    if (this.state.working) {
-      spinner = <i className="fa fa-spinner fa-spin"></i>;
-    }
-    if (this.state.error && this.state.error.length) {
-      error = (
-        <Alert bsStyle="danger">
-          {this.state.error}
-        </Alert>
-      );
-    }
-    return (
-      <Modal show={this.state.showModal} onHide={this.close}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add domain {spinner}</Modal.Title>
-          {error}
-        </Modal.Header>
-        <Modal.Body>
-          <form onSubmit={this.submit}>
-            <Input disabled={this.state.working} onChange={this.validate}
-              label="Domain name" className="form-control" placeholder="Fully qualified domain name" ref="domainName" type="text"
-            />
-            <Input disabled={this.state.working} onChange={this.validate} type="select" label="Application type" ref="appType">
-              <option key="no-app" value="">Select applicaiton type</option>
-              {_.map(window.fConfig.appTypes, (v, k) => <option key={k} value={k}>{v}</option> )}
-            </Input>
-            <Input disabled={this.state.working} onChange={this.validate} type="select" label="Host" ref="host">
-              <option key="no-app" value="">Select host for this domain</option>
-              {_.map(window.fConfig.hosts, (v, k) => <option key={k} value={k}>{v}</option> )}
-            </Input>
-            <ButtonInput disabled={!this.state.valid} active type="submit" onClick={this.submit} value="Submit" bsStyle="default" />
-          </form>
-        </Modal.Body>
-        <Modal.Footer></Modal.Footer>
-      </Modal>
-    );
+  renderInputs() {
+    return [
+      <FormGroup key="domainName">
+        <ControlLabel>Domain name</ControlLabel>
+        <FormControl
+          disabled={this.state.working} onChange={this.validate}
+          placeholder="Fully qualified domain name" ref="domainName" type="text"
+        />
+      </FormGroup>,
+      <FormGroup key="appType">
+        <ControlLabel>Application type</ControlLabel>
+        <FormControl disabled={this.state.working} onChange={this.validate} componentClass="select" ref="appType">
+          <option key="" value="">Select applicaiton type</option>
+          {_.map(window.fConfig.appTypes, (v, k) => <option key={k} value={k}>{v}</option> )}
+        </FormControl>
+      </FormGroup>,
+      <FormGroup key="host">
+        <ControlLabel>Host</ControlLabel>
+        <FormControl disabled={this.state.working} onChange={this.validate} componentClass="select" ref="host">
+          <option key="" value="">Select host for this database</option>
+          {_.map(window.fConfig.hosts, (v, k) => <option key={k} value={k}>{v}</option> )}
+        </FormControl>
+      </FormGroup>,
+    ];
   }
 }

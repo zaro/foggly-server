@@ -31,7 +31,11 @@ module.exports = {
     new BundleTracker({
       filename: './webpack-stats.json',
     }),
-    new webpack.optimize.CommonsChunkPlugin(/* chunkName= */'vendor', /* filename= */'vendor.bundle.js'),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor',
+      filename: 'vendor.bundle.js',
+      minChunks: Infinity,
+    }),
     new ExtractTextPlugin('[name].css'),
   ],
 

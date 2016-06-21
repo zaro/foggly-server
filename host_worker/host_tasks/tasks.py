@@ -1,30 +1,50 @@
 from celery.task import task
+from celery import shared_task
 from .task_utils import *
 from .dockerctl import DockerCtl
 
+import celeryconfig
 import logging
-
+import json
+import redis
+import os
 import MySQLdb
+
+THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+logger = logging.getLogger('tasks')
+
+
+class HostWorkerError(Exception):
+    pass
+
+
+def mandatoryParams(cfg, *params):
+    out = {}
+    for param in params:
+        if cfg.get(param) is None:
+            raise HostWorkerError("Missing parameter '{}'".format(param))
+        out[param] = cfg.get(param)
+    return out
+
+
+@task(name='host.getDomainConfig')
+def getDomainConfig(cfg):
+    mandatoryParams(cfg, 'user', 'domain')
+
+    d = getDomainDir(user, domain)
+    if d.existing():
+        return {'success': True, 'domainConfig': d.asDict()}
+    raise HostWorkerError('Invalid user/domain')
 
 
 @task(name='host.createDomain')
 def createDomain(cfg):
-    try:
-        user = cfg['user']
-    except:
-        return {'error': 'Missing user'}
-    try:
-        domain = cfg['domain']
-    except:
-        return {'error': 'Missing domain'}
-    try:
-        app_type = cfg['app_type']
-    except:
-        return {'error': 'Missing app_type'}
-    try:
-        ports = cfg['ports']
-    except:
-        return {'error': 'Missing ports'}
+    mandatoryParams(cfg, 'user', 'domain', 'app_type')
+    ports = cfg.get('ports') or {}
+    user = cfg['user']
+    domain = cfg['domain']
+    app_type = cfg['app_type']
 
     # hardcode www-data user for now
     nginxUID = 33
@@ -90,36 +110,33 @@ def createDomain(cfg):
             d.run("ssh-keygen -q -f {hKey} -N '' -t {algo} ".format(algo=algo, hKey=hKey))
     d.popd()
 
-    td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())
+    td = TemplateDir(os.path.join(THIS_FILE_DIR, '../../etc_template/'), hostCfg.asDict())
     td.copyTo(d.path)
 
-    return {'success': True}
+    return {'success': True, 'domainConfig': hostCfg.asDict()}
 
 
 @task(name='host.removeDomain')
 def removeDomain(cfg):
-    try:
-        user = cfg['user']
-    except:
-        return {'error': 'Missing user'}
-    try:
-        domain = cfg['domain']
-    except:
-        return {'error': 'Missing domain'}
+    mandatoryParams(cfg, 'user', 'domain')
 
     d = getDomainDir(user, domain)
     if d.exists():
         d.rmtree()
+    else:
+        raise HostWorkerError('Invalid user/domain')
 
     return {'success': True}
 
 
-@task(name='host.startDomain')
+@shared_task(name='host.startDomain')
 def startDomain(cfg):
+    mandatoryParams(cfg, 'user', 'domain')
+
     d = getDomainDir(cfg['user'], cfg['domain'])
     hostCfg = DomainConfig(d.filename('.hostcfg'))
     if not d.exists() or not hostCfg.exists():
-        return {'error': 'Invalid user/domain', 'r': cfg}
+        raise HostWorkerError('Invalid user/domain')
     # start container
     dctl = DockerCtl(baseUrl='unix://')
     status = dctl.getContainerStatus(cfg['user'], cfg['domain'])
@@ -132,7 +149,7 @@ def startDomain(cfg):
         elif status == 'exited':
             dctl.rmContainer(cfg['user'], cfg['domain'])
         else:
-            return {'error': 'Cannot start {} container'.format(status) }
+            raise HostWorkerError('Cannot start {} container'.format(status))
     dctl.runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
     # open ssh port
     d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
@@ -144,8 +161,10 @@ def startDomain(cfg):
     return {'success': True}
 
 
-@task(name='host.stopDomain')
+@shared_task(name='host.stopDomain')
 def stopDomain(cfg):
+    mandatoryParams(cfg, 'user', 'domain')
+
     d = getDomainDir(cfg['user'], cfg['domain'])
     hostCfg = DomainConfig(d.filename('.hostcfg'))
     dctl = DockerCtl(baseUrl='unix://')
@@ -167,55 +186,73 @@ def stopDomain(cfg):
     return {'success': True}
 
 
-@task(name='host.addMysqlDatabase')
-def addMysqlDatabase(cfg):
-    logging.info('addMysqlDatabase({})'.format(cfg))
-    if not cfg.get('db_user'):
-        return {'error': 'Missing MySQL user'}
-    if not cfg.get('db_pass'):
-        return {'error': 'Missing MySQL password'}
-    if not cfg.get('db_name'):
-        return {'error': 'Missing MySQL database name'}
+def prepareQueryList(cfg, qList):
+    queryList = []
+    for o in qList:
+        if type(o) is str:
+            queryList.append({
+                'q': o.format(**cfg),
+                'ignoreErrors': []
+            })
+        elif type(o) in [tuple, list]:
+            s, *ignoreErrors = o
+            queryList.append({
+                'q': s.format(**cfg),
+                'ignoreErrors': ignoreErrors
+            })
+        elif type(o) is dict:
+            queryList.append({
+                'q': o.q.format(**cfg),
+                'ignoreErrors': o.ignoreErrors
+            })
+    return queryList
 
-    queryList = [ s.format(**cfg) for s in [
-        "CREATE DATABASE IF NOT EXISTS `{db_name}`;",
-        "GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';"
-    ]]
+
+def executeQueryList(queryList):
     db = MySQLdb.connect(user="root")
     cur = db.cursor()
     res = []
-    for q in queryList:
-        print("EXEC:", q)
-        cur.execute(q)
+    for query in queryList:
+        print("EXEC:", query['q'])
+        try:
+            cur.execute(query['q'])
+        except MySQLdb.OperationalError as e:
+            if e.args[0] not in query['ignoreErrors']:
+                raise e
         res += cur.fetchall()
+    return res
+
+
+@task(name='host.addMysqlDatabase')
+def addMysqlDatabase(cfg):
+    mandatoryParams(cfg, 'db_user', 'db_pass', 'db_name')
+    logger.info('addMysqlDatabase({})'.format(cfg))
+
+    queryList = prepareQueryList(cfg, [
+        "CREATE DATABASE IF NOT EXISTS `{db_name}`;",
+        "GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';"
+    ])
+    res = executeQueryList(queryList)
     return {'success': True, 'result': res }
 
 
 @task(name='host.removeMysqlDatabase')
 def removeMysqlDatabase(cfg):
-    logging.info('removeMysqlDatabase({})'.format(cfg))
+    mandatoryParams(cfg, 'db_user', 'db_name')
+    logger.info('removeMysqlDatabase({})'.format(cfg))
 
-    if not cfg.get('db_user'):
-        return {'error': 'Missing MySQL user'}
-    if not cfg.get('db_name'):
-        return {'error': 'Missing MySQL database name'}
-
-    queryList = [ s.format(**cfg) for s in [
+    queryList = prepareQueryList(cfg, [
         "DROP DATABASE IF EXISTS `{db_name}`;",
-        "REVOKE ALL PRIVILEGES ON `{db_name}`.* FROM '{db_user}'@'localhost';"
-    ]]
-    db = MySQLdb.connect(user="root")
-    cur = db.cursor()
-    res = []
-    for q in queryList:
-        print("EXEC:", q)
-        cur.execute(q)
-        res += cur.fetchall()
+        ("REVOKE ALL PRIVILEGES ON `{db_name}`.* FROM '{db_user}'@'localhost';", 1141)
+    ])
+    res = executeQueryList(queryList)
     return {'success': True, 'result': res }
 
 
 @task(name='host.addPublicKey')
 def addPublicKey(cfg):
+    mandatoryParams(cfg, 'user', 'domain')
+
     d = getDomainDir(cfg['user'], cfg['domain'])
     kf = AuthorizedKeysFile(d)
     kf.addKey(cfg['publicKey'])
@@ -225,8 +262,51 @@ def addPublicKey(cfg):
 
 @task(name='host.removePublicKey')
 def removePublicKey(cfg):
+    mandatoryParams(cfg, 'user', 'domain')
+
     d = getDomainDir(cfg['user'], cfg['domain'])
     kf = AuthorizedKeysFile(d)
     kf.removeKey(cfg['publicKey'])
     kf.writeFile()
     return {'success': True}
+
+redisPool = None
+currentHostName = None
+
+
+def getCurrentHostname():
+    global currentHostName
+    if currentHostName is not None:
+        return currentHostName
+    if 'HOST_WORKER_QUEUE' in os.environ:
+        currentHostName = os.environ['HOST_WORKER_QUEUE']
+        return currentHostName
+    import platform
+    currentHostName = platform.node()
+    return currentHostName
+
+
+def getRedisConnection():
+    global redisPool
+    if redisPool is None:
+        redisPool = redis.ConnectionPool.from_url(celeryconfig.CELERY_RESULT_BACKEND)
+    return redis.StrictRedis(connection_pool=redisPool)
+
+
+@task(name='host.dockerStatus', ignore_result=True)
+def dockerStatus():
+    containersList = DockerCtl('unix://').listContainers()
+    containers = {}
+    statusMap = {'exited': 'down', 'removal': 'down', 'dead': 'down'}
+    for cont in containersList:
+        domain = cont['Names'][0][1:]
+        containers[domain] = {
+            'domain': domain,
+            'type': cont['Image'],
+            'status': cont['Status'],
+            'created': cont['Created'],
+            'state': statusMap[cont['state']] if cont['state'] in statusMap else cont['state'],
+        }
+    r = getRedisConnection()
+    key = 'dockerStatus:' + getCurrentHostname()
+    r.set(key, json.dumps(containers))

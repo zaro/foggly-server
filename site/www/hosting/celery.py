@@ -9,7 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hosting.settings')
 
 from django.conf import settings  # noqa
 
-app = Celery('hosting_tasks', broker='redis://', backend="redis://")
+app = Celery('hosting_tasks', broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_BACKEND_URL)
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.

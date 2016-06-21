@@ -13,13 +13,13 @@ class DomainJobs:
     def create(self, cfg):
         return chain(
             createDomain.s(cfg).set(queue=self.hostMainDomain),
-            createDomainRecord.s()
+            createDomainRecord.s(cfg).set(queue='host_ctrl')
         )()
 
     def remove(self, cfg):
         return chain(
             removeDomain.s(cfg).set(queue=self.hostMainDomain),
-            removeDomainRecord.s()
+            removeDomainRecord.s(cfg).set(queue='host_ctrl')
         )()
 
     def start(self, cfg):
@@ -36,11 +36,11 @@ class MysqlJobs:
     def create(self, cfg):
         return chain(
             addMysqlDatabase.s(cfg).set(queue=self.hostMainDomain),
-            addMysqlDatabaseRecord.s()
+            addMysqlDatabaseRecord.s(cfg).set(queue='host_ctrl')
         )()
 
     def remove(self, cfg):
         return chain(
             removeMysqlDatabase.s(cfg).set(queue=self.hostMainDomain),
-            removeMysqlDatabaseRecord.s()
+            removeMysqlDatabaseRecord.s(cfg).set(queue='host_ctrl')
         )()

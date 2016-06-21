@@ -1,8 +1,12 @@
 #!/bin/bash
 
 if [[ -z "$WORKER_QUEUE" ]]; then
-  WORKER_QUEUE=`hostname -f`
+  HOST_WORKER_QUEUE=`hostname -f`
+fi
+if [[ -z "$WORKER_QUEUE" ]]; then
+  HOST_WORKER_QUEUE=`hostname`
 fi
 
-echo "Running worker for quueue: $WORKER_QUEUE"
-exec celery worker --loglevel=info --queues "$WORKER_QUEUE,any_host"
+export HOST_WORKER_QUEUE
+echo "Running worker for queue: $HOST_WORKER_QUEUE"
+exec celery worker --loglevel=info --queues "$HOST_WORKER_QUEUE,any_host,every_host" --heartbeat-interval=15 

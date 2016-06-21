@@ -1,5 +1,5 @@
-celery
-Django==1.9.4
+celery[redis]
+Django==1.9.7
 django-celery
 django-extensions
 django-material

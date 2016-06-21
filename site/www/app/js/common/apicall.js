@@ -1,32 +1,33 @@
 import taskPoll from './taskpoll';
 
-export default function (endPoint, data, opts) {
-  opts = _.defaults(opts, {
-        dataType:'json', method: "GET",
-        contentType: "application/json; charset=utf-8",
-      });
-  opts.data = JSON.stringify(data)
-  let p = new Promise(function(resolve, reject){
-    let req = $.ajax(endPoint, opts).done((data) =>{
-      if(data.error){
-        reject(data);
+export default function (endPoint, sendData, options) {
+  const opts = _.defaults(options, {
+    dataType: 'json', method: 'GET',
+    contentType: 'application/json; charset=utf-8',
+  });
+  opts.data = JSON.stringify(sendData);
+  let req;
+  const p = new Promise((resolve, reject) => {
+    req = $.ajax(endPoint, opts).done((data) => {
+      if (data.error) {
+        reject(data.error);
         return;
       }
-      if(data.id){
-        taskPoll(data.id).then((taskStatus)=>{
-          resolve(data)
-        }).catch((error, e1, e2)=>{
-          reject(error, e1, e2)
+      if ('id' in data) {
+        taskPoll(data.id).then((taskStatus) => {
+          resolve(taskStatus);
+        }).catch((error, e1, e2) => {
+          reject(error, e1, e2);
         });
       } else {
         resolve(data);
       }
-    }).fail((jqXHR, textStatus, errorThrown) => {
-      reject(null,  errorThrown, textStatus);
-    });;
+    }).fail((jqXHR) => {
+      reject(jqXHR.responseText ? jqXHR.responseText : jqXHR.statusText);
+    });
   });
-  p.abort = function(){
+  p.abort = () => {
     req.abort();
-  }
+  };
   return p;
-};
+}

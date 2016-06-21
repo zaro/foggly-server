@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from kombu import Exchange, Queue
+from kombu.common import Broadcast
+from datetime import timedelta
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -49,7 +52,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_object_actions',
     'core',
 )
 
@@ -154,6 +156,18 @@ CELERY_ENABLE_UTC = True
 CELERY_DEFAULT_QUEUE = 'host_ctrl'
 CELERY_QUEUES = (
     Queue('host_ctrl', Exchange('host_ctrl'), routing_key='host_ctrl.#'),
+    Broadcast(name='every_host', queue='every_host', routing_key='every_host.#')
 )
+CELERY_ROUTES = {'host.dockerStatus': {'queue': 'every_host'}}
 
-DOCKER_BASE_URL = 'tcp://127.0.0.1:2375'
+CELERYBEAT_SCHEDULE = {
+    'docker-status-every-10-seconds': {
+        'task': 'host.dockerStatus',
+        'schedule': timedelta(seconds=10),
+        'args': (),
+    },
+}
+
+
+CELERY_BROKER_URL = 'redis://192.168.1.111'
+CELERY_BACKEND_URL = 'redis://192.168.1.111'

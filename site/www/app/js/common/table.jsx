@@ -1,76 +1,66 @@
 import React from 'react';
-import apiCall from '../common/apicall';
 
 export
-class GenericTableHeaderRow extends React.Component {
-  render() {
-    return (
-      <tr>
-        <th>CommonTableHeaderRow</th>
-      </tr>
-    )
-  }
+function GenericTableHeaderRow() {
+  return (
+    <tr>
+      <th>CommonTableHeaderRow</th>
+    </tr>
+  );
 }
 
 export
-class GenericTableRow extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    return (
-      <tr>
-        <td>CommonTableRow</td>
-      </tr>
-    );
-  }
+function GenericTableRow() {
+  return (
+    <tr>
+      <td>CommonTableRow</td>
+    </tr>
+  );
 }
 
 export
 class GenericTable extends React.Component {
-  static defaultProps  = {
+  static defaultProps = {
     headerRowComponent: GenericTableHeaderRow,
     rowComponent: GenericTableRow,
     columns: 1,
   }
+  static propTypes = {
+    columns: React.PropTypes.number.isRequired,
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       dataList: [],
       loading: false,
-    }
+    };
   }
   componentDidMount() {
-    if(this.fetch){
-      this.fetch()
+    if (this.fetch) {
+      this.fetch();
     }
   }
   componentWillUnmount() {
     if (this.cancelFetch) {
-      tthis.cancelFetch();
+      this.cancelFetch();
     }
   }
-  removeRow(_id) {
-    let data = _.filter(this.state.dataList,(row)=>{
-      return _id !== row._id
-    });
+  removeRow = (_id) => {
+    const data = _.filter(this.state.dataList, (row) => _id !== row._id );
     this.setState({
-      dataList : data,
-    })
+      dataList: data,
+    });
   }
+
   render() {
-    var createRow = (data) => {
-      return <this.props.rowComponent {...data} key={data._id} removeRow={(_id)=>this.removeRow(_id)}/>;
-    };
-    var spinner;
+    let spinner;
     if (this.state.loading) {
-      spinner = <tr>
-        <td colSpan={this.props.columns} style={{
-          textAlign: "center"
-        }}>
-          <i className='fa fa-spinner fa-3x fa-spin'></i>
+      spinner = (<tr>
+        <td colSpan={this.props.columns} style={{ textAlign: 'center' }}>
+          <i className="fa fa-spinner fa-3x fa-spin"></i>
         </td>
-      </tr>;
+      </tr>);
     }
     return (
       <table className="table table-striped">
@@ -79,7 +69,9 @@ class GenericTable extends React.Component {
         </thead>
         <tbody>
           {spinner}
-          {this.state.dataList.map(createRow)}
+          {this.state.dataList.map(
+            (data) => <this.props.rowComponent {...data} {...this.props} key={data._id} removeRow={this.removeRow} />
+          )}
         </tbody>
       </table>
     );

@@ -5,6 +5,14 @@
     "space-in-parens": 0,
     "no-console": 0,
     "max-len": [1, {"code": 160, "tabWidth": 2, "ignoreUrls": true}],
-    "no-unused-vars": [2, { "argsIgnorePattern": "^_", "varsIgnorePattern" : "^_" }]
+    "no-unused-vars": [2, { "argsIgnorePattern": "^_", "varsIgnorePattern" : "^_" }],
+    "no-underscore-dangle": [0, { "allow": [] }],
+    "no-param-reassign": ["error", { "props": false }],
+    "react/no-multi-comp": 0,
+    "no-nested-ternary": 0,
+  },
+  "globals": {
+    "_": true,
+    "$": true
   }
 }
