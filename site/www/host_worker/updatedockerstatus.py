@@ -1,4 +1,4 @@
-from host_tasks.tasks import *
+from .tasks import dockerStatus
 import threading
 import time
 import logging
@@ -16,7 +16,7 @@ class UpdateDockerStatus(threading.Thread):
             counter -= 1
             if counter == 0:
                 logging.debug("Update docker status")
-                dockerStatus()
+                dockerStatus(None, {"update_interval": self.update_interval})
                 counter = self.update_interval
             time.sleep(1)
 

@@ -5,7 +5,7 @@ import InputDialog from '../common/inputdialog';
 import { FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 export default
-class DatabaseAdd extends InputDialog {
+class DomainAdd extends InputDialog {
 
   validate = () => {
     let valid = true;

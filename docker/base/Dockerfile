@@ -1,4 +1,4 @@
-FROM ubuntu:wily
+FROM ubuntu:xenial
 
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 

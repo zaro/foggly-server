@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'host_worker',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -170,4 +171,4 @@ CELERYBEAT_SCHEDULE = {
 
 
 CELERY_BROKER_URL = 'redis://192.168.1.111'
-CELERY_BACKEND_URL = 'redis://192.168.1.111'
+CELERY_RESULT_BACKEND = 'redis://192.168.1.111'

@@ -4,7 +4,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 import core.models
-from core.hosttasks import *  # noqa
 import core.hostjobs
 
 from api.mixins import ApiLoginRequiredMixin
@@ -25,7 +24,7 @@ redisPool = None
 def getRedisConnection():
     global redisPool
     if redisPool is None:
-        redisPool = redis.ConnectionPool.from_url(settings.CELERY_BACKEND_URL)
+        redisPool = redis.ConnectionPool.from_url(settings.CELERY_RESULT_BACKEND)
     return redis.StrictRedis(connection_pool=redisPool)
 
 
@@ -141,7 +140,6 @@ class Domains(ApiLoginRequiredMixin, View):
             if not domain.host:
                 continue
             containers = containersPerHost.get(domain.host.main_domain)
-            log.info(str(containers))
             if domain.domain_name in containers:
                 response.append( containers[domain.domain_name] )
             else:
@@ -186,6 +184,34 @@ class Domains(ApiLoginRequiredMixin, View):
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
+class DomainsConfig(ApiLoginRequiredMixin, View):
+    def get(self, request):
+        """
+            Return  list with current domains configuration, for each domain :
+            {
+                'domain' : 'example.com' , # The domain name
+                'type' : 'zaro/php7', # image type
+                'config' : { dictionary with config variables }
+            }
+
+        """
+        domains = request.GET.getlist('domain', [] )
+        # Filter for current user
+        response = []
+        domains = core.models.DomainModel.objects.filter(user=request.user, domain_name__in=domains)
+        for domain in domains:
+            config = {}
+            for dc in domain.domainconfig_set.all():
+                config[dc.key] = dc.value
+            response.append({
+                'domain': domain.domain_name,
+                'type': domain.app_type.container_id,
+                'config': config,
+                'sshUrl': 'ssh://{}:{}'.format(config.get('DOMAIN'), config.get('SSH_PORT'))
+            })
+        return JsonResponse( {'response': response } )
+
+
 class DomainsAdd(ApiLoginRequiredMixin, View):
     @handleExceptions
     def post(self, request):
@@ -218,6 +244,7 @@ class DomainsDelete(ApiLoginRequiredMixin, View):
         mandatoryParams(reqData, 'domain')
         # Filter for current user
         user = request.user
+        reqData['user'] = user.username
         try:
             domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
         except ObjectDoesNotExist:
@@ -225,6 +252,24 @@ class DomainsDelete(ApiLoginRequiredMixin, View):
         if not domain.host:
             return makeError( 'Domain [{domain}] has no host attached.', reqData )
         res = core.hostjobs.DomainJobs(domain.host.main_domain).remove( reqData )
+        return JsonResponse({ 'completed': False, 'id': taskToId(res) })
+
+
+class DomainsPublickey(ApiLoginRequiredMixin, View):
+    @handleExceptions
+    def put(self, request):
+        reqData = parseJson(request.body)
+        mandatoryParams(reqData, 'domain', 'publicKey')
+        # Filter for current user
+        user = request.user
+        reqData['user'] = user.username
+        try:
+            domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
+        except ObjectDoesNotExist:
+            return makeError( 'Invalid domain id: {domain}', reqData )
+        if not domain.host:
+            return makeError( 'Domain [{domain}] has no host attached.', reqData )
+        res = core.hostjobs.DomainJobs(domain.host.main_domain).addPublicKey( reqData )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 

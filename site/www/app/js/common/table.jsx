@@ -53,6 +53,10 @@ class GenericTable extends React.Component {
     });
   }
 
+  refreshData = () => {
+    this.fetch();
+  }
+
   render() {
     let spinner;
     if (this.state.loading) {
@@ -70,7 +74,7 @@ class GenericTable extends React.Component {
         <tbody>
           {spinner}
           {this.state.dataList.map(
-            (data) => <this.props.rowComponent {...data} {...this.props} key={data._id} removeRow={this.removeRow} />
+            (data) => <this.props.rowComponent {...data} {...this.props} key={data._id} removeRow={this.removeRow} refreshData={this.refreshData} />
           )}
         </tbody>
       </table>

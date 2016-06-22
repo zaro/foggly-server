@@ -1,11 +1,15 @@
 import React from 'react';
 import apiCall from '../common/apicall';
 import { GenericTable } from '../common/table';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import ConfirmDialog from '../common/confirmdialog';
+import { Button, ButtonGroup, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
+import DomainAddPublikKey from './addpublickey';
+import InfoDialog from './infodialog';
 
 function DomainHeaderRow() {
   return (
     <tr>
+      <th>#</th>
       <th>domain</th>
       <th>application</th>
       <th>created at</th>
@@ -21,10 +25,11 @@ class DomainRow extends React.Component {
     status: React.PropTypes.string.isRequired,
     state: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired,
-    created: React.PropTypes.string,
+    created: React.PropTypes.number,
     domain: React.PropTypes.string.isRequired,
     removeRow: React.PropTypes.func.isRequired,
     showError: React.PropTypes.func.isRequired,
+    refreshData: React.PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -37,29 +42,49 @@ class DomainRow extends React.Component {
   }
   startDomain = () => {
     console.log('Starting domain:', this.props.domain);
-    this.setState({ state: 'starting', status: 'starting' });
+    this.setState({ state: 'starting', status: 'starting', working: true });
     apiCall('/api/domains', {
       domain: this.props.domain,
     }, { method: 'POST' }).then((data) => {
       console.log(data);
-      this.setState({ state: 'up', status: 'running' });
+      this.setState({ state: 'up', status: 'running', working: false });
+      this.props.refreshData();
     }).catch((error) => {
-      console.error(error);
-      this.setState({ state: 'error', status: 'error' });
+      console.error('startDomain Error : %o', error);
+      this.props.showError(error);
+      this.setState({ state: 'error', status: 'error', working: false });
+      this.props.refreshData();
     });
   }
+
   stopDomain = () => {
     console.log('Stoping domain:', this.props.domain);
-    this.setState({ state: 'stopping', status: 'stopping' });
+    this.setState({ state: 'stopping', status: 'stopping', working: true });
     apiCall('/api/domains', {
       domain: this.props.domain,
     }, { method: 'DELETE' }).then((data) => {
       console.log(data);
-      this.setState({ state: 'down', status: 'stopped' });
+      this.setState({ state: 'down', status: 'stopped', working: false });
+      this.props.refreshData();
     }).catch((error) => {
-      console.error(error);
-      this.setState({ state: 'error', status: 'error' });
+      console.error('stopDomain Error : %o', error);
+      this.props.showError(error);
+      this.setState({ state: 'error', status: 'error', working: false });
+      this.props.refreshData();
     });
+  }
+
+  moreActions = (eventKey, _event) => {
+    this[eventKey]();
+  }
+  addPublicKey = () => {
+    this.refs.addPkDialog.show();
+  }
+  destroyDomainConfirm = () => {
+    this.refs.destroyDomainConfirm.show();
+  }
+  showDomainInfo = () => {
+    this.refs.domainInfoDialog.show();
   }
   destroyDomain = () => {
     console.log('Destroy domain:', this.props.domain);
@@ -70,9 +95,10 @@ class DomainRow extends React.Component {
       console.info('destroyDomain Done : %o', data);
       this.props.removeRow(this.props._id);
     }).catch((error) => {
-      console.error('deleteDatabase Error : %o', error);
+      console.error('destroyDomain Error : %o', error);
       this.props.showError(error);
       this.setState({ working: false });
+      this.props.refreshData();
     });
   }
 
@@ -90,6 +116,7 @@ class DomainRow extends React.Component {
     }
     return (
       <tr>
+        <td style={rowStyle}>{this.state.working ? <i className="fa fa-spinner fa-spin"></i> : null}</td>
         <td style={rowStyle}>{this.props.domain}</td>
         <td style={rowStyle}>{this.props.type}</td>
         <td style={rowStyle}>{this.props.created
@@ -97,11 +124,27 @@ class DomainRow extends React.Component {
             : '-'}</td>
         <td style={rowStyle}>{this.props.status}</td>
         <td>
-          <ButtonGroup bsSize="xsmall">
-            <Button title="Start domain" onClick={this.startDomain} className="btn-raised" bsStyle="success">start</Button>
-            <Button title="Stop domain" onClick={this.stopDomain} className="btn-raised" bsStyle="warning">stop</Button>
-            <Button title="Destroy domain" onClick={this.destroyDomain} className="btn-raised" bsStyle="danger">destroy</Button>
-          </ButtonGroup>
+          <ButtonToolbar>
+            <ButtonGroup bsSize="xsmall">
+              <Button title="Show domain info" onClick={this.showDomainInfo} className="btn-raised" bsStyle="info">info</Button>
+            </ButtonGroup>
+            <ButtonGroup bsSize="xsmall">
+              <Button title="Start domain" onClick={this.startDomain} className="btn-raised" bsStyle="success">start</Button>
+              <Button title="Stop domain" onClick={this.stopDomain} className="btn-raised" bsStyle="warning">stop</Button>
+            </ButtonGroup>
+            <ButtonGroup bsSize="xsmall">
+              <DropdownButton title="More actions" id="more-actions" className="btn-raised" onSelect={this.moreActions}>
+                <MenuItem eventKey="addPublicKey">Add public key</MenuItem>
+                <MenuItem divider />
+                <MenuItem eventKey="destroyDomainConfirm" bsStyle="warning">Destroy domain</MenuItem>
+              </DropdownButton>
+            </ButtonGroup>
+          </ButtonToolbar>
+          <DomainAddPublikKey data={{ domain: this.props.domain }} ref="addPkDialog" title="Add Ssh Public key" />
+          <ConfirmDialog ref="destroyDomainConfirm" title="All domain data will be deleted!" onSubmit={this.destroyDomain} >
+            <p>Are yoy sure you want to destroy this domain?</p>
+          </ConfirmDialog>
+          <InfoDialog ref="domainInfoDialog" title="Domain information" domain={this.props.domain} />
         </td>
       </tr>
     );

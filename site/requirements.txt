@@ -8,4 +8,5 @@ django-jwt-auth
 django-webpack-loader
 docker-py
 Jinja2
+ansible
 mysqlclient

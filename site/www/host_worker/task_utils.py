@@ -12,7 +12,7 @@ class DomainConfig:
         self.cfgFile = cfgFile
         self.usedValues = {}
         self.currentValues = {}
-        self.override = override
+        self.override(override)
         self.existing = False
         if path:
             for f in glob.glob(path):
@@ -23,6 +23,9 @@ class DomainConfig:
         if os.path.exists(cfgFile):
             self.readFile(cfgFile, updateCV)
             self.existing = True
+
+    def override(self, override):
+        self._override = override
 
     def asDict(self):
         return self.currentValues
@@ -46,7 +49,7 @@ class DomainConfig:
         self.usedValues[name].append( value )
 
     def genUniqInt(self, name, minVal, maxVal):
-        if name in self.currentValues and self.override is False:
+        if name in self.currentValues and self._override is False:
             return
         used = {}
         while len(used) <= (maxVal - minVal):
@@ -58,7 +61,7 @@ class DomainConfig:
         raise Exception('Failed to find free uniq int in range [{},{}] for {}'.format(minVal, maxVal, name))
 
     def set(self, name, val):
-        if name in self.currentValues and self.override is False:
+        if name in self.currentValues and self._override is False:
             return
         self.currentValues[name] = val
 
@@ -133,6 +136,8 @@ class DirCreate:
         return True
 
     def rm(self, *paths):
+        if len(paths) == 0:
+            paths = ('',)
         for path in paths:
             try:
                 os.unlink( os.path.join( self.path, path ) )
@@ -140,9 +145,11 @@ class DirCreate:
                 pass
 
     def rmtree(self, *paths):
+        if len(paths) == 0:
+            paths = ('',)
         for path in paths:
             try:
-                shutil.rmtree( os.path.join( self.path, path ), ignore_errors=True )
+                shutil.rmtree( os.path.join( self.path, path ), ignore_errors=False )
             except FileNotFoundError:
                 pass
 

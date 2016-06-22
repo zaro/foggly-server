@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 apt-get update -y
-apt-get install -y curl mariadb-server python3-pip python3-docker python3-jinja2 python3-mysqldb nginx
+apt-get install -y curl mariadb-server python3-pip python3-docker python3-jinja2 python3-mysqldb nginx firewalld
 
 pip3 install celery
 pip3 install redis
@@ -26,8 +26,8 @@ EOS
 systemctl enable docker
 systemctl start docker
 
-sed -i '/include.*sites-enabled/a \
-      include /srv/*/*/etc/site.conf;' /etc/nginx/nginx.conf
+sed -i "/include.*sites-enabled/a \
+      include /srv/*/*/etc/site.conf" /etc/nginx/nginx.conf
 systemctl enable nginx
 systemctl start nginx
 echo "*** Done ***"

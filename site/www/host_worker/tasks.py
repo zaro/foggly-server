@@ -1,9 +1,8 @@
-from celery.task import task
 from celery import shared_task
 from .task_utils import *
 from .dockerctl import DockerCtl
 
-import celeryconfig
+from django.conf import settings
 import logging
 import json
 import redis
@@ -28,7 +27,7 @@ def mandatoryParams(cfg, *params):
     return out
 
 
-@task(name='host.getDomainConfig')
+@shared_task(name='host.getDomainConfig')
 def getDomainConfig(cfg):
     mandatoryParams(cfg, 'user', 'domain')
 
@@ -38,7 +37,7 @@ def getDomainConfig(cfg):
     raise HostWorkerError('Invalid user/domain')
 
 
-@task(name='host.createDomain')
+@shared_task(name='host.createDomain')
 def createDomain(cfg):
     mandatoryParams(cfg, 'user', 'domain', 'app_type')
     ports = cfg.get('ports') or {}
@@ -84,12 +83,15 @@ def createDomain(cfg):
     d.popd()
 
     hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
+    hostCfg.override(True)
     hostCfg.set('OWNER', user)
-    hostCfg.set('USE_CONTAINER', app_type['container_id'])
-    hostCfg.set('PROXY_TYPE', app_type['proxy_type'])
     hostCfg.set('DOMAIN', domain)
     hostCfg.set('VHOST_DOMAIN', domain)
     hostCfg.set('DOMAIN_ID', domain.translate(str.maketrans(".-", "__")))
+    hostCfg.set('USE_CONTAINER', app_type['container_id'])
+    hostCfg.set('PROXY_TYPE', app_type['proxy_type'])
+    hostCfg.override(False)
+
     if 'ssh' in ports:
         hostCfg.set('SSH_PORT', ports['ssh'])
     else:
@@ -98,6 +100,7 @@ def createDomain(cfg):
         hostCfg.set('WWW_PORT', ports['www'])
     else:
         hostCfg.genUniqInt('WWW_PORT', 8800, 8899)
+
     hostCfg.write()
 
     d.pushd('etc')
@@ -116,15 +119,25 @@ def createDomain(cfg):
     return {'success': True, 'domainConfig': hostCfg.asDict()}
 
 
-@task(name='host.removeDomain')
+@shared_task(name='host.removeDomain')
 def removeDomain(cfg):
     mandatoryParams(cfg, 'user', 'domain')
 
-    d = getDomainDir(user, domain)
-    if d.exists():
-        d.rmtree()
-    else:
+    d = getDomainDir(cfg['user'], cfg['domain'])
+    if not d.exists():
         raise HostWorkerError('Invalid user/domain')
+
+    dctl = DockerCtl(baseUrl='unix://')
+    status = dctl.getContainerStatus(cfg['user'], cfg['domain'])
+    if status is not None:
+        # stop/rm container
+        if status == 'up':
+            dctl.stopContainer(cfg['user'], cfg['domain'])
+            dctl.rmContainer(cfg['user'], cfg['domain'])
+        elif status == 'exited':
+            dctl.rmContainer(cfg['user'], cfg['domain'])
+
+    d.rmtree()
 
     return {'success': True}
 
@@ -223,7 +236,7 @@ def executeQueryList(queryList):
     return res
 
 
-@task(name='host.addMysqlDatabase')
+@shared_task(name='host.addMysqlDatabase')
 def addMysqlDatabase(cfg):
     mandatoryParams(cfg, 'db_user', 'db_pass', 'db_name')
     logger.info('addMysqlDatabase({})'.format(cfg))
@@ -236,7 +249,7 @@ def addMysqlDatabase(cfg):
     return {'success': True, 'result': res }
 
 
-@task(name='host.removeMysqlDatabase')
+@shared_task(name='host.removeMysqlDatabase')
 def removeMysqlDatabase(cfg):
     mandatoryParams(cfg, 'db_user', 'db_name')
     logger.info('removeMysqlDatabase({})'.format(cfg))
@@ -249,9 +262,9 @@ def removeMysqlDatabase(cfg):
     return {'success': True, 'result': res }
 
 
-@task(name='host.addPublicKey')
+@shared_task(name='host.addPublicKey')
 def addPublicKey(cfg):
-    mandatoryParams(cfg, 'user', 'domain')
+    mandatoryParams(cfg, 'user', 'domain', 'publicKey')
 
     d = getDomainDir(cfg['user'], cfg['domain'])
     kf = AuthorizedKeysFile(d)
@@ -260,7 +273,7 @@ def addPublicKey(cfg):
     return {'success': True}
 
 
-@task(name='host.removePublicKey')
+@shared_task(name='host.removePublicKey')
 def removePublicKey(cfg):
     mandatoryParams(cfg, 'user', 'domain')
 
@@ -289,12 +302,12 @@ def getCurrentHostname():
 def getRedisConnection():
     global redisPool
     if redisPool is None:
-        redisPool = redis.ConnectionPool.from_url(celeryconfig.CELERY_RESULT_BACKEND)
+        redisPool = redis.ConnectionPool.from_url(settings.CELERY_RESULT_BACKEND)
     return redis.StrictRedis(connection_pool=redisPool)
 
 
-@task(name='host.dockerStatus', ignore_result=True)
-def dockerStatus():
+@shared_task(name='host.dockerStatus')
+def dockerStatus(prevResult, cfg):
     containersList = DockerCtl('unix://').listContainers()
     containers = {}
     statusMap = {'exited': 'down', 'removal': 'down', 'dead': 'down'}
@@ -309,4 +322,5 @@ def dockerStatus():
         }
     r = getRedisConnection()
     key = 'dockerStatus:' + getCurrentHostname()
-    r.set(key, json.dumps(containers))
+    expiry = int(cfg.get("update_interval", 10)) + 1
+    r.set(key, json.dumps(containers), ex=expiry)

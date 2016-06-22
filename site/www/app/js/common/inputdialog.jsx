@@ -4,9 +4,10 @@ import { Button, Modal, Alert } from 'react-bootstrap';
 
 export default class InputDialog extends React.Component {
   static propTypes = {
-    onClose: React.PropTypes.func.isRequired,
+    onClose: React.PropTypes.func,
     onSubmit: React.PropTypes.func,
     title: React.PropTypes.string,
+    data: React.PropTypes.object,
   };
 
   state = {
@@ -21,7 +22,7 @@ export default class InputDialog extends React.Component {
     if ( node ) {
       return node.value;
     }
-    throw new Error('Invalid ref name : ${refName}');
+    throw new Error(`Invalid ref name : ${refName}`);
   }
 
 
@@ -78,7 +79,7 @@ export default class InputDialog extends React.Component {
         <Modal.Body>
           <form onSubmit={this.submit}>
             {this.renderInputs()}
-            <Button disabled={!this.state.valid} active type="submit" onClick={this.submit} bsStyle="default" >
+            <Button disabled={!this.state.valid} active type="submit" onClick={this.submit} bsStyle="default" className="btn-raised">
               Submit
             </Button>
           </form>

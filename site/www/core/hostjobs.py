@@ -1,6 +1,6 @@
 from celery import chain
 from core.tasks import *
-from core.hosttasks import *  # noqa
+from host_worker.tasks import *
 
 import logging
 log = logging.getLogger('hostjobs')
@@ -23,10 +23,19 @@ class DomainJobs:
         )()
 
     def start(self, cfg):
-        return startDomain.apply_async(cfg, queue=self.hostMainDomain)
+        return chain(
+            startDomain.s(cfg).set(queue=self.hostMainDomain),
+            dockerStatus.s(cfg).set(queue=self.hostMainDomain)
+        )()
 
     def stop(self, cfg):
-        return stopDomain.apply_async(cfg, queue=self.hostMainDomain)
+        return chain(
+            stopDomain.s(cfg).set(queue=self.hostMainDomain),
+            dockerStatus.s(cfg).set(queue=self.hostMainDomain)
+        )()
+
+    def addPublicKey(self, cfg):
+        return addPublicKey.s(cfg).set(queue=self.hostMainDomain).apply_async()
 
 
 class MysqlJobs:
