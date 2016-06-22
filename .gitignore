@@ -8,3 +8,4 @@ site/www/assets/bundles/
 *.DS_Store
 __pycache__
 db.sqlite3
+npm-debug.log
