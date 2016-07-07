@@ -24,15 +24,12 @@ ADD docker_build/host_controller/etc/  /etc/
 RUN cd /srv/home/www/ && /usr/local/deploy_hook && rm -r /root/.cache
 RUN cd /srv/home/www/ ; \
       pyenv python3 -B -c 'import host_worker.tasks; host_worker.tasks.createDomain({"user":0, "domain":"home", "app_type":{"proxy_type":"http", "container_id":"python"}})'
-RUN . /srv/home/pyvenv/bin/activate ; cd /srv/home/www/ ; \
-      python3 manage.py migrate --noinput ; \
-      python3 manage.py loaddata init ; \
-      echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@foggly.net', 'foggly-admin')" | python3 manage.py shell
+
 RUN chown -R www-data.www-data /srv/home/www
 
 
 ENV WWW_ROOT=$ROOT_DIR/www/
 
-VOLUME [ "/srv/home/" ]
+VOLUME [ "/srv/home/www/persistent" ]
 EXPOSE 3000 6379
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
