@@ -8,7 +8,7 @@ RUN echo "postfix postfix/mailname string example.com" | debconf-set-selections
 RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
 RUN apt-get clean && \
     apt-get update && \
-    apt-get install -y psmisc nano supervisor postfix curl mariadb-client-core-10.0 && \
+    apt-get install -y psmisc nano supervisor postfix curl mariadb-client-core-10.0 libmariadb-client-lgpl-dev && \
     apt-get install -y --no-install-recommends git openssh-server rsyslog && \
     apt-get clean && \
     rm -fr /etc/postfix && \
@@ -24,6 +24,7 @@ RUN apt-get clean && \
     rm -rf /var/log/*.log && \
     mkdir -p /var/run/sshd && \
     ln -s /srv/home/www /www && \
+    ln -s /usr/bin/mariadb_config /usr/bin/mysql_config && \
     printf "\n[client]\nsocket = /var/lib/mysql/mysql.sock\n" >> /etc/mysql/my.cnf && \
     useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user
 
@@ -33,4 +34,4 @@ ADD etc/  /etc/
 ENV ROOT_DIR=/srv/home
 
 EXPOSE 22
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

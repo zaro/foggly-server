@@ -7,10 +7,10 @@ pip-upgrade: ## Upgrade pip packages
 	pip install --upgrade pip
 
 pip-save: ## Save curretnly installed packages as requirements.frozen.txt
-	pip freeze > requirements.frozen.txt
+	pip freeze > www/requirements.frozen.txt
 
 pip-install: ## Run pip install from requirements.frozen.txt
-	pip install -r requirements.frozen.txt
+	pip install -r www/requirements.frozen.txt
 
 .PHONY: help
 

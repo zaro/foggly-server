@@ -1,6 +1,8 @@
 from celery import shared_task
 from .task_utils import *
 from .dockerctl import DockerCtl
+from .systemdctl import SystemdCtl
+from .firewalldctl import FirewalldCtl
 
 from django.conf import settings
 import logging
@@ -113,7 +115,7 @@ def createDomain(cfg):
             d.run("ssh-keygen -q -f {hKey} -N '' -t {algo} ".format(algo=algo, hKey=hKey))
     d.popd()
 
-    td = TemplateDir(os.path.join(THIS_FILE_DIR, '../../etc_template/'), hostCfg.asDict())
+    td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())
     td.copyTo(d.path)
 
     return {'success': True, 'domainConfig': hostCfg.asDict()}
@@ -165,12 +167,14 @@ def startDomain(cfg):
             raise HostWorkerError('Cannot start {} container'.format(status))
     dctl.runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
     # open ssh port
-    d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
+    # d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
+    FirewalldCtl().addPort(hostCfg.get('SSH_PORT'))
     # reload nginx config
     d.pushd('etc')
     if d.exists('site.conf.disabled'):
         d.mv('site.conf.disabled', 'site.conf')
-    d.run('systemctl reload nginx')
+    # d.run('systemctl reload nginx')
+    SystemdCtl().reloadUnit('nginx.service')
     return {'success': True}
 
 
@@ -190,12 +194,14 @@ def stopDomain(cfg):
         elif status == 'exited':
             dctl.rmContainer(cfg['user'], cfg['domain'])
     # close ssh port
-    d.run('firewall-cmd --zone=public --remove-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
+    # d.run('firewall-cmd --zone=public --remove-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
+    FirewalldCtl().removePort(hostCfg.get('SSH_PORT'))
     # reload nginx config
     d.pushd('etc')
     if d.exists('site.conf'):
         d.mv('site.conf', 'site.conf.disabled')
-    d.run('systemctl reload nginx')
+    # d.run('systemctl reload nginx')
+    SystemdCtl().reloadUnit('nginx.service')
     return {'success': True}
 
 

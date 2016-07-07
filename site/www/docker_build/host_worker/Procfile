@@ -1,0 +1,2 @@
+web: app.py
+celery: /srv/home/www/start_host_worker

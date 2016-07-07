@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#THIS_DIR=$(cd "$(dirname "$0")"; pwd)
+cd "$(dirname "$0")"
+
 if [[ -z "$WORKER_QUEUE" ]]; then
   HOST_WORKER_QUEUE=`hostname -f`
 fi
@@ -7,6 +10,7 @@ if [[ -z "$WORKER_QUEUE" ]]; then
   HOST_WORKER_QUEUE=`hostname`
 fi
 
+[ -f /srv/home/pyvenv/bin/activate ] && . /srv/home/pyvenv/bin/activate
 export HOST_WORKER_QUEUE
 echo "Running worker for queue: $HOST_WORKER_QUEUE"
-exec celery -A hosting worker -I host_worker.updatedockerstatus --loglevel=info --queues "$HOST_WORKER_QUEUE,any_host,every_host" --heartbeat-interval=15 
+exec celery -A hosting worker -I host_worker.updatedockerstatus --loglevel=info --queues "$HOST_WORKER_QUEUE,any_host,every_host" --heartbeat-interval=15

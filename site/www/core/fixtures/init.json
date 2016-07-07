@@ -1,0 +1,31 @@
+[{
+    "model": "core.dockercontainer",
+    "pk": 1,
+    "fields": {
+        "created_at": "2016-02-14T14:30:42.288Z",
+        "modified_at": "2016-02-14T14:30:51.616Z",
+        "container_id": "zaro/php7",
+        "description": "Apache 2.4 / PHP 7.0",
+        "proxy_type": "http"
+    }
+}, {
+    "model": "core.dockercontainer",
+    "pk": 2,
+    "fields": {
+        "created_at": "2016-02-14T14:30:42.288Z",
+        "modified_at": "2016-02-14T14:30:51.616Z",
+        "container_id": "zaro/nodejs",
+        "description": "Node.js 4.3.0",
+        "proxy_type": "http"
+    }
+}, {
+    "model": "core.dockercontainer",
+    "pk": 3,
+    "fields": {
+        "created_at": "2016-02-14T14:30:42.288Z",
+        "modified_at": "2016-02-14T14:30:51.616Z",
+        "container_id": "zaro/python",
+        "description": "Python uWSGI",
+        "proxy_type": "uwsgi"
+    }
+}]

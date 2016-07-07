@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+
+{% block content %}
+<script>
+  if(!window.fConfig){
+    window.fConfig = {};
+  }
+  window.fConfig.appTypes = {
+    {% for appType in appTypes %}
+    "{{ appType.container_id }}" : "{{ appType.description }}",
+    {% endfor %}
+  };
+  window.fConfig.hosts = {
+    {% for host in hosts %}
+    "{{ host.main_domain }}" : "{{ host.description }}",
+    {% endfor %}
+  };
+</script>
+<div class="container">
+    <div class="row well">
+      <div id="domains-table"></div>
+      {% render_bundle 'domainspage' %}
+    </div>
+</div>
+{% endblock %}

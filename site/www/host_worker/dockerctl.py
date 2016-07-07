@@ -58,12 +58,12 @@ class DockerCtl(Client):
         self.remove_container(domain)
 
     def runContainer(self, username, domain, containerId, **options):
-        dataDir = getDomainDir(username, domain).path
+        domainDir = getDomainDir(username, domain)
+        if not domainDir.exists():
+            raise Exception('Invalid username and/or domain')
         if containerId.find(':') < 0:
             containerId += ':latest'
-        if not os.path.exists( dataDir ):
-            raise Exception('Invalid username and/or domain')
-        cfg = DomainConfig(os.path.join(dataDir, '.hostcfg'))
+        cfg = DomainConfig(domainDir.filename('.hostcfg'))
         try:
             WWW_PORT = int(cfg.get('WWW_PORT'))
             SSH_PORT = int(cfg.get('SSH_PORT'))
@@ -71,7 +71,7 @@ class DockerCtl(Client):
             raise Exception('Invalid port configuration for domain')
         host_config = self.create_host_config(
             binds={
-                dataDir: {
+                domainDir.getDockerLocation(): {
                     'bind': '/srv/home',
                     'mode': 'rw',
                 },
@@ -86,6 +86,7 @@ class DockerCtl(Client):
             },
             mem_limit=(options.get('mem_limit') or '128m'),
         )
+        print('runContainer: host_config=' +str(host_config))
         container = self.create_container(
             image=containerId,
             hostname=domain,

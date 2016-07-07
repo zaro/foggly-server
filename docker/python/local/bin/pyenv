@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ ! -d /srv/home/pyvenv ]; then
+  pyvenv-3.5 --system-site-packages /srv/home/pyvenv
+fi
+
+. /srv/home/pyvenv/bin/activate
+
+exec "$@"

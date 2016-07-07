@@ -113,12 +113,17 @@ class Task(ApiLoginRequiredMixin, View):
 class Domains(ApiLoginRequiredMixin, View):
     def getHostContainers(self, hosts):
         containers = {}
-        r = getRedisConnection()
-        hostKeys = [ 'dockerStatus:' + host for host in hosts ]
-        dockerStatuses = r.mget(hostKeys)
-        for host in hosts:
-            stat = dockerStatuses.pop(0)
-            containers[host] = parseJson(stat) if stat else {}
+        if len(hosts) == 0:
+            return containers
+        try:
+            r = getRedisConnection()
+            hostKeys = [ 'dockerStatus:' + host for host in hosts ]
+            dockerStatuses = r.mget(hostKeys)
+            for host in hosts:
+                stat = dockerStatuses.pop(0)
+                containers[host] = parseJson(stat) if stat else {}
+        except:
+            pass
         return containers
 
     def get(self, request):

@@ -6,6 +6,12 @@ import re, random
 from jinja2 import Template
 
 
+if os.path.exists( '/host_srv' ):
+    TOP_DIR = '/host_srv'
+else:
+    TOP_DIR = '/srv'
+
+
 class DomainConfig:
     def __init__(self, cfgFile, path=None, override=False):
         self.path = path
@@ -75,7 +81,7 @@ class DomainConfig:
 
 
 def getDomainDir(user, domain):
-    d = DirCreate('/srv')
+    d = DirCreate(TOP_DIR)
     d.pushd( user )
     d.pushd( domain )
     return d
@@ -86,6 +92,9 @@ class DirCreate:
         self.base = path
         self.paths = [ path ]
         self.path = path
+
+    def getDockerLocation(self, topDir='/srv'):
+        return re.sub('^' +TOP_DIR, "/srv", self.path, 1 )
 
     def clone(self):
         return DirCreate(self.base)
@@ -171,6 +180,8 @@ class TemplateDir:
         self.path = path
         self.destination = None
         self.cfg = cfg
+        if not os.path.exists( self.path ):
+            raise Exception("Missing template dir:" + str(self.path))
 
     def walk(self, dirHandler, fileHandler):
         for root, dirs, files in os.walk(self.path):
@@ -187,6 +198,7 @@ class TemplateDir:
         self.destination.pushd(relRoot)
         for f in files:
             srcName = os.path.join(root, f)
+            print("{} -> {}".format(srcName, self.destination.filename(f)))
             if f.endswith('.jinja2'):
                 content = "???FAILED TEMPLATE PROCESSING"
                 with open(srcName, 'r') as fd:
@@ -202,6 +214,7 @@ class TemplateDir:
 
     def copyTo(self, destination):
         self.destination = DirCreate(destination)
+        print("Template.copyTo {} -> {}".format(str(self.path), str(destination)))
         self.walk(self.copyDirs, self.copyFiles)
 
 

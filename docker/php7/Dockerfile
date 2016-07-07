@@ -29,4 +29,4 @@ ADD etc/  /etc/
 ENV WWW_ROOT=$ROOT_DIR/www/ WWW_ROOT_SUBDIR=""
 
 EXPOSE 3000
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

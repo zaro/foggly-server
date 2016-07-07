@@ -25,11 +25,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p!m^kp0mjmi9gpbi+vka*#4l#o@qi$y@7kdc53iwm)%og8gfim'
-
+try:
+    with open('/srv/home/secret_key.txt') as f:
+        SECRET_KEY = f.read().strip()
+except FileNotFoundError:
+    pass
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ '*' ]
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
@@ -150,6 +154,18 @@ WEBPACK_LOADER = {
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
+
+# Security settings
+# SECURE_SSL_REDIRECT = False
+# SECURE_HSTS_SECONDS = 3600
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_BROWSER_XSS_FILTER = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_HTTPONLY = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# X_FRAME_OPTIONS = 'DENY'
+
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
@@ -169,6 +185,10 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 
+if 'REDIS_URL' in os.environ:
+    REDIS_URL = os.environ['REDIS_URL']
+else:
+    REDIS_URL = 'redis://127.0.0.1'
 
-CELERY_BROKER_URL = 'redis://192.168.1.111'
-CELERY_RESULT_BACKEND = 'redis://192.168.1.111'
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL

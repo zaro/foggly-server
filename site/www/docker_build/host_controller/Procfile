@@ -1,0 +1,2 @@
+web: uwsgi --module hosting.wsgi --static-map /static=./static/
+celery: celery -A hosting --loglevel=info worker
