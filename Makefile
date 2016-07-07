@@ -1,22 +1,22 @@
-all: base nodejs python php7
+all: base nodejs python php host_controller host_worker
 
 base: ## build the base container
-	cd docker/base && docker build -t zaro/base .
+	cd docker/base && docker build -t foggly/base .
 
 nodejs: ## build nodejs app runtime container
-	cd docker/nodejs && docker build -t zaro/nodejs .
+	cd docker/nodejs && docker build -t foggly/nodejs .
 
-php7: ## build php app runtime container
-	cd docker/php7 && docker build -t zaro/php7 .
+php: ## build php app runtime container
+	cd docker/php && docker build -t foggly/php .
 
 python: ## build python app runtime container
-	cd docker/python && docker build -t zaro/python .
+	cd docker/python && docker build -t foggly/python .
 
 host_controller: ## build the host_controller container
-	cd site/www && docker build -f Dockerfile.host_controller -t zaro/host_controller .
+	cd site/www && docker build -f Dockerfile.host_controller -t foggly/host_controller .
 
 host_worker: ## build the host_worker container
-	cd site/www && docker build -f Dockerfile.host_worker -t zaro/host_worker .
+	cd site/www && docker build -f Dockerfile.host_worker -t foggly/host_worker .
 
 clean_junk_images: ## clean all non-tagged docker images
 	docker rmi `docker images | grep '^<none>' | awk '{ print $3 }'`

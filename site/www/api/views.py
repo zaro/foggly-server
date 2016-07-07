@@ -131,7 +131,7 @@ class Domains(ApiLoginRequiredMixin, View):
             Return  list with current user domains , for each domain :
             {
                 'domain' : 'example.com' , # The domain name
-                'type' : 'zaro/php7', # image type
+                'type' : 'foggly/php7', # image type
                 'status' : 'up', # status, one of ['up', 'down', 'restarting']
                 'created': unix Epoch time, # container start time
             }
@@ -195,7 +195,7 @@ class DomainsConfig(ApiLoginRequiredMixin, View):
             Return  list with current domains configuration, for each domain :
             {
                 'domain' : 'example.com' , # The domain name
-                'type' : 'zaro/php7', # image type
+                'type' : 'foggly/php7', # image type
                 'config' : { dictionary with config variables }
             }
 

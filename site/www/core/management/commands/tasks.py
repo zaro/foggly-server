@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 import core.hostjobs as tasks
 import tempfile, os, re
 
+
 class Command(BaseCommand):
     help = 'Invoke a Celery task'
 
@@ -12,7 +13,7 @@ class Command(BaseCommand):
         parser.add_argument('--mysql_user', type=str)
         parser.add_argument('--mysql_password', type=str)
         parser.add_argument('--mysql_db', type=str)
-        parser.add_argument('--app_type', type=str, default='zaro/php7')
+        parser.add_argument('--app_type', type=str, default='foggly/php7')
 
     def handle(self, *args, **options):
         for k in options.keys():
@@ -32,7 +33,7 @@ class Command(BaseCommand):
                 lines = f.readlines()
                 line = None
                 for l in lines:
-                    if re.match('\s*#', l) or re.match('\s*$',l):
+                    if re.match('\s*#', l) or re.match('\s*$', l):
                         continue
                     line = l.strip()
                     break
@@ -40,6 +41,6 @@ class Command(BaseCommand):
             if not line:
                 print('You must specify public key to add')
                 return
-            options['publicKey']=line
+            options['publicKey'] = line
         result = task.delay(options)
         print(result.get())

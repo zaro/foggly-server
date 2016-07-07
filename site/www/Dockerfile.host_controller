@@ -1,4 +1,4 @@
-FROM zaro/python:latest
+FROM foggly/python:latest
 
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 

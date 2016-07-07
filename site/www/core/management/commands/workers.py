@@ -13,7 +13,7 @@ class Command(BaseCommand):
         # parser.add_argument('--mysql_user', type=str)
         # parser.add_argument('--mysql_password', type=str)
         # parser.add_argument('--mysql_db', type=str)
-        # parser.add_argument('--app_type', type=str, default='zaro/php7')
+        # parser.add_argument('--app_type', type=str, default='foggly/php7')
         pass
 
     def printRow(self, columns):

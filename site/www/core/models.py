@@ -63,25 +63,16 @@ class TimeStampedModel(models.Model):
 
 
 class Host(TimeStampedModel):
-    ip = models.GenericIPAddressField(unpack_ipv4=True)
     main_domain = models.CharField(max_length=200)
     description = models.CharField(max_length=200)
-    controller_ip = models.GenericIPAddressField(unpack_ipv4=True)
-    docker_port = models.IntegerField(
-        default=2375,
-        validators=[
-            MaxValueValidator(65535),
-            MinValueValidator(1)
-        ]
-    )
 
     def _visibleName(self):
         return self.description
 
 
 class DockerContainer(TimeStampedModel):
-    container_id = models.CharField(max_length=100, default="zaro/php7")
-    description = models.CharField(max_length=200, default="Apache 2.4 / PHP 7.0")
+    container_id = models.CharField(max_length=100)
+    description = models.CharField(max_length=200)
     proxy_type = models.CharField(max_length=50, choices=PROXY_TYPES, default="http")
 
     def _visibleName(self):

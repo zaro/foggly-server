@@ -16,7 +16,7 @@ class SharedDatabaseAdmin(admin.ModelAdmin):
 
 
 class HostAdmin(admin.ModelAdmin):
-    list_display = ['description', 'main_domain', 'ip', 'controller_ip', 'docker_port']
+    list_display = ['description', 'main_domain']
 
 # Register your models here.
 admin.site.register(models.DockerContainer, ContainerAdmin)

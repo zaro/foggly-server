@@ -1,4 +1,4 @@
-FROM zaro/base:latest
+FROM foggly/base:latest
 
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 

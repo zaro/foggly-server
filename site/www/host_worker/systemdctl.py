@@ -1,8 +1,9 @@
 """
     systemd interface module
 """
-
-import dbus
+import platform
+if platform.system() == 'Linux':
+    import dbus
 import time
 
 
