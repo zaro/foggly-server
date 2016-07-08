@@ -1,2 +1,2 @@
-web: app.py
+web: uwsgi --processes 1 --wsgi-file app.py
 celery: /srv/home/www/start_host_worker

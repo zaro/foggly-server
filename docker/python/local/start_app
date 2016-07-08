@@ -9,6 +9,8 @@ activate_pyvenv
 WSGI_SWITCH="--wsgi-file"
 WSGI_FILE="undefined"
 WSGI_OPTS=()
+NUM_PROCESSES=5
+MAX_REQUESTS=5000
 
 function procfile_entry {
   NAME="$1"
@@ -29,6 +31,16 @@ function procfile_entry {
         --static-map)
           WSGI_OPTS+=('--static-map')
           WSGI_OPTS+=("$2")
+          shift
+          ;;
+        --processes)
+          if [ "$2" -ge 1 -a "$2" -le 30 ]; then
+            NUM_PROCESSES="$2"
+          fi
+          shift
+          ;;
+        --max-requests)
+          MAX_REQUESTS="$2"
           shift
           ;;
         *)
@@ -72,4 +84,4 @@ fi
 . /usr/local/start_app_hook.f
 start_app_preexecute
 
-exec uwsgi --chdir /srv/home/www --plugin python35,http --master --max-requests=5000 --virtualenv /srv/home/pyvenv --processes=5 --die-on-term --thunder-lock "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"
+exec uwsgi --chdir /srv/home/www --plugin python35,http --master --virtualenv /srv/home/pyvenv --die-on-term --thunder-lock --max-requests=$MAX_REQUESTS --processes=$NUM_PROCESSES  "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"
