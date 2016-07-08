@@ -14,13 +14,23 @@
     "fields": {
         "created_at": "2016-02-14T14:30:42.288Z",
         "modified_at": "2016-02-14T14:30:51.616Z",
+        "container_id": "foggly/php5",
+        "description": "Apache 2.4 / PHP 5.6",
+        "proxy_type": "http"
+    }
+}, {
+    "model": "core.dockercontainer",
+    "pk": 3,
+    "fields": {
+        "created_at": "2016-02-14T14:30:42.288Z",
+        "modified_at": "2016-02-14T14:30:51.616Z",
         "container_id": "foggly/nodejs",
         "description": "Node.js 4.3.0",
         "proxy_type": "http"
     }
 }, {
     "model": "core.dockercontainer",
-    "pk": 3,
+    "pk": 4,
     "fields": {
         "created_at": "2016-02-14T14:30:42.288Z",
         "modified_at": "2016-02-14T14:30:51.616Z",

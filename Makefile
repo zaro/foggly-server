@@ -9,6 +9,9 @@ nodejs: ## build nodejs app runtime container
 php: ## build php app runtime container
 	cd docker/php && docker build -t foggly/php .
 
+php5: ## build php5 app runtime container
+	cd docker/php5 && docker build -t foggly/php5 .
+
 python: ## build python app runtime container
 	cd docker/python && docker build -t foggly/python .
 
