@@ -17,4 +17,5 @@ echo "Cannot find app to start."
 exit 1
 fi
 
+export NODE_ENV='production'
 exec $CMD
