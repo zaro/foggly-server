@@ -2,6 +2,16 @@ foggly.net
 
 ## Building
 
+In site/www:
+
+    npm install
+    bower install
+    ./manage.py collectstatic
+    node_modules/.bin/webpack --progress --colors
+    ./manage.py collectstatic # run it second time to collect webpack bundles
+
+In top dir:
+
     make all
 
 ## Running on a single machine

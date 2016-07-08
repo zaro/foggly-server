@@ -46,7 +46,7 @@ class DomainRow extends React.Component {
     apiCall('/api/domains', {
       domain: this.props.domain,
     }, { method: 'POST' }).then((data) => {
-      console.log(data);
+      console.log('Started %o', data);
       this.setState({ state: 'up', status: 'running', working: false });
       this.props.refreshData();
     }).catch((error) => {
@@ -63,7 +63,7 @@ class DomainRow extends React.Component {
     apiCall('/api/domains', {
       domain: this.props.domain,
     }, { method: 'DELETE' }).then((data) => {
-      console.log(data);
+      console.log('Stopped %o', data);
       this.setState({ state: 'down', status: 'stopped', working: false });
       this.props.refreshData();
     }).catch((error) => {
@@ -114,6 +114,7 @@ class DomainRow extends React.Component {
     if (state.state === 'down') {
       rowStyle.color = 'red';
     }
+    console.log(this.state.worker);
     return (
       <tr>
         <td style={rowStyle}>{this.state.working ? <i className="fa fa-spinner fa-spin"></i> : null}</td>

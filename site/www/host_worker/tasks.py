@@ -74,7 +74,7 @@ def createDomain(cfg):
     d.popd()
 
     d.mkdir('run', nginxUID, nginxGID)
-    d.mkdir(['log/nginx', 'log/apache2'], nginxUID, nginxGID)
+    d.mkdir(['log', 'log/nginx', 'log/apache2'], nginxUID, nginxGID)
     d.mkdir(['log/supervisor'])
 
     d.pushd('.ssh')

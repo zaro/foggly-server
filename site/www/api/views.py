@@ -90,13 +90,20 @@ def taskFromId(id):
 class Task(ApiLoginRequiredMixin, View):
     def get(self, request):
         taskId = request.GET.get('id', None )
+        timeout = request.GET.get('timeout', '60' )
+        try:
+            timeoutSeconds = int(timeout)
+        except ValueError:
+            pass
+        if timeoutSeconds < 1 or timeoutSeconds > 1800:
+            timeoutSeconds = 60
         if not taskId:
             return JsonResponse( { 'error': 'Invalid task id: {}'.format(taskId) } )
         try:
             result = taskFromId(taskId)
             log.info("Task {taskId} status is: {status}".format(taskId=taskId, status=result.status))
             log.info("Task {taskId} parent: {parent}".format(taskId=taskId, parent=result.parent))
-            result.get(timeout=0.2, interval=0.1)
+            result.get(timeout=timeoutSeconds, interval=0.5)
         except TimeoutError:
             return JsonResponse( { 'completed': False, 'response': None } )
         except Exception as e:

@@ -2,7 +2,7 @@ celery[redis]
 Django==1.9.7
 django-celery
 django-extensions
-django-material
+django-material>=0.8.0
 django-model-utils
 django-jwt-auth
 django-webpack-loader

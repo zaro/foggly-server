@@ -5,6 +5,7 @@ site/www/bower_components/
 site/www/static/
 site/www/webpack-stats.json
 site/www/assets/bundles/
+site/www/1webpack-stats.json
 *.DS_Store
 __pycache__
 db.sqlite3
