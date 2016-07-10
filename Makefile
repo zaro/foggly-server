@@ -22,7 +22,10 @@ host_worker: ## build the host_worker container
 	cd site/www && docker build -f Dockerfile.host_worker -t foggly/host_worker .
 
 clean_junk_images: ## clean all non-tagged docker images
-	docker rmi `docker images | grep '^<none>' | awk '{ print $3 }'`
+	docker rmi `docker images -f dangling=true --format="{{.ID}}"`
+
+rm_stopped_containers: ## remove all stopped containers
+	docker rm `docker ps -f status=exited -q`
 
 .PHONY: base nodejs php7 python host_controller host_worker
 

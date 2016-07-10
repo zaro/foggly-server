@@ -94,7 +94,7 @@ class DirCreate:
         self.path = path
 
     def getDockerLocation(self, topDir='/srv'):
-        return re.sub('^' +TOP_DIR, "/srv", self.path, 1 )
+        return re.sub('^' + TOP_DIR, "/srv", self.path, 1 )
 
     def clone(self):
         return DirCreate(self.base)
@@ -167,6 +167,12 @@ class DirCreate:
             os.chmod( self.path, mode )
         for path in paths:
             os.chmod( os.path.join( self.path, path ), mode  )
+
+    def chown(self, uid, gid, *paths):
+        if len(paths) == 0:
+            os.chown(self.path, uid, gid)
+        for path in paths:
+            os.chown(os.path.join( self.path, path ), uid, gid)
 
     def mv(self, fromFile, toFile):
         os.rename( os.path.join( self.path, fromFile ), os.path.join( self.path, toFile ) )

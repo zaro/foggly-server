@@ -9,7 +9,7 @@ RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set
 RUN apt-get clean && \
     apt-get update && \
     apt-get install -y psmisc nano supervisor postfix curl mariadb-client-core-10.0 libmariadb-client-lgpl-dev && \
-    apt-get install -y --no-install-recommends git openssh-server rsyslog && \
+    apt-get install -y --no-install-recommends git openssh-server rsyslog opendkim opendkim-tools && \
     apt-get clean && \
     rm -fr /etc/postfix && \
     ln -s /srv/home/etc/postfix/ /etc/postfix && \

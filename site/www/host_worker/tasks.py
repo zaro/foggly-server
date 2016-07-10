@@ -52,6 +52,9 @@ def createDomain(cfg):
     nginxUID = 33
     nginxGID = 33
 
+    postfixUID = 105
+    postfixGID = 108
+
     d = getDomainDir(user, domain)
     d.mkdir(uid=nginxUID, gid=nginxGID)
     d.mkdir('tmp', mode=0o777)
@@ -59,6 +62,7 @@ def createDomain(cfg):
 
     d.mkdir('var/run')
     d.mkdir('var/lock')
+    d.mkdir('var/run/opendkim', postfixUID, postfixGID)
     d.mkdir('var/spool/postfix')
     d.mkdir('var/spool/rsyslog')
     d.mkdir('var/spool/sessions', nginxUID, mode=0o1733)
@@ -107,6 +111,7 @@ def createDomain(cfg):
 
     hostCfg.write()
 
+    # Ssh Keys generation
     d.pushd('etc')
     d.pushd('ssh')
     d.mkdir()
@@ -115,6 +120,15 @@ def createDomain(cfg):
         if not d.exists(hKey, hKey + '.pub'):
             d.rm(hKey, hKey + '.pub')
             d.run("ssh-keygen -q -f {hKey} -N '' -t {algo} ".format(algo=algo, hKey=hKey))
+    d.popd()
+
+    # opendkim Keys generation
+    d.pushd('dkimkeys')
+    d.mkdir(uid=postfixUID, gid=postfixGID)
+    if not d.exists('fogglymail.private', 'fogglymail.txt'):
+        d.run("opendkim-genkey -s fogglymail -d {domain} ".format(domain=domain))
+    d.chown(postfixUID, postfixGID, 'fogglymail.private')
+    d.chmod(0o644, 'fogglymail.txt')
     d.popd()
 
     td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())

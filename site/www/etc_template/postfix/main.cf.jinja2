@@ -31,9 +31,9 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 myhostname = {{MASTER_DOMAIN}}
+myorigin = {{MASTER_DOMAIN}}
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
-myorigin = /etc/mailname
 mydestination = $myhostname, localhost.localdomain, localhost
 relayhost =
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
@@ -55,3 +55,9 @@ virtual_alias_maps = hash:/srv/home/etc/postfix/virtual
 smtp_destination_concurrency_limit = 1
 smtp_destination_rate_delay = 2s
 smtp_extra_recipient_limit = 10
+
+# DKIM
+milter_default_action = accept
+milter_protocol = 2
+smtpd_milters = local:/srv/home/var/run/opendkim/opendkim.sock
+non_smtpd_milters = local:/srv/home/var/run/opendkim/opendkim.sock
