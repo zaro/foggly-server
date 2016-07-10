@@ -23,22 +23,22 @@ def mandatoryParams(cfg, *params):
 
 @shared_task
 def createDomainRecord(createDomainResult, cfg):
-    mandatoryParams(cfg, 'user', 'domain', 'app_type')
+    mandatoryParams(cfg, 'user', 'domain', 'app_type', 'host')
     if 'domainConfig' not in createDomainResult:
         raise HostControllerError('Create domain  failed to provide "domainConfig"')
 
     try:
         user = User.objects.get(username=cfg['user'])
     except ObjectDoesNotExist:
-        raise HostControllerError('Invalid username')
+        raise HostControllerError('Invalid username: {}'.format(cfg['user']))
     try:
         app_type = DockerContainer.objects.get(container_id=cfg['app_type']['container_id'])
     except ObjectDoesNotExist:
-        raise HostControllerError('Invalid application type')
+        raise HostControllerError('Invalid application type: {}'.format(cfg['app_type']['container_id']))
     try:
         host = Host.objects.get(main_domain=cfg['host'])
     except ObjectDoesNotExist:
-        raise HostControllerError('Invalid host')
+        raise HostControllerError('Invalid host: {}', cfg['host'])
 
     dbentry, created = DomainModel.objects.get_or_create(
         user=user,

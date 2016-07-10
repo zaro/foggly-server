@@ -1,2 +1,2 @@
 web: uwsgi --module hosting.wsgi --static-map /static=./static/
-celery: celery -A hosting --loglevel=info worker --concurrency=2
+celery: celery -A hosting --loglevel=info worker --heartbeat-interval=15 --concurrency=2

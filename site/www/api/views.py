@@ -249,6 +249,25 @@ class DomainsAdd(ApiLoginRequiredMixin, View):
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
+class DomainsRecreate(ApiLoginRequiredMixin, View):
+    @handleExceptions
+    def post(self, request):
+        reqData = parseJson(request.body)
+        reqData = mandatoryParams(reqData, 'domain')
+        # Filter for current user
+        reqData['user'] = request.user.username
+        try:
+            domain = core.models.DomainModel.objects.get( domain_name=reqData['domain'] )
+        except ObjectDoesNotExist:
+            return makeError( "Domain doesn't exist exists: {domain}", reqData )
+        if not domain.host:
+            return makeError( 'Domain [{domain}] has no host attached.', reqData )
+        reqData['host'] = domain.host.main_domain
+        reqData['app_type'] = domain.app_type.to_dict(json=True)
+        res = core.hostjobs.DomainJobs(domain.host.main_domain).create( reqData )
+        return JsonResponse({ 'completed': False, 'id': taskToId(res) })
+
+
 class DomainsDelete(ApiLoginRequiredMixin, View):
     @handleExceptions
     def post(self, request):

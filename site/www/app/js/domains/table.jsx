@@ -74,6 +74,21 @@ class DomainRow extends React.Component {
     });
   }
 
+  recreateDomain = () => {
+    console.log('Recreating domain:', this.props.domain);
+    this.setState({ working: true, error: null });
+    apiCall('/api/domains/recreate', {
+      domain: this.props.domain,
+    }, { method: 'POST' }).then((data) => {
+      console.log('Recreated %o', data);
+      this.setState({ working: false });
+    }).catch((error) => {
+      console.error('recreateDomain Error : %o', error);
+      this.props.showError(error);
+      this.setState({ state: 'error', status: 'error', working: false });
+    });
+  }
+
   moreActions = (eventKey, _event) => {
     this[eventKey]();
   }
@@ -136,6 +151,8 @@ class DomainRow extends React.Component {
             <ButtonGroup bsSize="xsmall">
               <DropdownButton title="More actions" id="more-actions" className="btn-raised" onSelect={this.moreActions}>
                 <MenuItem eventKey="addPublicKey">Add public key</MenuItem>
+                <MenuItem divider />
+                <MenuItem eventKey="recreateDomain">Recreate domain</MenuItem>
                 <MenuItem divider />
                 <MenuItem eventKey="destroyDomainConfirm" bsStyle="warning">Destroy domain</MenuItem>
               </DropdownButton>
