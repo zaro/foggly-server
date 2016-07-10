@@ -26,8 +26,8 @@ RUN apt-get clean && \
     ln -s /srv/home/www /www && \
     ln -s /usr/bin/mariadb_config /usr/bin/mysql_config && \
     printf "\n[client]\nsocket = /var/lib/mysql/mysql.sock\n" >> /etc/mysql/my.cnf && \
-    useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user &&
-    curl -o /usr/local/bin/rmate https://raw.githubusercontent.com/aurora/rmate/master/rmate &&
+    useradd -d /srv/home/ -M -N -g www-data -u 33 -o -s /bin/bash user && \
+    curl -o /usr/local/bin/rmate https://raw.githubusercontent.com/aurora/rmate/master/rmate && \
     chmod a+x /usr/local/bin/rmate
 
 ADD local/  /usr/local/
