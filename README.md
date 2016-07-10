@@ -35,9 +35,11 @@ Host controller:
 
 Host worker:
 
-    docker run -d --privileged -h 'test.worker' -v /srv:/host_srv -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket  -v /var/lib/mysql/:/var/lib/mysql/ -e 'REDIS_URL=redis://172.17.0.1' -p 3001:3000  foggly/host_worker
+    docker run -d --privileged -h '<MASTER_DOMAIN>' -v /srv:/host_srv -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket  -v /var/lib/mysql/:/var/lib/mysql/ -e 'REDIS_URL=redis://172.17.0.1' -p 3001:3000  foggly/host_worker
 
 REDIS_URL should point to interface docker0 ip.
+
+MASTER_DOMAIN - can be anything, but it should be the domain that's listed in Reverse DNS record, because it is used both to identify the worker in the controller (Host -> Main domain), and for SMTP configuration.
 
 ## Development
 flake8 and eslint configurations are included, to use them in Atom install :

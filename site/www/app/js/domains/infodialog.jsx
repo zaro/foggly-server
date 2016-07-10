@@ -57,6 +57,8 @@ export default class InfoDialog extends React.Component {
     const cfg = this.state.config;
     const dcfg = this.state.config.config || {};
     const sshConfigSnippet = `Host ${cfg.domain}
+        ## Uncomment next line for rmate support
+        #RemoteForward 52698 localhost:52698
         Port ${dcfg.SSH_PORT}
         User user
     `;

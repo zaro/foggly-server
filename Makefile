@@ -1,4 +1,4 @@
-all: base nodejs python php host_controller host_worker
+all: base nodejs python php php5 host_controller host_worker
 
 base: ## build the base container
 	cd docker/base && docker build -t foggly/base .

@@ -10,6 +10,7 @@ import json
 import redis
 import os
 import MySQLdb
+import socket
 
 THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -87,6 +88,7 @@ def createDomain(cfg):
     hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
     hostCfg.override(True)
     hostCfg.set('OWNER', user)
+    hostCfg.set('MASTER_DOMAIN', socket.getfqdn())
     hostCfg.set('DOMAIN', domain)
     hostCfg.set('VHOST_DOMAIN', domain)
     hostCfg.set('DOMAIN_ID', domain.translate(str.maketrans(".-", "__")))
