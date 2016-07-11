@@ -57,7 +57,5 @@ smtp_destination_rate_delay = 2s
 smtp_extra_recipient_limit = 10
 
 # DKIM
-milter_default_action = accept
-milter_protocol = 2
-smtpd_milters = local:/srv/home/var/run/opendkim/opendkim.sock
-non_smtpd_milters = local:/srv/home/var/run/opendkim/opendkim.sock
+smtpd_milters = inet:localhost:8891
+non_smtpd_milters = inet:localhost:8891

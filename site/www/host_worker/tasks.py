@@ -62,7 +62,6 @@ def createDomain(cfg):
 
     d.mkdir('var/run')
     d.mkdir('var/lock')
-    d.mkdir('var/run/opendkim', postfixUID, postfixGID)
     d.mkdir('var/spool/postfix')
     d.mkdir('var/spool/rsyslog')
     d.mkdir('var/spool/sessions', nginxUID, mode=0o1733)
