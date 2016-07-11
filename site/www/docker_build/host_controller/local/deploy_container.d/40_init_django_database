@@ -17,6 +17,6 @@ else
   echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@foggly.net', 'foggly-admin')" | pyenv python3 manage.py shell
 
 fi
-echo "=== Begin django database init `date -Iseconds` ==="
+echo "=== End django database init `date -Iseconds` ==="
 
 touch "${LOCK_FILE}"

@@ -9,15 +9,16 @@ Syslog                  yes
 UMask                   002
 
 RequireSafeKeys        no
-# Sign for example.com with key in /etc/dkimkeys/dkim.key using
-# selector '2007' (e.g. 2007._domainkey.example.com)
-Domain                 {{DOMAIN}}
-KeyFile                /srv/home/etc/dkimkeys/fogglymail.private
-Selector               fogglymail
+
+Canonicalization        relaxed/simple
+ExternalIgnoreList      refile:/srv/home/etc/opendkim/TrustedHosts
+InternalHosts           refile:/srv/home/etc/opendkim/TrustedHosts
+KeyTable                refile:/srv/home/etc/opendkim/KeyTable
+SigningTable            refile:/srv/home/etc/opendkim/SigningTable
+Mode                   sv
 
 # Commonly-used options; the commented-out versions show the defaults.
 #Canonicalization       simple
-#Mode                   sv
 #SubDomains             no
 
 # Always oversign From (sign using actual From and a null From to prevent

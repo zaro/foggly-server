@@ -152,7 +152,7 @@ class Domains(ApiLoginRequiredMixin, View):
             if not domain.host:
                 continue
             containers = containersPerHost.get(domain.host.main_domain)
-            if domain.domain_name in containers:
+            if containers and domain.domain_name in containers:
                 response.append( containers[domain.domain_name] )
             else:
                 response.append({

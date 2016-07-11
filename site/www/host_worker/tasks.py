@@ -16,6 +16,8 @@ THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 logger = logging.getLogger('tasks')
 
+KEY_DIR = '/srv/home/www/persistent/opendkim/keys/'
+
 
 class HostWorkerError(Exception):
     pass
@@ -88,10 +90,11 @@ def createDomain(cfg):
         d.run("ssh-keygen -q -f id_rsa -N '' -t rsa -C '{domain}'".format(domain=cfg['domain']))
     d.popd()
 
+    masterDomain = socket.getfqdn()
     hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
     hostCfg.override(True)
     hostCfg.set('OWNER', user)
-    hostCfg.set('MASTER_DOMAIN', socket.getfqdn())
+    hostCfg.set('MASTER_DOMAIN', masterDomain)
     hostCfg.set('DOMAIN', domain)
     hostCfg.set('VHOST_DOMAIN', domain)
     hostCfg.set('DOMAIN_ID', domain.translate(str.maketrans(".-", "__")))
@@ -122,12 +125,19 @@ def createDomain(cfg):
     d.popd()
 
     # opendkim Keys generation
-    d.pushd('dkimkeys')
+    d.pushd('opendkim')
+    d.pushd('keys')
     d.mkdir(uid=postfixUID, gid=postfixGID)
-    if not d.exists('fogglymail.private', 'fogglymail.txt'):
+    dkimPriv = '{domain}.private'.format(domain=domain)
+    dkimTxt = '{domain}.txt'.format(domain=domain)
+    if not d.exists(dkimPriv, dkimTxt):
         d.run("opendkim-genkey -s fogglymail -d {domain} ".format(domain=domain))
-    d.chown(postfixUID, postfixGID, 'fogglymail.private')
-    d.chmod(0o644, 'fogglymail.txt')
+        d.mv('fogglymail.private', dkimPriv)
+        d.mv('fogglymail.txt', dkimTxt)
+    d.chown(postfixUID, postfixGID, dkimPriv)
+    d.chmod(0o644, dkimTxt)
+    d.cpIfExist(KEY_DIR + '{domain}.private'.format(domain=masterDomain))
+    d.popd()
     d.popd()
 
     td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())

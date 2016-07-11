@@ -28,6 +28,8 @@ Create directory for host_controller persistent storage:
 
     mkdir /srv/_host_controller
     chown 33.33 -R /srv/_host_controller/
+    mkdir /srv/_host_worker
+    chown 33.33 -R /srv/_host_worker/
 
 Host controller:
 
@@ -35,7 +37,7 @@ Host controller:
 
 Host worker:
 
-    docker run -d --privileged --name 'host_worker' -h '<MASTER_DOMAIN>' -v /srv:/host_srv -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket  -v /var/lib/mysql/:/var/lib/mysql/ -e 'REDIS_URL=redis://172.17.0.1' -p 3001:3000  foggly/host_worker
+    docker run -d --privileged --name 'host_worker' -h '<MASTER_DOMAIN>' -v /srv:/host_srv -v /srv/_host_worker:/srv/home/www/persistent -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket  -v /var/lib/mysql/:/var/lib/mysql/ -e 'REDIS_URL=redis://172.17.0.1' -p 3001:3000  foggly/host_worker
 
 REDIS_URL should point to interface docker0 ip.
 

@@ -16,6 +16,9 @@ python: ## build python app runtime container
 	cd docker/python && docker build -t foggly/python .
 
 host_controller: ## build the host_controller container
+	#cd site/www && ./manage.py collectstatic --noinput
+	#cd site/www && node_modules/.bin/webpack --progress --colors
+	#cd site/www && ./manage.py collectstatic --noinput
 	cd site/www && docker build -f Dockerfile.host_controller -t foggly/host_controller .
 
 host_worker: ## build the host_worker container

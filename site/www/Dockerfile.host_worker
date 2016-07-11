@@ -16,6 +16,7 @@ RUN apt-get update && \
     rm -rf /var/log/*.log
 
 ADD .  /srv/home/www/
+ADD docker_build/host_worker/local  /usr/local/
 ADD docker_build/host_worker/Procfile  /srv/home/www/
 ADD docker_build/host_worker/app.py  /srv/home/www/
 

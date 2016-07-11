@@ -104,13 +104,13 @@ class DirCreate:
             self.paths.append(path)
             self.path = os.path.join( *self.paths )
             self.path = os.path.abspath(self.path)
-        print("pushd :", self.path)
+        print("pushd :" + self.path)
 
     def popd(self):
         self.paths.pop()
         self.path = os.path.join( *self.paths )
         self.path = os.path.abspath(self.path)
-        print("popd ", self.path)
+        print("popd " + self.path)
 
     def filename(self, filename):
         return os.path.join( self.path, filename )
@@ -175,7 +175,22 @@ class DirCreate:
             os.chown(os.path.join( self.path, path ), uid, gid)
 
     def mv(self, fromFile, toFile):
+        print("mv " + str(fromFile) + " " + str(toFile))
         os.rename( os.path.join( self.path, fromFile ), os.path.join( self.path, toFile ) )
+
+    def cp(self, fromFile, toFile=None):
+        print("cp " + str(fromFile) + " " + str(toFile))
+        if not toFile:
+            toFile = os.path.join( self.path, os.path.basename(fromFile))
+        shutil.copyfile(fromFile, toFile)
+        shutil.copymode(fromFile, toFile)
+
+    def cpIfExist(self, fromFile, toFile=None):
+        print("cpIfExist " + str(fromFile) + " " + str(toFile))
+        if os.path.exists( fromFile ):
+            self.cp(fromFile, toFile)
+        else:
+            print("cpIfExist missing: " + str(fromFile))
 
     def run(self, cmd, *args):
         subprocess.check_call(cmd, shell=True, cwd=self.path, *args)
