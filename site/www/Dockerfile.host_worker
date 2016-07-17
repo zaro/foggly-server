@@ -17,6 +17,7 @@ RUN apt-get update && \
 
 ADD .  /srv/home/www/
 ADD docker_build/host_worker/local  /usr/local/
+ADD docker_build/host_worker/etc/  /etc/
 ADD docker_build/host_worker/Procfile  /srv/home/www/
 ADD docker_build/host_worker/app.py  /srv/home/www/
 

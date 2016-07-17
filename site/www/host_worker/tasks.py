@@ -191,6 +191,8 @@ def startDomain(cfg):
         else:
             raise HostWorkerError('Cannot start {} container'.format(status))
     dctl.runContainer(cfg['user'], cfg['domain'], hostCfg.get('USE_CONTAINER'))
+    # write domain state
+    d.writeFile('.domainstate', 'started')
     # open ssh port
     # d.run('firewall-cmd --zone=public --add-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
     FirewalldCtl().addPort(hostCfg.get('SSH_PORT'))
@@ -209,6 +211,8 @@ def stopDomain(cfg):
 
     d = getDomainDir(cfg['user'], cfg['domain'])
     hostCfg = DomainConfig(d.filename('.hostcfg'))
+    if not d.exists() or not hostCfg.exists():
+        raise HostWorkerError('Invalid user/domain')
     dctl = DockerCtl(baseUrl='unix://')
     status = dctl.getContainerStatus(cfg['user'], cfg['domain'])
     if status is not None:
@@ -218,6 +222,8 @@ def stopDomain(cfg):
             dctl.rmContainer(cfg['user'], cfg['domain'])
         elif status == 'exited':
             dctl.rmContainer(cfg['user'], cfg['domain'])
+    # write domain state
+    d.writeFile('.domainstate', 'stopped')
     # close ssh port
     # d.run('firewall-cmd --zone=public --remove-port={}/tcp'.format(hostCfg.get('SSH_PORT')))
     FirewalldCtl().removePort(hostCfg.get('SSH_PORT'))
@@ -337,8 +343,7 @@ def getRedisConnection():
     return redis.StrictRedis(connection_pool=redisPool)
 
 
-@shared_task(name='host.dockerStatus')
-def dockerStatus(prevResult, cfg):
+def getDockerStatus():
     containersList = DockerCtl('unix://').listContainers()
     containers = {}
     statusMap = {'exited': 'down', 'removal': 'down', 'dead': 'down'}
@@ -351,6 +356,12 @@ def dockerStatus(prevResult, cfg):
             'created': cont['Created'],
             'state': statusMap[cont['state']] if cont['state'] in statusMap else cont['state'],
         }
+    return containers
+
+
+@shared_task(name='host.dockerStatus')
+def dockerStatus(prevResult, cfg):
+    containers = getDockerStatus()
     r = getRedisConnection()
     key = 'dockerStatus:' + getCurrentHostname()
     expiry = int(cfg.get("update_interval", 10)) + 1

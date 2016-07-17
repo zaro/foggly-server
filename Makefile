@@ -16,6 +16,7 @@ python: ## build python app runtime container
 	cd docker/python && docker build -t foggly/python .
 
 host_controller: ## build the host_controller container
+	node -e 'try{s = JSON.parse(require("fs").readFileSync("site/www/webpack-stats.json")).status;} catch(e){s=null}; if(s !== "done"){console.log("Webpack bundles not compiled"); process.exit(1) }'
 	#cd site/www && ./manage.py collectstatic --noinput
 	#cd site/www && node_modules/.bin/webpack --progress --colors
 	#cd site/www && ./manage.py collectstatic --noinput

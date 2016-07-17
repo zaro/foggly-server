@@ -4,6 +4,9 @@ function activate_pyvenv {
 
   if [ ! -d /srv/home/pyvenv ]; then
     pyvenv-3.5 --system-site-packages /srv/home/pyvenv
+
+    . /srv/home/pyvenv/bin/activate
+    pip3 install --upgrade pip
   fi
 
   . /srv/home/pyvenv/bin/activate

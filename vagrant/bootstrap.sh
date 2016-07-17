@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 apt-get update -y
-apt-get install -y curl mariadb-server python3-pip python3-docker python3-jinja2 python3-mysqldb libmysqlclient-dev nginx firewalld
+apt-get install -y curl nodejs mariadb-server python3-pip python3-docker python3-jinja2 python3-mysqldb libmysqlclient-dev nginx firewalld
 
 pip3 install celery
 pip3 install redis
@@ -11,6 +11,7 @@ systemctl enable mariadb
 systemctl start mariadb
 
 ln -sf /usr/bin/python3.5 /usr/bin/python3
+ln -s /usr/bin/nodejs /usr/bin/node
 
 curl -fsSL https://get.docker.com/ | sh
 

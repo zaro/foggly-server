@@ -80,12 +80,20 @@ class DomainConfig:
                 cfgFile.write("{}={}\n".format(k, shlex.quote(v)))
 
 
+def allDomainDirs():
+    for userDir in os.listdir(TOP_DIR):
+        userDirPath = os.path.join(TOP_DIR, userDir)
+        if not userDir.startswith('_') and os.path.isdir( userDirPath ):
+            for domainDir in os.listdir(userDirPath):
+                domainDirPath = os.path.join(userDirPath, domainDir)
+                if os.path.isdir( domainDirPath ):
+                    yield DirCreate(domainDirPath)
+
 def getDomainDir(user, domain):
     d = DirCreate(TOP_DIR)
     d.pushd( user )
     d.pushd( domain )
     return d
-
 
 class DirCreate:
     def __init__(self, path):
@@ -194,6 +202,14 @@ class DirCreate:
 
     def run(self, cmd, *args):
         subprocess.check_call(cmd, shell=True, cwd=self.path, *args)
+
+    def writeFile(self, path, contents):
+        with open(self.filename(path), 'w') as f:
+            f.write(contents)
+
+    def readFile(self, path):
+        with open(self.filename(path), 'r') as f:
+            return f.read()
 
 
 class TemplateDir:
