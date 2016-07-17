@@ -19,7 +19,7 @@ hc_npm: site/www/node_modules/
 	cd site/www && npm install
 
 hc_bower: site/www/bower_components/
-	cd site/www && bower install
+	cd site/www && bower --allow-root install
 
 host_controller: hc_npm hc_bower ## build the host_controller container
 	node -e 'try{s = JSON.parse(require("fs").readFileSync("site/www/webpack-stats.json")).status;} catch(e){s=null}; if(s !== "done"){console.log("Webpack bundles not compiled"); process.exit(1) }'
