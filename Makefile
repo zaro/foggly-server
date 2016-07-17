@@ -15,11 +15,20 @@ php5: ## build php5 app runtime container
 python: ## build python app runtime container
 	cd docker/python && docker build -t foggly/python .
 
-host_controller: ## build the host_controller container
+hc_npm: site/www/node_modules/
+	cd site/www && npm install
+
+hc_bower: site/www/bower_components/
+	cd site/www && bower install
+
+host_controller: hc_npm hc_bower ## build the host_controller container
 	node -e 'try{s = JSON.parse(require("fs").readFileSync("site/www/webpack-stats.json")).status;} catch(e){s=null}; if(s !== "done"){console.log("Webpack bundles not compiled"); process.exit(1) }'
-	#cd site/www && ./manage.py collectstatic --noinput
-	#cd site/www && node_modules/.bin/webpack --progress --colors
-	#cd site/www && ./manage.py collectstatic --noinput
+	if [ "${FULL}" ]; then \
+		cd site/www ; \
+		./manage.py collectstatic --noinput; \
+		node_modules/.bin/webpack --progress --colors; \
+		./manage.py collectstatic --noinput; \
+	fi
 	cd site/www && docker build -f Dockerfile.host_controller -t foggly/host_controller .
 
 host_worker: ## build the host_worker container
