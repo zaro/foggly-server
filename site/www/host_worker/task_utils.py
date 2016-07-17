@@ -89,11 +89,13 @@ def allDomainDirs():
                 if os.path.isdir( domainDirPath ):
                     yield DirCreate(domainDirPath)
 
+
 def getDomainDir(user, domain):
     d = DirCreate(TOP_DIR)
     d.pushd( user )
     d.pushd( domain )
     return d
+
 
 class DirCreate:
     def __init__(self, path):
@@ -208,8 +210,11 @@ class DirCreate:
             f.write(contents)
 
     def readFile(self, path):
-        with open(self.filename(path), 'r') as f:
-            return f.read()
+        try:
+            with open(self.filename(path), 'r') as f:
+                return f.read()
+        except:
+            return None
 
 
 class TemplateDir:
