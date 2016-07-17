@@ -15,10 +15,10 @@ php5: ## build php5 app runtime container
 python: ## build python app runtime container
 	cd docker/python && docker build -t foggly/python .
 
-hc_npm: site/www/node_modules/
+hc_npm: site/www/node_modules/.bin/webpack
 	cd site/www && npm install
 
-hc_bower: site/www/bower_components/
+hc_bower: www/bower_components/bootstrap/bower.json
 	cd site/www && bower --allow-root install
 
 host_controller: hc_npm hc_bower ## build the host_controller container
