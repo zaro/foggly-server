@@ -1,0 +1,13 @@
+[Unit]
+Description=Foggly Host Controller
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=-docker stop host_controller
+ExecStartPre=-docker rm host_controller
+ExecStart=docker run -d --name 'host_controller' -h 'foggly-ctrl.%H' -v /srv/_host_controller:/srv/home/www/persistent -e 'REDIS_URL=redis://172.17.0.1' -p 3000:3000 -p 6379:6379  foggly/host_controller
+
+[Install]
+WantedBy=default.target
