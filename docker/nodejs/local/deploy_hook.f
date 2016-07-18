@@ -10,14 +10,6 @@ function deploy_hook_install {
   echo '*** END npm install'
 }
 
-function deploy_hook_user_hook {
-  if [ -x .hooks/on_deploy ]; then
-    echo '*** BEGIN on_deploy '`pwd`
-    .hooks/on_deploy
-    echo '*** END on_deploy'
-  fi
-}
-
 function deploy_hook_reload {
   . /usr/local/procfile_to_supervisor
 

@@ -76,3 +76,4 @@ https://support.google.com/mail/answer/81126
 ## Todo
 
 - Rebase the images on https://hub.docker.com/r/maci0/systemd/
+- or use [rkt](https://coreos.com/rkt/docs/latest/) instead of docker
