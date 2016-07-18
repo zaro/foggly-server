@@ -2,7 +2,7 @@
 
 function activate_pyvenv {
 
-  if [ ! -d /srv/home/pyvenv ]; then
+  if [ ! -f /srv/home/pyvenv/bin/activate ]; then
     pyvenv-3.5 --system-site-packages /srv/home/pyvenv
 
     . /srv/home/pyvenv/bin/activate
