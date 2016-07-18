@@ -7,6 +7,7 @@
 
 ### Standalone
 #### create package.json
+
 ```json
 {
   "name": "test",

@@ -6,6 +6,7 @@ cd /srv/home/www
 
 activate_pyvenv
 
+APP_DIR=/srv/home/www
 WSGI_SWITCH="--wsgi-file"
 WSGI_FILE="undefined"
 WSGI_OPTS=()
@@ -43,6 +44,9 @@ function procfile_entry {
           MAX_REQUESTS="$2"
           shift
           ;;
+        --chdir)
+          APP_DIR="$2"
+          shift
         *)
           # just ignore everythign else
           ;;
@@ -84,4 +88,4 @@ fi
 . /usr/local/start_app_hook.f
 start_app_preexecute
 
-exec uwsgi --chdir /srv/home/www --plugin python35,http --master --virtualenv /srv/home/pyvenv --die-on-term --thunder-lock --max-requests=$MAX_REQUESTS --processes=$NUM_PROCESSES  "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"
+exec uwsgi --chdir "$APP_DIR" --plugin python35,http --master --virtualenv /srv/home/pyvenv --die-on-term --thunder-lock --max-requests=$MAX_REQUESTS --processes=$NUM_PROCESSES  "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"

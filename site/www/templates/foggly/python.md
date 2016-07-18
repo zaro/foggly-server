@@ -25,6 +25,7 @@ The following uwsgi arguments are recognized:
   - [--static-map](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#static-map)
   - [--processes](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#processes)
   - [--max-requests](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#max-requests)
+  - [--chdir](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#chdir)
 
 #### Create  .hooks/on_deploy for migrations like this
 
