@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /srv/home/www
+cd "/srv/home/www/${WWW_ROOT_SUBDIR}"
 
 CMD=$(node -e 'fs=require("fs"); a = JSON.parse(fs.readFileSync("package.json")); console.log(a.scripts ? a.scripts.start: undefined)' )
 if [ "$CMD" = "undefined" ]; then
