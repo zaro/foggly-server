@@ -29,10 +29,18 @@ deploy_hook_init
 deploy_hook_install
 
 if [ -x .hooks/on_deploy ]; then
-  echo '*** BEGIN on_deploy '`pwd`
+  echo '*** BEGIN on_deploy in '`pwd`
   .hooks/on_deploy
   echo '*** END on_deploy'
 fi
+
+echo '*** BEGIN generate supervisor entries'
+. /usr/local/procfile_to_supervisor
+procfile_process
+
+/usr/bin/supervisorctl reread
+/usr/bin/supervisorctl update
+echo '*** END generate supervisor entries'
 
 deploy_hook_reload
 

@@ -67,5 +67,5 @@ https://support.google.com/mail/answer/81126
 
 ## Todo
 
-- Rebase the images on https://hub.docker.com/r/maci0/systemd/
+- Rebase the images on https://hub.docker.com/r/maci0/systemd/ and https://rhatdan.wordpress.com/2014/04/30/running-systemd-within-a-docker-container/
 - or use [rkt](https://coreos.com/rkt/docs/latest/) instead of docker

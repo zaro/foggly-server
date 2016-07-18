@@ -11,12 +11,6 @@ function deploy_hook_install {
 }
 
 function deploy_hook_reload {
-  echo '*** BEGIN generate supervisor entries'
-  . /usr/local/procfile_to_supervisor
-
-  /usr/bin/supervisorctl reread
-  /usr/bin/supervisorctl update
-  echo '*** END generate supervisor entries'
 
   /usr/bin/supervisorctl restart web
 

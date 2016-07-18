@@ -13,6 +13,8 @@ function procfile_entry_to_supervisor {
   echo "Supervisor entry [${NAME}]:'${CMD}'"
   COMMAND=$(procfile_comand "$CMD")
   printf "[program:${NAME}]\ncommand=${COMMAND}\ndirectory=/srv/home/www\n" > "${FILE}"
+  printf "stdout_logfile = /srv/home/log/supervisor/${NAME}.log\nstdout_logfile_maxbytes = 10MB\nstdout_logfile_backups = 1\n" >> "${FILE}"
+  printf "stderr_logfile = /srv/home/log/supervisor/${NAME}.error.log\nstderr_logfile_maxbytes = 10MB\nstderr_logfile_backups = 1\n" >> "${FILE}"
   procfile_entry_append "${FILE}" "${NAME}" "${CMD}"
 }
 
