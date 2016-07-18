@@ -1,8 +1,9 @@
 {% load conf_helpers %}
-## clone
+## Clone the repo or add remote to existing repo
+### clone
 
     $ git clone {% gitRemote %}
 
-## add remote to existing repo
+### add remote to existing repo
 
     $ git remote add deploy {% gitRemote %}

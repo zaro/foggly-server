@@ -18,23 +18,23 @@
 ### Django
 #### create Procfile like this
 
-    $cat Procfile
+    cat Procfile
     web: uwsgi --module DJANGO_APP.wsgi --static-map /static=./static/
 
 The following uwsgi arguments are recognized:
 
-    - --module
-    - --wsgi-file
-    - --static-map
-    - --processes
-    - --max-requests
+  - [--module](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=module#module)
+  - [--wsgi-file](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#wsgi-file)
+  - [--static-map](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#static-map)
+  - [--processes](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#processes)
+  - [--max-requests](http://uwsgi-docs.readthedocs.io/en/latest/Options.html?highlight=wsgi-file#max-requests)
 
-#### Create executable .hooks/on_deploy for migrations
+#### Create executable .hooks/on_deploy for migrations like this
 
-    $chmod a+x .hooks/on_deploy
-    $cat .hooks/on_deploy
-    #/bin/sh
-    manage.py migrate --noinput
+```sh
+#/bin/sh
+manage.py migrate --noinput
+```
 
 {% include 'common_post.md' %}
 {% endmarkdown %}

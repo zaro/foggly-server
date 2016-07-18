@@ -16,7 +16,6 @@ from kombu import Exchange, Queue
 from kombu.common import Broadcast
 from datetime import timedelta
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -148,6 +147,16 @@ WEBPACK_LOADER = {
         'CACHE': not DEBUG,
         'BUNDLE_DIR_NAME': 'bundles/',
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+    }
+}
+
+MARKDOWN_DEUX_STYLES = {
+    "default": {
+        "extras": {
+            "code-friendly": None,
+            "fenced-code-blocks": None,
+        },
+        "safe_mode": "escape",
     }
 }
 

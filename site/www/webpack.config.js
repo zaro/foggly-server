@@ -64,7 +64,7 @@ module.exports = {
   },
 
   resolve: {
-    modulesDirectories: ['node_modules', 'bower_components', 'static'],
+    modulesDirectories: ['node_modules', 'bower_components', 'assets', 'static'],
     extensions: ['', '.js', '.jsx', '.css'],
   },
   devtool: '#source-map',
