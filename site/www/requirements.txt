@@ -10,3 +10,4 @@ docker-py
 Jinja2
 ansible
 mysqlclient
+django-markdown-deux

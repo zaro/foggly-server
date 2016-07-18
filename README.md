@@ -16,6 +16,8 @@ In top dir:
 
 ## Running on a single machine
 
+### Setup
+
 Setup firewall:
 
     # add docker interface to the trusted zone
@@ -30,6 +32,19 @@ Create directory for host_controller persistent storage:
     chown 33.33 -R /srv/_host_controller/
     mkdir /srv/_host_worker
     chown 33.33 -R /srv/_host_worker/
+
+
+### Run with systemd
+
+    cp systemd/foggly-host-* /etc/systemd/system/
+    systemctl start foggly-host-worker.service
+    systemctl start foggly-host-controller.service
+
+    # if you want them to start at boot
+    systemctl enable foggly-host-controller.service
+    systemctl enable foggly-host-worker.service
+
+### Run Manually
 
 Host controller:
 
@@ -53,6 +68,10 @@ flake8 and eslint configurations are included, to use them in Atom install :
 This link: https://blog.codinghorror.com/so-youd-like-to-send-some-email-through-code/
 http://www.spfwizard.net/
 https://support.google.com/mail/answer/81126
+
+## Known bugs
+
+-  The status of the domains on the Domains screen is unreliable
 
 ## Todo
 

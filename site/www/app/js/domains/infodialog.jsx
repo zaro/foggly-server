@@ -62,6 +62,7 @@ export default class InfoDialog extends React.Component {
         Port ${dcfg.SSH_PORT}
         User user
     `;
+    const helpUrl = `${location.protocol}//${location.host}/doc/${cfg.type}?forName=${cfg.domain}`;
     return (
       <Modal show={this.state.showModal} onHide={this.close}>
         <Modal.Header closeButton>
@@ -70,9 +71,16 @@ export default class InfoDialog extends React.Component {
         <Modal.Body>
           <Grid>
             <Row>
-              <Col sd={2} md={2} lg={2}>Domain <Label>{cfg.domain}</Label><br /></Col>
-              <Col sd={2} md={2} lg={2}>Application <Label>{cfg.type}</Label><br /></Col>
-              <Col sd={2} md={2} lg={2}>URL: <a href={`http://${cfg.domain}`} target="_blank">{cfg.domain}</a></Col>
+              <Col sd={2} md={2} lg={2} />
+              <Col sd={4} md={4} lg={4}>
+                <h3 style={{ margin: '0 auto' }}><Label bsStyle="info">Quick start</Label> <a href={helpUrl} target="_blank">{cfg.type}</a></h3>
+              </Col>
+            </Row>
+            <Row />
+            <Row>
+              <Col sd={2} md={2} lg={2}><Label>Domain</Label>{cfg.domain}<br /></Col>
+              <Col sd={2} md={2} lg={2}><Label>Application</Label> {cfg.type}<br /></Col>
+              <Col sd={2} md={2} lg={2}><Label>URL</Label> <a href={`http://${cfg.domain}`} target="_blank">{cfg.domain}</a></Col>
             </Row>
           </Grid>
           <FormGroup>

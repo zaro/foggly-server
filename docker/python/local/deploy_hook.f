@@ -31,14 +31,24 @@ function procfile_comand {
 function deploy_hook_init {
 
   activate_pyvenv
-
 }
 
 function deploy_hook_install {
-  echo '*** BEGIN pip install in '`pwd`
-  pip install -r requirements.txt
-  echo '*** END pip install'
+  if [ -f requirements.txt ]; then
+    echo '*** BEGIN pip install in '`pwd`
+    pip install -r requirements.txt
+    echo '*** END pip install'
+  fi
 }
+
+function deploy_hook_user_hook {
+  if [ -x .hooks/on_deploy ]; then
+    echo '*** BEGIN on_deploy '`pwd`
+    .hooks/on_deploy
+    echo '*** END on_deploy'
+  fi
+}
+
 
 function deploy_hook_reload {
   echo '*** BEGIN generate supervisor entries'
