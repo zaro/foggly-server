@@ -1,11 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'base.md' %}
 {% load markdown_deux_tags conf_helpers %}
 
 {% block content %}
 {% markdown %}
-
-# Quick start for foggly/python app runtime
-{% include 'common_pre.md' %}
 ## write app
 
 ###Simple WSGI app
@@ -40,7 +37,5 @@ python manage.py migrate --noinput
 ```sh
 chmod a+x .hooks/on_deploy
 ```
-
-{% include 'common_post.md' %}
 {% endmarkdown %}
 {% endblock %}

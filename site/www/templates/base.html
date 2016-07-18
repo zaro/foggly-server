@@ -29,9 +29,12 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-
+    {% block pre_content %}
+    {% endblock%}
     {% block content %}
     <div class="container"></div>
+    {% endblock%}
+    {% block post_content %}
     {% endblock%}
 
   </body>
