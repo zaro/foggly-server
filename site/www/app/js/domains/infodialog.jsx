@@ -62,7 +62,7 @@ export default class InfoDialog extends React.Component {
         Port ${dcfg.SSH_PORT}
         User user
     `;
-    const helpUrl = `${location.protocol}//${location.host}/doc/${cfg.type}?forName=${cfg.domain}`;
+    const helpUrl = `${location.protocol}//${location.host}/doc/${cfg.type}?forDomain=${cfg.domain}`;
     return (
       <Modal show={this.state.showModal} onHide={this.close}>
         <Modal.Header closeButton>
