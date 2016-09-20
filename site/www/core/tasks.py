@@ -106,10 +106,14 @@ def removeMysqlDatabaseRecord(createDomainResult, cfg):
         print(user)
     except ObjectDoesNotExist:
         raise HostControllerError('Invalid username')
+    try:
+        host = Host.objects.get(main_domain=cfg['host'])
+    except ObjectDoesNotExist:
+        raise HostControllerError('Invalid host')
 
     dbentry = None
     # Permission check,  don't allow deleteuser/database if they are already taken by another user
-    for dbentry in SharedDatabase.objects.filter(db_name=cfg['db_name'], db_user=cfg['db_user'], db_type='mysql', host=cfg['host']):
+    for dbentry in SharedDatabase.objects.filter(db_name=cfg['db_name'], db_user=cfg['db_user'], db_type='mysql', host=host):
         if dbentry.user.username != cfg['user']:
             raise HostControllerError("'{}'' is not owner of database '{}'!".format(cfg['user'], cfg['db_name']))
         break

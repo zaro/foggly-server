@@ -15,6 +15,9 @@ php5: ## build php5 app runtime container
 python: ## build python app runtime container
 	cd docker/python && docker build -t foggly/python .
 
+java: ## build java app runtime container
+		cd docker/java && docker build -t foggly/java .
+
 host_controller:  ## build the host_controller container
 	if [ "${FULL}" ]; then \
 		cd site/www ; \
