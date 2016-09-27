@@ -8,7 +8,7 @@ RUN echo "postfix postfix/mailname string example.com" | debconf-set-selections
 RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
 RUN apt-get clean && \
     apt-get update && \
-    apt-get install -y psmisc nano less supervisor postfix curl mariadb-client-core-10.0 libmariadb-client-lgpl-dev && \
+    apt-get install -y psmisc nano less vim rsync supervisor postfix curl mariadb-client-core-10.0 libmariadb-client-lgpl-dev && \
     apt-get install -y --no-install-recommends git make openssh-server rsyslog opendkim opendkim-tools && \
     apt-get clean && \
     rm -fr /etc/postfix && \
