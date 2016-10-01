@@ -1,7 +1,7 @@
 import os, subprocess
 import glob
 import shlex, shutil
-import re, random
+import re, random, sys
 
 from jinja2 import Template
 
@@ -13,6 +13,8 @@ else:
 
 
 class DomainConfig:
+    IS_LIST = ['REDIRECT_ALIASES']
+
     def __init__(self, cfgFile, path=None, override=False):
         self.path = path
         self.cfgFile = cfgFile
@@ -43,11 +45,20 @@ class DomainConfig:
         print("Reading: ", path)
         cfgVars = []
         with open(path, 'r') as cfgFile:
-            cfgVars = shlex.split(cfgFile.read(), comments=True)
-        for var in cfgVars:
-            mo = re.match('(\w+)=(.*)', var)
-            if mo:
-                handler(mo.group(1), mo.group(2))
+            for line in cfgFile.readlines():
+                if re.match(r'^\s*#', line):
+                    continue
+                mo = re.match('\s*(\w+)=(.*)', line)
+                if mo:
+                    key = mo.group(1)
+                    val = mo.group(2)
+                    if key in self.IS_LIST:
+                        mo = re.match('^\((.*)\)\s*$', val)
+                        if mo:
+                            val = shlex.split(mo.group(1))
+                        else:
+                            val = shlex.split(val)
+                    handler(key, val)
 
     def addUsedValue(self, name, value):
         if name not in self.usedValues:
@@ -77,7 +88,23 @@ class DomainConfig:
     def write(self ):
         with open(self.cfgFile, 'w') as cfgFile:
             for k, v in self.currentValues.items():
-                cfgFile.write("{}={}\n".format(k, shlex.quote(v)))
+                if k in self.IS_LIST:
+                    qv = []
+                    if type(v) is list or type(v) is tuple:
+                        for arrayVal in v:
+                            qv.append( shlex.quote(arrayVal) )
+                        v = '(' + " ".join(qv) + ')'
+                    else:
+                        if v is not None:
+                            v = '(' + shlex.quote(str(v)) + ')'
+                        else:
+                            v = ''
+                else:
+                    if v is not None:
+                        v = shlex.quote(str(v))
+                    else:
+                        v=''
+                cfgFile.write("{}={}\n".format(k, v))
 
 
 def allDomainDirs():
@@ -288,3 +315,7 @@ class AuthorizedKeysFile:
                 self.lines.remove(key)
             except ValueError:
                 break
+
+if __name__ == '__main__':
+    dc = DomainConfig(sys.argv[1],override=True)
+    print(dc.asDict())

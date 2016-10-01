@@ -2,6 +2,13 @@ upstream {{DOMAIN_ID}} {
 	server 127.0.0.1:{{WWW_PORT}};
 }
 
+{% for redirect_alias in REDIRECT_ALIASES %}
+server {
+        server_name {{redirect_alias}};
+        return 301 $scheme://{{DOMAIN}}$request_uri;
+}
+{% endfor %}
+
 server {
 	server_name {{DOMAIN}};
 
