@@ -9,10 +9,21 @@ server {
 }
 {% endfor %}
 
+{% if SSL_ONLY == 'yes' %}
+server {
+      listen      80;
+      server_name {{DOMAIN}};
+      ## redirect http to https ##
+      rewrite        ^ https://$server_name$request_uri? permanent;
+}
+{% endif %}
+
 server {
 	server_name {{DOMAIN}};
 
+	{% if SSL_ONLY != 'no' %}
 	listen 80;
+	{% endif %}
 
 	{% if HAS_SSL %}
 	#SSL configuration
@@ -62,6 +73,7 @@ server {
 		proxy_set_header        Host            $host;
 		proxy_set_header        X-Real-IP       $remote_addr;
 		proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header        Strict-Transport-Security "max-age=16070400; includeSubDomains" ;
 	}
 	{%elif PROXY_TYPE == "uwsgi" %}
 	location / {
