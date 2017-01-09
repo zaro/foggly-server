@@ -64,6 +64,10 @@ server {
 		text/x-component;
 	{% endif %}
 
+	location /.well-known/ {
+					root /srv/{{OWNER}}/{{DOMAIN}}/.well-known;
+	}
+
 	{%if PROXY_TYPE == "http" %}
 	location / {
 		proxy_pass  http://{{DOMAIN_ID}};

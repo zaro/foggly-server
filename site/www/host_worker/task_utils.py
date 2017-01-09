@@ -245,6 +245,8 @@ class DirCreate:
 
 
 class TemplateDir:
+    TEMPLATE_EXTENSION = '.jinja2'
+
     def __init__(self, path, cfg):
         self.path = path
         self.destination = None
@@ -268,7 +270,7 @@ class TemplateDir:
         for f in files:
             srcName = os.path.join(root, f)
             print("{} -> {}".format(srcName, self.destination.filename(f)))
-            if f.endswith('.jinja2'):
+            if f.endswith(self.TEMPLATE_EXTENSION):
                 content = "???FAILED TEMPLATE PROCESSING"
                 with open(srcName, 'r') as fd:
                     t = Template(fd.read())
@@ -285,6 +287,13 @@ class TemplateDir:
         self.destination = DirCreate(destination)
         print("Template.copyTo {} -> {}".format(str(self.path), str(destination)))
         self.walk(self.copyDirs, self.copyFiles)
+
+    def copyFileTo(self, fileName, destination):
+        self.destination = DirCreate(destination)
+        print("Template.copyFileTo {}/{} -> {}".format(str(self.path), fileName, str(destination)))
+        if self.destination.exists(fileName + self.TEMPLATE_EXTENSION) and not self.destination.exists(fileName):
+            fileName += self.TEMPLATE_EXTENSION
+        self.copyFiles( self.path, "", [ fileName ])
 
 
 class AuthorizedKeysFile:

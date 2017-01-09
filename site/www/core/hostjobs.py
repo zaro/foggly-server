@@ -37,6 +37,12 @@ class DomainJobs:
     def addPublicKey(self, cfg):
         return addPublicKey.s(cfg).set(queue=self.hostMainDomain).apply_async()
 
+    def enableSsl(self, cfg):
+        return chain(
+            enableDomainSsl.s(cfg).set(queue=self.hostMainDomain),
+            updateDomainConfig.s(cfg).set(queue='host_ctrl')
+        )()
+
 
 class MysqlJobs:
     def __init__(self, hostMainDomain):

@@ -1,5 +1,5 @@
 celery[redis]
-Django==1.9.7
+Django==1.10.5
 django-celery
 django-extensions
 django-material>=0.8.0

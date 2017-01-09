@@ -1,4 +1,5 @@
 env
+.direnv
 *.pyc
 site/www/node_modules/
 site/www/bower_components/

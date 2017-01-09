@@ -68,6 +68,8 @@ def createDomain(cfg):
     d.mkdir('var/spool/rsyslog')
     d.mkdir('var/spool/sessions', nginxUID, mode=0o1733)
 
+    d.mkdir('.well-known')
+
     d.pushd('www')
     d.mkdir([], nginxUID, nginxGID)
     if not d.exists('.git'):
@@ -144,6 +146,32 @@ def createDomain(cfg):
     td.copyTo(d.path)
 
     return {'success': True, 'domainConfig': hostCfg.asDict()}
+
+
+@shared_task(name='host.enableDomainSsl')
+def enableDomainSsl(cfg):
+    mandatoryParams(cfg, 'user', 'domain')
+    d = getDomainDir(cfg['user'], cfg['domain'])
+    if not d.exists():
+        raise HostWorkerError('Invalid user/domain')
+
+    d.run("certbot certonly --webroot {webroot} -d {domain}".format(webroot=d.filename('.well-known'), domain=cfg['domain']))
+
+    hostCfg = DomainConfig(d.filename('.hostcfg'))
+    hostCfg.override(True)
+    hostCfg.set('HAS_SSL', 'yes')
+    hostCfg.override(False)
+
+    hostCfg.write()
+
+    siteConfEnabled = d.exists('etc/site.conf')
+    td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())
+    td.copyFileTo('etc/site.conf.disabled', d.path)
+
+    if siteConfEnabled:
+        d.mv('etc/site.conf.disabled', 'etc/site.conf')
+
+    return {'success': True}
 
 
 @shared_task(name='host.removeDomain')

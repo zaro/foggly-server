@@ -56,6 +56,32 @@ def createDomainRecord(createDomainResult, cfg):
 
 
 @shared_task
+def updateDomainConfig(createDomainResult, cfg):
+    mandatoryParams(cfg, 'user', 'domain', 'host')
+    if 'domainConfig' not in createDomainResult:
+        raise HostControllerError('Create domain  failed to provide "domainConfig"')
+
+    try:
+        user = User.objects.get(username=cfg['user'])
+    except ObjectDoesNotExist:
+        raise HostControllerError('Invalid username: {}'.format(cfg['user']))
+    try:
+        host = Host.objects.get(main_domain=cfg['host'])
+    except ObjectDoesNotExist:
+        raise HostControllerError('Invalid host: {}', cfg['host'])
+
+    dbentry, created = DomainModel.objects.get_or_create(
+        user=user,
+        domain_name=cfg['domain'],
+        host=host
+    )
+    dConf = createDomainResult['domainConfig']
+    for k, v in dConf.items():
+        DomainConfig.objects.update_or_create(key=k, domain=dbentry, defaults={'value': v})
+    return {'success': True}
+
+
+@shared_task
 def removeDomainRecord(createDomainResult, cfg):
     mandatoryParams(cfg, 'user', 'domain')
 
