@@ -155,7 +155,11 @@ def enableDomainSsl(cfg):
     if not d.exists():
         raise HostWorkerError('Invalid user/domain')
 
-    d.run("certbot certonly --webroot {webroot} -d {domain}".format(webroot=d.filename('.well-known'), domain=cfg['domain']))
+    d.run("certbot certonly --config-dir {cfgdir} --webroot {webroot} -d {domain}".format(
+        webroot=d.filename('.well-known'),
+        domain=cfg['domain'],
+        cfgdir=LETSENCRYPT_DIR,
+    ))
 
     hostCfg = DomainConfig(d.filename('.hostcfg'))
     hostCfg.override(True)
