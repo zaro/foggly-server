@@ -170,7 +170,7 @@ def enableDomainSsl(cfg):
 
     siteConfEnabled = d.exists('etc/site.conf')
     td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())
-    td.copyFileTo('etc/site.conf.disabled', d.path)
+    td.copyFileTo('site.conf.disabled', d.filename('etc'))
 
     if siteConfEnabled:
         d.mv('etc/site.conf.disabled', 'etc/site.conf')
