@@ -175,7 +175,7 @@ def enableDomainSsl(cfg):
     if siteConfEnabled:
         d.mv('etc/site.conf.disabled', 'etc/site.conf')
 
-    return {'success': True}
+    return {'success': True, 'domainConfig': {'HAS_SSL': 'yes'}}
 
 
 @shared_task(name='host.removeDomain')
