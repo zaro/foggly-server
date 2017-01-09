@@ -78,6 +78,10 @@ class DockerCtl(Client):
                 '/var/lib/mysql/': {
                     'bind': '/var/lib/mysql/',
                     'mode': 'ro',
+                },
+                '/var/run/postgresql/': {
+                    'bind': '/var/run/postgresql/',
+                    'mode': 'ro',
                 }
             },
             port_bindings={
