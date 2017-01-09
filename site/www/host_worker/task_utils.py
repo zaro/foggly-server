@@ -149,7 +149,8 @@ class DirCreate:
 
     def popd(self):
         self.paths.pop()
-        self.path = os.path.join( *self.paths )
+        if self.paths:
+            self.path = os.path.join( *self.paths )
         self.path = os.path.abspath(self.path)
         print("popd " + self.path)
 
@@ -295,7 +296,8 @@ class TemplateDir:
     def copyFileTo(self, fileName, destination):
         self.destination = DirCreate(destination)
         print("Template.copyFileTo {}/{} -> {}".format(str(self.path), fileName, str(destination)))
-        if self.destination.exists(fileName + self.TEMPLATE_EXTENSION) and not self.destination.exists(fileName):
+        absFileName = os.path.join(self.path, fileName )
+        if os.path.exists(absFileName + self.TEMPLATE_EXTENSION) and not os.path.exists(absFileName):
             fileName += self.TEMPLATE_EXTENSION
         self.copyFiles( self.path, "", [ fileName ])
 
