@@ -352,7 +352,7 @@ def removeMysqlDatabase(cfg):
     return {'success': True, 'result': res }
 
 
-def executePgQueryList(queryList, dbname):
+def executePgQueryList(queryList, dbname='template1'):
     db = psycopg2.connect("dbname={dbname} user={user} password={password}".format(
         dbname=dbname,
         user=settings.HOST_WORKER_PG_USER,
@@ -386,7 +386,7 @@ def addPostgresDatabase(cfg):
         ('CREATE DATABASE "{db_name}" WITH OWNER="{db_user}"', '42P04'),
         'REVOKE ALL ON DATABASE "{db_name}" FROM public',
     ])
-    res = executePgQueryList(queryList, 'template1')
+    res = executePgQueryList(queryList)
 
     return {'success': True, 'result': res }
 
