@@ -98,8 +98,8 @@ def removeDomainRecord(createDomainResult, cfg):
 
 
 @shared_task
-def addMysqlDatabaseRecord(createDomainResult, cfg):
-    mandatoryParams(cfg, 'user', 'db_user', 'db_pass', 'db_name', 'host')
+def addDatabaseRecord(createDomainResult, cfg):
+    mandatoryParams(cfg, 'user', 'db_user', 'db_pass', 'db_name', 'host', 'db_type')
 
     log.info('addMysqlDatabaseRecord({}, {})'.format(createDomainResult, cfg))
     try:
@@ -117,15 +117,15 @@ def addMysqlDatabaseRecord(createDomainResult, cfg):
         db_user=cfg['db_user'],
         db_pass=cfg['db_pass'],
         db_name=cfg['db_name'],
-        db_type="mysql"
+        db_type=cfg['db_type']
     )
     dbentry.save()
     return {'success': True}
 
 
 @shared_task
-def removeMysqlDatabaseRecord(createDomainResult, cfg):
-    mandatoryParams(cfg, 'user', 'db_user', 'db_name', 'host')
+def removeDatabaseRecord(createDomainResult, cfg):
+    mandatoryParams(cfg, 'user', 'db_user', 'db_name', 'host', 'db_type')
 
     try:
         user = User.objects.get(username=cfg['user'])
@@ -139,7 +139,7 @@ def removeMysqlDatabaseRecord(createDomainResult, cfg):
 
     dbentry = None
     # Permission check,  don't allow deleteuser/database if they are already taken by another user
-    for dbentry in SharedDatabase.objects.filter(db_name=cfg['db_name'], db_user=cfg['db_user'], db_type='mysql', host=host):
+    for dbentry in SharedDatabase.objects.filter(db_name=cfg['db_name'], db_user=cfg['db_user'], db_type=cfg['db_type'], host=host):
         if dbentry.user.username != cfg['user']:
             raise HostControllerError("'{}'' is not owner of database '{}'!".format(cfg['user'], cfg['db_name']))
         break

@@ -17,8 +17,8 @@ class DatabasesPage extends React.Component {
           { name: 'Add', title: 'Add new database', onClick: () => this.refs.addDialog.show() },
         ]}
       />
-      <DatabasesTable ref="dbTable" showError={this.showError} dbType="mysql" />
-      <DatabaseAdd ref="addDialog" title="Add Mysql Database" dbType="mysql" onClose={() => this.refs.dbTable.fetch()} />
+      <DatabasesTable ref="dbTable" showError={this.showError} dbType="postgres" />
+      <DatabaseAdd ref="addDialog" title="Add PostgreSQL Database" dbType="postgres" onClose={() => this.refs.dbTable.fetch()} />
     </div>);
   }
 }

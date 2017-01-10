@@ -6,8 +6,8 @@ from core.views import (
     DomainView,
     DomainAddView,
     LogoutView,
-    DatabaseView,
-    DatabaseAddView,
+    DatabaseMysqlView,
+    DatabasesPostgresView,
 )
 
 urlpatterns = [
@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^logout/$', LogoutView.as_view(), name='logout'),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^domains/$', DomainView.as_view(), name='domains'),
-    url(r'^databases/$', DatabaseView.as_view(), name='databases'),
+    url(r'^databases/mysql$', DatabaseMysqlView.as_view(), name='databases-mysql'),
+    url(r'^databases/postgres$', DatabasesPostgresView.as_view(), name='databases-postgres'),
     url(r'', HomeView.as_view(), name='home'),
 ]

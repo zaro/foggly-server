@@ -10,6 +10,7 @@ import json
 import redis
 import os
 import MySQLdb
+import psycopg2
 import socket
 
 THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -290,7 +291,7 @@ def prepareQueryList(cfg, qList):
     return queryList
 
 
-def executeQueryList(queryList):
+def executeMysqlQueryList(queryList):
     db = MySQLdb.connect(user="root", unix_socket="/var/lib/mysql/mysql.sock")
     cur = db.cursor()
     res = []
@@ -305,6 +306,26 @@ def executeQueryList(queryList):
     return res
 
 
+@shared_task(name='host.addDatabase')
+def addDatabase(cfg):
+    mandatoryParams(cfg, 'db_type')
+    if cfg['db_type'] == 'mysql':
+        return addMysqlDatabase(cfg)
+    elif cfg['db_type'] == 'postgres':
+        return addPostgresDatabase(cfg)
+    raise HostWorkerError("Invalid database type: {}".format(cfg['db_type']))
+
+
+@shared_task(name='host.removeDatabase')
+def removeDatabase(cfg):
+    mandatoryParams(cfg, 'db_type')
+    if cfg['db_type'] == 'mysql':
+        return removeMysqlDatabase(cfg)
+    elif cfg['db_type'] == 'postgres':
+        return removePostgresDatabase(cfg)
+    raise HostWorkerError("Invalid database type: {}".format(cfg['db_type']))
+
+
 @shared_task(name='host.addMysqlDatabase')
 def addMysqlDatabase(cfg):
     mandatoryParams(cfg, 'db_user', 'db_pass', 'db_name')
@@ -314,7 +335,7 @@ def addMysqlDatabase(cfg):
         "CREATE DATABASE IF NOT EXISTS `{db_name}`;",
         "GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';"
     ])
-    res = executeQueryList(queryList)
+    res = executeMysqlQueryList(queryList)
     return {'success': True, 'result': res }
 
 
@@ -327,7 +348,58 @@ def removeMysqlDatabase(cfg):
         "DROP DATABASE IF EXISTS `{db_name}`;",
         ("REVOKE ALL PRIVILEGES ON `{db_name}`.* FROM '{db_user}'@'localhost';", 1141)
     ])
-    res = executeQueryList(queryList)
+    res = executeMysqlQueryList(queryList)
+    return {'success': True, 'result': res }
+
+
+def executePgQueryList(queryList, dbname):
+    db = psycopg2.connect("dbname={dbname} user={user} password={password}".format(
+        dbname=dbname,
+        user=settings.HOST_WORKER_PG_USER,
+        password=settings.HOST_WORKER_PG_PASS,
+    ))
+    cur = db.cursor()
+    res = []
+    for query in queryList:
+        print("EXEC:", query['q'])
+        try:
+            cur.execute(query['q'])
+        except psycopg2.Error as e:
+            if e.pgcode not in query['ignoreErrors']:
+                raise e
+        res += cur.fetchall()
+    return res
+
+
+@shared_task(name='host.addPostgresDatabase')
+def addPostgresDatabase(cfg):
+    mandatoryParams(cfg, 'db_user', 'db_pass', 'db_name', 'db_type')
+    logger.info('addPostgresDatabase({})'.format(cfg))
+
+    # Taken from https://wiki.postgresql.org/wiki/Shared_Database_Hosting
+    queryList = prepareQueryList(cfg, [
+        # ('CREATE ROLE "{db_name}" NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOLOGIN', '42710'),
+        ("CREATE ROLE \"{db_user}\" WITH NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN ENCRYPTED PASSWORD '{db_pass}'", '42710'),
+        # 'GRANT "{db_name}" TO "{db_user}"',
+        ('CREATE DATABASE "{db_name}" WITH OWNER="{db_user}"', '42P04'),
+        'REVOKE ALL ON DATABASE "{db_name}" FROM public',
+    ])
+    res = executePgQueryList(queryList, 'template1')
+
+    return {'success': True, 'result': res }
+
+
+@shared_task(name='host.removePostgresDatabase')
+def removePostgresDatabase(cfg):
+    mandatoryParams(cfg, 'db_user', 'db_name', 'db_type')
+    logger.info('removePostgresDatabase({})'.format(cfg))
+
+    queryList = prepareQueryList(cfg, [
+        ('DROP DATABASE "{db_name}"', '3D000'),
+        ('DROP ROLE "{db_user}"', '42704'),
+        # ('DROP ROLE "{db_name}"', '42704'),
+    ])
+    res = executePgQueryList(queryList)
     return {'success': True, 'result': res }
 
 

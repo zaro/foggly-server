@@ -10,5 +10,6 @@ docker-py
 Jinja2
 ansible
 mysqlclient
+psycopg2
 django-markdown-deux
 pygments

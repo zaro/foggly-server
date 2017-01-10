@@ -26,6 +26,7 @@ class DatabasesRow extends React.Component {
     host: React.PropTypes.string.isRequired,
     removeRow: React.PropTypes.func.isRequired,
     showError: React.PropTypes.func.isRequired,
+    dbType: React.PropTypes.string.isRequired,
   }
   constructor(props) {
     super(props);
@@ -36,7 +37,7 @@ class DatabasesRow extends React.Component {
   deleteDatabase = () => {
     console.log('Delete database:', this.props.db_name);
     this.setState({ working: true });
-    apiCall('/api/databases/mysql/delete', {
+    apiCall(`/api/databases/${this.props.dbType}/delete`, {
       db_name: this.props.db_name,
       db_user: this.props.db_user,
       host: this.props.host,
@@ -78,13 +79,15 @@ class DatabasesTable extends GenericTable {
     rowComponent: DatabasesRow,
     columns: 4,
     showError: React.PropTypes.func.isRequired,
+    dbType: React.PropTypes.string.isRequired,
   };
   fetch() {
-    this.serverRequest = apiCall('/api/databases/mysql');
+    this.serverRequest = apiCall(`/api/databases/${this.props.dbType}`);
     this.setState({ loading: true });
     this.serverRequest.then((data) => {
       const dataList = _.forEach(data.response, (value) => {
         value._id = value.host + value.db_name + value.db_user;
+        value.dbType = this.props.dbType;
       });
       this.setState({ dataList, loading: false });
       this.serverRequest = null;

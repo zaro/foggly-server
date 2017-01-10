@@ -44,18 +44,18 @@ class DomainJobs:
         )()
 
 
-class MysqlJobs:
+class DatabaseJobs:
     def __init__(self, hostMainDomain):
         self.hostMainDomain = hostMainDomain
 
     def create(self, cfg):
         return chain(
-            addMysqlDatabase.s(cfg).set(queue=self.hostMainDomain),
-            addMysqlDatabaseRecord.s(cfg).set(queue='host_ctrl')
+            addDatabase.s(cfg).set(queue=self.hostMainDomain),
+            addDatabaseRecord.s(cfg).set(queue='host_ctrl')
         )()
 
     def remove(self, cfg):
         return chain(
-            removeMysqlDatabase.s(cfg).set(queue=self.hostMainDomain),
-            removeMysqlDatabaseRecord.s(cfg).set(queue='host_ctrl')
+            removeDatabase.s(cfg).set(queue=self.hostMainDomain),
+            removeDatabaseRecord.s(cfg).set(queue='host_ctrl')
         )()

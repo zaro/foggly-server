@@ -6,13 +6,12 @@ from django.conf import settings
 import core.models
 import core.hostjobs
 
-from api.mixins import ApiLoginRequiredMixin
 
-from celery.result import result_from_tuple
+from api.mixins import ApiLoginRequiredMixin
+import api.base_views as base_views
+from api.views_common import handleExceptions, mandatoryParams, parseJson, makeError, taskToId, taskFromId
+
 from celery.exceptions import TimeoutError
-import json
-import pickle
-import base64
 import redis
 
 import logging
@@ -26,64 +25,6 @@ def getRedisConnection():
     if redisPool is None:
         redisPool = redis.ConnectionPool.from_url(settings.CELERY_RESULT_BACKEND)
     return redis.StrictRedis(connection_pool=redisPool)
-
-
-class InvalidJson(Exception):
-    def __init__(self, error):
-        super().__init__('Invalid json [{}]'.format(error))
-
-
-class InvalidParam(Exception):
-    def __init__(self, param, value):
-        super().__init__('Invalid value for parameter [{}]:[{}]'.format(param, value))
-
-
-def parseJson(body):
-    # logger.debug('Parsing:' + body.decode('utf8'))
-    if len(body) == 0:
-        raise InvalidJson('Empty')
-    try:
-        return json.loads(body.decode('utf8'), encoding='utf8')
-    except ValueError as e:
-        raise InvalidJson(e)
-
-
-def mandatoryParams(reqData, *params):
-    out = {}
-    for param in params:
-        if reqData.get(param) is None:
-            raise InvalidParam(param, None)
-        out[param] = reqData.get(param)
-    return out
-
-
-def handleExceptions(method):
-    def _handler(self, request):
-        try:
-            return method(self, request)
-        except InvalidParam as e:
-            return JsonResponse( { 'error': str(e) } )
-        except InvalidJson as e:
-            return JsonResponse( { 'error': str(e) } )
-    return _handler
-
-
-def makeError(text, data={}):
-    return JsonResponse( { 'error': text.format(**data) } )
-
-
-def missingMethod(request):
-    return makeError('Method missing')
-
-
-def taskToId(asyncResult):
-    t = asyncResult.as_tuple()
-    return base64.urlsafe_b64encode(pickle.dumps(t, -1)).decode()
-
-
-def taskFromId(id):
-    t = pickle.loads(base64.urlsafe_b64decode(id))
-    return result_from_tuple(t)
 
 
 # Task polling
@@ -249,6 +190,51 @@ class DomainsAdd(ApiLoginRequiredMixin, View):
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
+class DomainsSsl(ApiLoginRequiredMixin, View):
+    def get(self, request):
+        """
+            Return  list with true/false for each domain ssl status, for each domain :
+        """
+        domains = request.GET.getlist('domain', [] )
+        # Filter for current user
+        response = []
+        domains = core.models.DomainModel.objects.filter(user=request.user, domain_name__in=domains)
+        for domain in domains:
+            config = {}
+            for dc in domain.domainconfig_set.all():
+                config[dc.key] = dc.value
+            response.append({
+                'domain': domain.domain_name,
+                'type': domain.app_type.container_id,
+                'config': config,
+                'sshUrl': 'ssh://{}:{}'.format(config.get('DOMAIN'), config.get('SSH_PORT'))
+            })
+        return JsonResponse( {'response': response } )
+
+    @handleExceptions
+    def post(self, request):
+        reqData = parseJson(request.body)
+        reqData = mandatoryParams(reqData, 'domain', 'app_type', 'host')
+        # Filter for current user
+        reqData['user'] = request.user.username
+        try:
+            core.models.DomainModel.objects.get( domain_name=reqData['domain'] )
+            return makeError( 'Domain already exists: {domain}', reqData )
+        except ObjectDoesNotExist:
+            pass
+        try:
+            host = core.models.Host.objects.get( main_domain=reqData['host'] )
+        except ObjectDoesNotExist:
+            return makeError( 'Host does not exists: {host}', reqData )
+        try:
+            app_type = core.models.DockerContainer.objects.get( container_id=reqData['app_type'] )
+        except ObjectDoesNotExist:
+            return makeError( 'app_type does not exists: {host}', reqData )
+        reqData['app_type'] = app_type.to_dict(json=True)
+        res = core.hostjobs.DomainJobs(host.main_domain).create( reqData )
+        return JsonResponse({ 'completed': False, 'id': taskToId(res) })
+
+
 class DomainsRecreate(ApiLoginRequiredMixin, View):
     @handleExceptions
     def post(self, request):
@@ -304,41 +290,26 @@ class DomainsPublickey(ApiLoginRequiredMixin, View):
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
-# Create your views here.
-class DatabasesMysql(ApiLoginRequiredMixin, View):
-    def get(self, request):
-        user = request.user
-        response = []
-        for database in core.models.SharedDatabase.objects.filter(user=user, db_type='mysql'):
-            d = database.to_dict()
-            d['host'] = database.host.main_domain
-            response.append(d)
-        return JsonResponse( {'response': response } )
+# Database APIs
+class DatabasesMysql(base_views.DatabasesBase):
+    DB_TYPE = 'mysql'
 
 
-class DatabasesMysqlAdd(ApiLoginRequiredMixin, View):
-    @handleExceptions
-    def post(self, request):
-        reqData = parseJson(request.body)
-        params = mandatoryParams(reqData, 'db_user', 'db_pass', 'db_name', 'host')
-        params['user'] = request.user.username
-        try:
-            host = core.models.Host.objects.get( main_domain=params['host'] )
-        except ObjectDoesNotExist:
-            return makeError( 'Host does not exists: {host}', params )
-        res = core.hostjobs.MysqlJobs(host.main_domain).create( params )
-        return JsonResponse({ 'completed': False, 'id': taskToId(res) })
+class DatabasesMysqlAdd(base_views.DatabasesBaseAdd):
+    DB_TYPE = 'mysql'
 
 
-class DatabasesMysqlDelete(ApiLoginRequiredMixin, View):
-    @handleExceptions
-    def delete(self, request):
-        reqData = parseJson(request.body)
-        params = mandatoryParams(reqData, 'db_user', 'db_name', 'host')
-        params['user'] = request.user.username
-        try:
-            host = core.models.Host.objects.get( main_domain=params['host'] )
-        except ObjectDoesNotExist:
-            return makeError( 'Host does not exists: {host}', params )
-        res = core.hostjobs.MysqlJobs(host.main_domain).remove( params )
-        return JsonResponse({ 'completed': False, 'id': taskToId(res) })
+class DatabasesMysqlDelete(base_views.DatabasesBaseDelete):
+    DB_TYPE = 'mysql'
+
+
+class DatabasesPostgres(base_views.DatabasesBase):
+    DB_TYPE = 'postgres'
+
+
+class DatabasesPostgresAdd(base_views.DatabasesBaseAdd):
+    DB_TYPE = 'postgres'
+
+
+class DatabasesPostgresDelete(base_views.DatabasesBaseDelete):
+    DB_TYPE = 'postgres'

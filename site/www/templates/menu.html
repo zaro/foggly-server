@@ -1,7 +1,8 @@
 <ul class="nav navbar-nav">
   {% if user.is_authenticated %}
   {% url 'domains' as domains_url %}
-  {% url 'databases' as databases_url %}
+  {% url 'databases-mysql' as mysqldatabases_url %}
+  {% url 'databases-postgres' as postgresdatabases_url %}
   {% if request.get_full_path == home_url %}class="active"{% endif %}
   <li {% if request.get_full_path == domains_url %}class="active"{% endif %}><a href="{{ domains_url }}">Domains</a></li>
   <li class="dropdown">
@@ -9,7 +10,8 @@
         Databases
    </a>
    <ul class="dropdown-menu">
-     <li {% if request.get_full_path == databases_url %}class="active"{% endif %}><a href="{{ databases_url }}">MySQL</a></li>
+     <li {% if request.get_full_path == mysqldatabases_url %}class="active"{% endif %}><a href="{{ mysqldatabases_url }}">MySQL</a></li>
+     <li {% if request.get_full_path == postgresdatabases_url %}class="active"{% endif %}><a href="{{ postgresdatabases_url }}">PostgreSQL</a></li>
    </ul>
   </li>
   {% endif %}

@@ -9,6 +9,7 @@ module.exports = {
   entry: {
     domainspage: './app/js/domainspage',
     databasesmysqlpage: './app/js/databasesmysqlpage',
+    databasespostgrespage: './app/js/databasespostgrespage',
     vendor: ['./app/css/vendor.js', 'react', 'react-dom', 'react-bootstrap', 'jquery', 'lodash', 'bootstrap', 'bootstrap-material-design'],
   }, // entry point of our app. app/js/index.js should require other js modules and dependencies it needs
 

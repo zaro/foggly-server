@@ -5,6 +5,9 @@ import { FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 export default
 class DatabaseAdd extends InputDialog {
+  static defaultProps = {
+    dbType: React.PropTypes.string.isRequired,
+  };
 
   onSubmit() {
     this.setState({ working: true, error: null });
@@ -13,7 +16,7 @@ class DatabaseAdd extends InputDialog {
       postData[refName] = this.getInputValue(refName);
     }
     console.log('Adding database:', postData);
-    apiCall('/api/databases/mysql/add', postData, { method: 'POST' }).then((_data) => {
+    apiCall(`/api/databases/${this.props.dbType}/add`, postData, { method: 'POST' }).then((_data) => {
       this.close();
     }).catch((error) => {
       const err = error.error ? error.error : error;

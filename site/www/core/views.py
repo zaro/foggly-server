@@ -79,24 +79,22 @@ class DomainAddView(LoginRequiredMixin, View):
         pass
 
 
-class DatabaseView(LoginRequiredMixin, View):
+class DatabaseMysqlView(LoginRequiredMixin, View):
     template_name = 'dbs_template.html'
 
     def get(self, request):
         return render(request, self.template_name, {
             'appTypes': DockerContainer.objects.all(),
             'hosts': Host.objects.all(),
+            'react_bundle': 'databasesmysqlpage',
         })
 
-
-class DatabaseAddView(LoginRequiredMixin, View):
-    template_name = 'dbs_add_template.html'
+class DatabasesPostgresView(LoginRequiredMixin, View):
+    template_name = 'dbs_template.html'
 
     def get(self, request):
-        return render(request, self.template_name, {"form": DatabaseForm()})
-
-    def post(self, request, *args, **kwargs):
-        form = DatabaseForm(request.POST)
-
-        if not form.is_valid():
-            return
+        return render(request, self.template_name, {
+            'appTypes': DockerContainer.objects.all(),
+            'hosts': Host.objects.all(),
+            'react_bundle': 'databasespostgrespage',
+        })

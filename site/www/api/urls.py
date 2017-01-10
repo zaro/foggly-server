@@ -3,6 +3,8 @@ from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from jwt_auth.views import obtain_jwt_token
 import api.views
+from api.views_common import missingMethod
+
 import inspect, re
 
 urlpatterns = [
@@ -22,4 +24,4 @@ for name in dir(api.views):
         urlpatterns.append(url(path + '$', csrf_exempt( view.as_view() ), name=path)),
 
 # catch all other /api request
-urlpatterns.append(url('^.*$', csrf_exempt( api.views.missingMethod ))),
+urlpatterns.append(url('^.*$', csrf_exempt( missingMethod ))),
