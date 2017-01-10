@@ -358,6 +358,7 @@ def executePgQueryList(queryList, dbname):
         user=settings.HOST_WORKER_PG_USER,
         password=settings.HOST_WORKER_PG_PASS,
     ))
+    db.autocommit = True
     cur = db.cursor()
     res = []
     for query in queryList:
