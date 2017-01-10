@@ -368,7 +368,8 @@ def executePgQueryList(queryList, dbname):
         except psycopg2.Error as e:
             if e.pgcode not in query['ignoreErrors']:
                 raise e
-        res += cur.fetchall()
+        if cur.rowcount and cur.rowcount > 0:
+            res += cur.fetchall()
     return res
 
 
