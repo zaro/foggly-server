@@ -69,8 +69,6 @@ def createDomain(cfg):
     d.mkdir('var/spool/rsyslog')
     d.mkdir('var/spool/sessions', nginxUID, mode=0o1733)
 
-    d.mkdir('.well-known')
-
     if not d.exists('.bashrc'):
         with open(d.filename('.bashrc'), 'w') as f:
             f.write('[ -f ~/pyvenv/bin/activate ] && . ~/pyvenv/bin/activate\n')
@@ -167,6 +165,8 @@ def enableDomainSsl(cfg):
     if not d.exists():
         raise HostWorkerError('Invalid user/domain')
 
+    d.mkdir('.well-known')
+
     d.run("letsencrypt certonly --agree-tos --non-interactive --config-dir {cfgdir} --webroot -w {webroot} -d {domain}".format(
         webroot=d.filename('.well-known'),
         domain=cfg['domain'],
@@ -188,7 +188,20 @@ def enableDomainSsl(cfg):
     if siteConfEnabled:
         d.mv('etc/site.conf.disabled', 'etc/site.conf')
 
+    SystemdCtl().reloadUnit('nginx.service')
+
     return {'success': True, 'domainConfig': {'HAS_SSL': 'yes'}}
+
+
+@shared_task(name='host.certbotRenew')
+def certbotRenew():
+    DirCreate('/tmp').run("certbot --agree-tos --non-interactive --config-dir {cfgdir} renew".format(
+        cfgdir=LETSENCRYPT_DIR,
+    ))
+
+    SystemdCtl().reloadUnit('nginx.service')
+
+    return {'success': True}
 
 
 @shared_task(name='host.removeDomain')

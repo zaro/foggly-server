@@ -3,7 +3,11 @@ FROM foggly/python:latest
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 
 RUN apt-get update && \
-    apt-get install -y python3-dbus letsencrypt && \
+    apt-get install -y python3-dbus && \
+    apt-get install -y libpython-dev libpython2.7 libpython2.7-dev python2.7-dev python3-virtualenv zlib1g-dev augeas-lenses dialog libaugeas0 libffi-dev libssl-dev python-dev python-virtualenv virtualenv&&\
+    curl -o /usr/local/bin/certbot  https://dl.eff.org/certbot-auto && \
+    chmod +x /usr/local/bin/certbot && \
+    (/usr/local/bin/certbot help || true) && \
     apt-get clean && \
     rm -rf /usr/share/locale/* \
       /usr/share/doc/* \

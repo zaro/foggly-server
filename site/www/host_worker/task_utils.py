@@ -8,12 +8,10 @@ from jinja2 import Template
 
 if os.path.exists( '/host_srv' ):
     TOP_DIR = '/host_srv'
-    LETSENCRYPT_DIR = '/host_etc/letsencrypt/'
 else:
     TOP_DIR = '/srv'
-    LETSENCRYPT_DIR = '/etc/letsencrypt'
 
-
+LETSENCRYPT_DIR = '/srv/_letsencrypt/'
 
 
 class DomainConfig:

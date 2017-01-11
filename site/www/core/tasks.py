@@ -3,7 +3,7 @@ from core.models import SharedDatabase, DomainModel, DomainConfig, DockerContain
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import logging
-
+from host_worker.tasks import certbotRenew
 
 log = logging.getLogger('tasks')
 
@@ -19,6 +19,13 @@ def mandatoryParams(cfg, *params):
             raise HostControllerError("Missing parameter '{}'".format(param))
         out[param] = cfg.get(param)
     return out
+
+
+@shared_task
+def certbotRenewAllHosts():
+    # TODO: Rework to use broadcast queue
+    for host in Host.objects.all():
+        certbotRenew.s().set(queue=host.main_domain).apply_async()
 
 
 @shared_task

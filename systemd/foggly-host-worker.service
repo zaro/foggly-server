@@ -7,7 +7,7 @@ After=docker.service
 Restart=always
 ExecStartPre=-/usr/bin/docker stop host_worker
 ExecStartPre=-/usr/bin/docker rm host_worker
-ExecStart=/usr/bin/docker run --privileged --name 'host_worker' -h '%H' -v /srv:/host_srv -v /etc:/host_etc -v /srv/_host_worker:/srv/home/www/persistent -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket  -v /var/lib/mysql/:/var/lib/mysql/ -v /var/run/postgresql/:/var/run/postgresql/ -e 'REDIS_URL=redis://172.17.0.1' -p 3001:3000  foggly/host_worker
+ExecStart=/usr/bin/docker run --privileged --name 'host_worker' -h '%H' -v /srv:/host_srv -v /etc:/host_etc -v /srv/_host_worker:/srv/home/www/persistent -v /srv/_letsencrypt/:/srv/_letsencrypt/ -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket  -v /var/lib/mysql/:/var/lib/mysql/ -v /var/run/postgresql/:/var/run/postgresql/ -e 'REDIS_URL=redis://172.17.0.1' -p 3001:3000  foggly/host_worker
 
 [Install]
 WantedBy=default.target

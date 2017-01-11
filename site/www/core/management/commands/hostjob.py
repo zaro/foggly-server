@@ -54,7 +54,7 @@ class Command(BaseCommand):
         if not job:
             print('Invalid job')
             return
-        cfg = options['cfg']
+        cfg = dict(options['cfg'])
         if options['job'].endswith('PublicKey'):
             tfd, path = tempfile.mkstemp()
             os.write(tfd, b'# paste public key below\n')
@@ -73,5 +73,8 @@ class Command(BaseCommand):
                 print('You must specify public key to add')
                 return
             cfg['publicKey'] = line
+        cfg['user'] = options['user']
+        cfg['domain'] = options['domain']
+        cfg['host'] = options['host']
         result = job(cfg)
         print(result.get())
