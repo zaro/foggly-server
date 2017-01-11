@@ -1,4 +1,4 @@
-FROM foggly/base:latest
+FROM foggly/nodejs:latest
 
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 
