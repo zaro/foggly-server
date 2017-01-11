@@ -1,12 +1,14 @@
 #!/bin/bash
 
 function deploy_hook_init {
-  return 0
+  if [[ -d 'node_modules/.bin/' ]]; then
+    export PATH=`pwd`/node_modules/.bin/:$PATH
+  fi
 }
 
 function deploy_hook_install {
   echo '*** BEGIN npm install in '`pwd`
-  /usr/local/bin/npm install
+  npm install
   echo '*** END npm install'
 }
 
