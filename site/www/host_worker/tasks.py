@@ -71,7 +71,13 @@ def createDomain(cfg):
 
     d.mkdir('.well-known')
 
+    if not d.exists('.bashrc'):
+        with open(d.filename('.bashrc'), 'w') as f:
+            f.write('[ -f ~/pyvenv/bin/activate ] && . ~/pyvenv/bin/activate\n')
+            f.write('export PATH=$PATH:~/www/node_modules/.bin/\n')
+
     d.pushd('www')
+
     d.mkdir([], nginxUID, nginxGID)
     if not d.exists('.git'):
         d.run("git init .")
@@ -152,6 +158,11 @@ def createDomain(cfg):
 @shared_task(name='host.enableDomainSsl')
 def enableDomainSsl(cfg):
     mandatoryParams(cfg, 'user', 'domain')
+    sslOnly = str(cfg.get('sslOnly', 'no')).lower()
+
+    if sslOnly != 'yes':
+        sslOnly = 'no'
+
     d = getDomainDir(cfg['user'], cfg['domain'])
     if not d.exists():
         raise HostWorkerError('Invalid user/domain')
@@ -165,6 +176,7 @@ def enableDomainSsl(cfg):
     hostCfg = DomainConfig(d.filename('.hostcfg'))
     hostCfg.override(True)
     hostCfg.set('HAS_SSL', 'yes')
+    hostCfg.set('SSL_ONLY', sslOnly)
     hostCfg.override(False)
 
     hostCfg.write()

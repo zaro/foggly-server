@@ -32,9 +32,7 @@ function deploy_hook_init {
 
   activate_pyvenv
 
-  if [[ -d 'node_modules/.bin/' ]]; then
-    export PATH=`pwd`/node_modules/.bin/:$PATH
-  fi
+  export PATH=`pwd`/node_modules/.bin/:$PATH
 }
 
 function deploy_hook_install {
