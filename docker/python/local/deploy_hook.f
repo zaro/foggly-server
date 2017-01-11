@@ -31,6 +31,10 @@ function procfile_comand {
 function deploy_hook_init {
 
   activate_pyvenv
+
+  if [[ -d 'node_modules/.bin/' ]]; then
+    export PATH=`pwd`/node_modules/.bin/:$PATH
+  fi
 }
 
 function deploy_hook_install {
