@@ -30,7 +30,7 @@ class DomainConfigDoc:
 
     def gitRemote(self):
         d = self.asDict()
-        return 'ssh://user@{DOMAIN}:{SSH_PORT}/www'.format_map(d)
+        return 'ssh://www-data@{DOMAIN}:{SSH_PORT}/www'.format_map(d)
 
 
 @register.simple_tag(takes_context=True)

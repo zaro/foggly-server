@@ -60,7 +60,7 @@ export default class InfoDialog extends React.Component {
         ## Uncomment next line for rmate support
         #RemoteForward 52698 localhost:52698
         Port ${dcfg.SSH_PORT}
-        User user
+        User www-data
     `;
     const helpUrl = `${location.protocol}//${location.host}/doc/${cfg.type}?forDomain=${cfg.domain}`;
     return (
@@ -86,14 +86,14 @@ export default class InfoDialog extends React.Component {
           <FormGroup>
             <InputGroup>
               <ControlLabel>Ssh Command</ControlLabel>
-              <FormControl readOnly ref="sshCommand" value={`ssh -p ${dcfg.SSH_PORT} user@${cfg.domain}`} />
+              <FormControl readOnly ref="sshCommand" value={`ssh -p ${dcfg.SSH_PORT} www-data@${cfg.domain}`} />
               <InputGroup.Button>
                 <Button bsStyle="default" onClick={() => this.copyToClipboard('sshCommand')}><i className="material-icons">content_copy</i></Button>
               </InputGroup.Button>
             </InputGroup>
             <InputGroup>
               <ControlLabel>Git Remote URL</ControlLabel>
-              <FormControl readOnly ref="gitRemoteUrl" value={`ssh://user@${cfg.domain}:${dcfg.SSH_PORT}/www`} />
+              <FormControl readOnly ref="gitRemoteUrl" value={`ssh://www-data@${cfg.domain}:${dcfg.SSH_PORT}/www`} />
               <InputGroup.Button>
                 <Button bsStyle="default" onClick={() => this.copyToClipboard('gitRemoteUrl')}><i className="material-icons">content_copy</i></Button>
               </InputGroup.Button>
