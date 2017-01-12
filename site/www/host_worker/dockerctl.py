@@ -88,9 +88,9 @@ class DockerCtl(Client):
                 22: SSH_PORT,
                 3000: WWW_PORT
             },
-            mem_limit=(options.get('mem_limit') or '512m'),
+            mem_limit=(options.get('mem_limit') or '1024m'),
         )
-        print('runContainer: host_config=' +str(host_config))
+        print('runContainer: host_config=' + str(host_config))
         container = self.create_container(
             image=containerId,
             hostname=domain,
