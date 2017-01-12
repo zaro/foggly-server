@@ -167,7 +167,7 @@ def enableDomainSsl(cfg):
 
     d.mkdir('.well-known')
 
-    d.run("letsencrypt certonly --agree-tos --non-interactive --config-dir {cfgdir} --webroot -w {webroot} -d {domain}".format(
+    d.run("certbot certonly --agree-tos --non-interactive --config-dir {cfgdir} --webroot -w {webroot} -d {domain}".format(
         webroot=d.filename('.well-known'),
         domain=cfg['domain'],
         cfgdir=LETSENCRYPT_DIR,
