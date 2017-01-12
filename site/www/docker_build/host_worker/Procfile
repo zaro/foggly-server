@@ -1,3 +1,1 @@
 web: uwsgi --processes 1 --wsgi-file app.py
-celery: /srv/home/www/start_host_worker
-startup: python /srv/home/www/start_domains
