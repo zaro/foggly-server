@@ -39,7 +39,7 @@ clean_junk_images: ## clean all non-tagged docker images
 rm_stopped_containers: ## remove all stopped containers
 	docker rm `docker ps -f status=exited -q`
 
-.PHONY: base nodejs php7 python host_controller host_worker
+.PHONY: base nodejs python php php5 java host_controller host_worker
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

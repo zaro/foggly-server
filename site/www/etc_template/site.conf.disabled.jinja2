@@ -79,11 +79,15 @@ server {
 		proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header        X-Forwarded-Proto $scheme;
 		proxy_set_header        Strict-Transport-Security "max-age=16070400; includeSubDomains" ;
+
+		proxy_read_timeout          300;
 	}
 	{%elif PROXY_TYPE == "uwsgi" %}
 	location / {
-	    include uwsgi_params;
-	    uwsgi_pass 127.0.0.1:{{WWW_PORT}};
+		include uwsgi_params;
+		uwsgi_pass 127.0.0.1:{{WWW_PORT}};
+
+		uwsgi_read_timeout 300;
 	}
 	{% endif %}
 
