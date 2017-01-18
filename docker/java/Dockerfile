@@ -4,7 +4,7 @@ MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 
 RUN apt-get update && \
     mkdir -p /usr/share/man/man1/ && \
-    apt-get install -y openjdk-8-jre-headless && \
+    apt-get install -y openjdk-8-jre-headless maven&& \
     apt-get clean && \
     rm -rf /usr/share/locale/* \
       /usr/share/doc/* \
