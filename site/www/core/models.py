@@ -70,7 +70,7 @@ class Host(TimeStampedModel):
         return self.description
 
 
-class DockerContainer(TimeStampedModel):
+class ContainerRuntime(TimeStampedModel):
     container_id = models.CharField(max_length=100)
     description = models.CharField(max_length=200)
     proxy_type = models.CharField(max_length=50, choices=PROXY_TYPES, default="http")
@@ -84,7 +84,7 @@ class DomainModel(TimeStampedModel):
     host = models.ForeignKey(Host, on_delete=models.SET_NULL, null=True, related_name='+')
     domain_name = models.CharField(max_length=200)
     app_type = models.ForeignKey(
-        DockerContainer,
+        ContainerRuntime,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
@@ -113,7 +113,3 @@ class SharedDatabase(TimeStampedModel):
 
     def _visibleName(self):
         return self.db_user + '@' + self.db_name
-
-
-class DockerImage(models.Model):
-    pass

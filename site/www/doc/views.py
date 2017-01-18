@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
-from core.models import SharedDatabase, DomainModel, DomainConfig, DockerContainer, Host
+from core.models import DomainModel
 from django.core.exceptions import ObjectDoesNotExist
 
 

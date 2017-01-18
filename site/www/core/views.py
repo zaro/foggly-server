@@ -11,7 +11,7 @@ from core.forms import (
     DatabaseForm,
 )
 from core.models import (
-    DockerContainer,
+    ContainerRuntime,
     Host,
 )
 
@@ -64,7 +64,7 @@ class DomainView(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, self.template_name, {
-            'appTypes': DockerContainer.objects.all(),
+            'appTypes': ContainerRuntime.objects.all(),
             'hosts': Host.objects.all(),
         })
 
@@ -84,17 +84,18 @@ class DatabaseMysqlView(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, self.template_name, {
-            'appTypes': DockerContainer.objects.all(),
+            'appTypes': ContainerRuntime.objects.all(),
             'hosts': Host.objects.all(),
             'react_bundle': 'databasesmysqlpage',
         })
+
 
 class DatabasesPostgresView(LoginRequiredMixin, View):
     template_name = 'dbs_template.html'
 
     def get(self, request):
         return render(request, self.template_name, {
-            'appTypes': DockerContainer.objects.all(),
+            'appTypes': ContainerRuntime.objects.all(),
             'hosts': Host.objects.all(),
             'react_bundle': 'databasespostgrespage',
         })

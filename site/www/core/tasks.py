@@ -1,5 +1,5 @@
 from celery import shared_task
-from core.models import SharedDatabase, DomainModel, DomainConfig, DockerContainer, Host
+from core.models import SharedDatabase, DomainModel, DomainConfig, ContainerRuntime, Host
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import logging
@@ -39,7 +39,7 @@ def createDomainRecord(createDomainResult, cfg):
     except ObjectDoesNotExist:
         raise HostControllerError('Invalid username: {}'.format(cfg['user']))
     try:
-        app_type = DockerContainer.objects.get(container_id=cfg['app_type']['container_id'])
+        app_type = ContainerRuntime.objects.get(container_id=cfg['app_type']['container_id'])
     except ObjectDoesNotExist:
         raise HostControllerError('Invalid application type: {}'.format(cfg['app_type']['container_id']))
     try:
