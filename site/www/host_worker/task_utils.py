@@ -214,6 +214,13 @@ class DirCreate:
         for path in paths:
             os.chown(os.path.join( self.path, path ), uid, gid)
 
+    def ln_sf(self, src, dest):
+        if not os.path.isabs(dest):
+            dest = self.filename(dest)
+        if os.path.exists(dest):
+            os.unlink(dest)
+        os.symlink(src, dest)
+
     def mv(self, fromFile, toFile):
         print("mv " + str(fromFile) + " " + str(toFile))
         os.rename( os.path.join( self.path, fromFile ), os.path.join( self.path, toFile ) )

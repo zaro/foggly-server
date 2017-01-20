@@ -181,12 +181,8 @@ def enableDomainSsl(cfg):
 
     hostCfg.write()
 
-    siteConfEnabled = d.exists('etc/site.conf')
     td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())
-    td.copyFileTo('site.conf.disabled', d.filename('etc'))
-
-    if siteConfEnabled:
-        d.mv('etc/site.conf.disabled', 'etc/site.conf')
+    td.copyFileTo('site.conf', d.filename('etc'))
 
     SystemdCtl().reloadUnit('nginx.service')
 
@@ -256,8 +252,7 @@ def startDomain(cfg):
     FirewalldCtl().addPort(hostCfg.get('SSH_PORT'))
     # reload nginx config
     d.pushd('etc')
-    if d.exists('site.conf.disabled'):
-        d.mv('site.conf.disabled', 'site.conf')
+    d.ln_sf('site.conf', 'site.conf.enabled')
     # d.run('systemctl reload nginx')
     SystemdCtl().reloadUnit('nginx.service')
     return {'success': True}
@@ -287,8 +282,7 @@ def stopDomain(cfg):
     FirewalldCtl().removePort(hostCfg.get('SSH_PORT'))
     # reload nginx config
     d.pushd('etc')
-    if d.exists('site.conf'):
-        d.mv('site.conf', 'site.conf.disabled')
+    d.rm('site.conf.enabled')
     # d.run('systemctl reload nginx')
     SystemdCtl().reloadUnit('nginx.service')
     return {'success': True}
