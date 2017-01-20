@@ -2,7 +2,7 @@ import React from 'react';
 import apiCall from '../common/apicall';
 import { GenericTable } from '../common/table';
 import ConfirmDialog from '../common/confirmdialog';
-import { Button, ButtonGroup, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, ButtonGroup, ButtonToolbar, DropdownButton, MenuItem, Checkbox } from 'react-bootstrap';
 import DomainAddPublikKey from './addpublickey';
 import InfoDialog from './infodialog';
 
@@ -117,6 +117,28 @@ class DomainRow extends React.Component {
     });
   }
 
+  enableDomainSslDialog = () => {
+    this.sslOnly = false;
+    this.refs.enableDomainSsl.show();
+  }
+  enableDomainSsl= () => {
+    console.log('Enable ssl for domain:', this.props.domain);
+    console.log(this.sslOnly.checked);
+    this.setState({ working: true });
+    apiCall('/api/domains/ssl', {
+      domain: this.props.domain,
+      sslOnly: this.sslOnly.checked ? 'yes' : 'no',
+    }, { method: 'POST' }).then((data) => {
+      console.info('enableDomainSsl Done : %o', data);
+      this.setState({ working: false });
+    }).catch((error) => {
+      console.error('enableDomainSsl Error : %o', error);
+      this.props.showError(error);
+      this.setState({ working: false });
+      this.props.refreshData();
+    });
+  }
+
   render() {
     const state = _.extend({}, this.props, this.state);
     let rowStyle = {
@@ -134,7 +156,7 @@ class DomainRow extends React.Component {
       <tr>
         <td style={rowStyle}>{this.state.working ? <i className="fa fa-spinner fa-spin"></i> : null}</td>
         <td style={rowStyle}>{this.props.domain}</td>
-        <td style={rowStyle}>{this.props.type}</td>
+        <td style={rowStyle}>{_.truncate(this.props.type)}</td>
         <td style={rowStyle}>{this.props.created
             ? new Date(this.props.created * 1000).toISOString()
             : '-'}</td>
@@ -152,6 +174,7 @@ class DomainRow extends React.Component {
               <DropdownButton title="More actions" id="more-actions" className="btn-raised" onSelect={this.moreActions}>
                 <MenuItem eventKey="addPublicKey">Add public key</MenuItem>
                 <MenuItem divider />
+                <MenuItem eventKey="enableDomainSslDialog">Enable HTTPS</MenuItem>
                 <MenuItem eventKey="recreateDomain">Recreate domain</MenuItem>
                 <MenuItem divider />
                 <MenuItem eventKey="destroyDomainConfirm" bsStyle="warning">Destroy domain</MenuItem>
@@ -159,10 +182,13 @@ class DomainRow extends React.Component {
             </ButtonGroup>
           </ButtonToolbar>
           <DomainAddPublikKey data={{ domain: this.props.domain }} ref="addPkDialog" title="Add Ssh Public key" />
-          <ConfirmDialog ref="destroyDomainConfirm" title="All domain data will be deleted!" onSubmit={this.destroyDomain} >
+          <ConfirmDialog danger ref="destroyDomainConfirm" title="All domain data will be deleted!" onSubmit={this.destroyDomain} >
             <p>Are yoy sure you want to destroy this domain?</p>
           </ConfirmDialog>
           <InfoDialog ref="domainInfoDialog" title="Domain information" domain={this.props.domain} />
+          <ConfirmDialog ref="enableDomainSsl" title="Enable Domain HTTPS" onSubmit={this.enableDomainSsl} >
+            <Checkbox inline inputRef={(ref) => { this.sslOnly = ref; }}>HTTPS Only (will redirect http:// to https://)</Checkbox>
+          </ConfirmDialog>
         </td>
       </tr>
     );

@@ -200,38 +200,23 @@ class DomainsSsl(ApiLoginRequiredMixin, View):
         response = []
         domains = core.models.DomainModel.objects.filter(user=request.user, domain_name__in=domains)
         for domain in domains:
-            config = {}
-            for dc in domain.domainconfig_set.all():
-                config[dc.key] = dc.value
             response.append({
                 'domain': domain.domain_name,
-                'type': domain.app_type.container_id,
-                'config': config,
-                'sshUrl': 'ssh://{}:{}'.format(config.get('DOMAIN'), config.get('SSH_PORT'))
+                'hasSsl': domain.domainconfig_set.filter(key='HAS_SSL').last()
             })
         return JsonResponse( {'response': response } )
 
     @handleExceptions
     def post(self, request):
         reqData = parseJson(request.body)
-        reqData = mandatoryParams(reqData, 'domain', 'app_type', 'host')
+        mandatoryParams(reqData, 'domain')
         # Filter for current user
-        reqData['user'] = request.user.username
+        user = request.user
         try:
-            core.models.DomainModel.objects.get( domain_name=reqData['domain'] )
-            return makeError( 'Domain already exists: {domain}', reqData )
-        except ObjectDoesNotExist:
-            pass
-        try:
-            host = core.models.Host.objects.get( main_domain=reqData['host'] )
-        except ObjectDoesNotExist:
-            return makeError( 'Host does not exists: {host}', reqData )
-        try:
-            app_type = core.models.ContainerRuntime.objects.get( container_id=reqData['app_type'] )
-        except ObjectDoesNotExist:
-            return makeError( 'app_type does not exists: {host}', reqData )
-        reqData['app_type'] = app_type.to_dict(json=True)
-        res = core.hostjobs.DomainJobs(host.main_domain).create( reqData )
+            domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
+        except core.models.DomainModel.DoesNotExist:
+            return makeError( 'Invalid domain id: {domain}', reqData )
+        res = core.hostjobs.DomainJobs(domain.host.main_domain).enableSsl( reqData )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 

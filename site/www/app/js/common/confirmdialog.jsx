@@ -7,6 +7,7 @@ export default class ConfirmDialog extends React.Component {
     onSubmit: React.PropTypes.func,
     title: React.PropTypes.string,
     children: React.PropTypes.node,
+    danger: React.PropTypes.bool,
   };
 
   state = {
@@ -35,17 +36,20 @@ export default class ConfirmDialog extends React.Component {
 
 
   render() {
+    const bsStyle = this.props.danger ? 'danger' : 'primary';
     return (
       <Modal show={this.state.showModal} onHide={this.close}>
         <Modal.Header closeButton>
           <Modal.Title>{this.props.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {this.props.children}
-          <Button active type="submit" onClick={this.close} bsStyle="default" className="btn-raised">
+          <div>
+            {this.props.children}
+          </div>
+          <Button active type="submit" onClick={this.close} className="btn-raised">
             Cancel
           </Button>
-          <Button active type="submit" onClick={this.submit} bsStyle="danger" className="btn-raised pull-right">
+          <Button active type="submit" onClick={this.submit} bsStyle={bsStyle} className="btn-raised pull-right">
             Submit
           </Button>
         </Modal.Body>
