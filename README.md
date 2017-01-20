@@ -18,6 +18,12 @@ Setup firewall:
     firewall-cmd --permanent --zone=trusted --add-port=6379/tcp
     firewall-cmd --reload
 
+It is good to disable docker iptables integration :
+
+https://fralef.me/docker-and-iptables.html
+
+or else all the ports that containers expose will be public.
+
 Create directory for host_controller persistent storage:
 
 ```
