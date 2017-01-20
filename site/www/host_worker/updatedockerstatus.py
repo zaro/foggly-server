@@ -16,7 +16,10 @@ class UpdateDockerStatus(threading.Thread):
             counter -= 1
             if counter == 0:
                 logging.debug("Update docker status")
-                dockerStatus(None, {"update_interval": self.update_interval})
+                try:
+                    dockerStatus(None, {"update_interval": self.update_interval})
+                except Exception as e:
+                    logging.error('Update failed with:' + str(e))
                 counter = self.update_interval
             time.sleep(1)
 
