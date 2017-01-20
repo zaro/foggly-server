@@ -116,7 +116,7 @@ class Domains(ApiLoginRequiredMixin, View):
             domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
         except ObjectDoesNotExist:
             return makeError( 'Invalid domain id: {domain}', reqData )
-        res = core.hostjobs.DomainJobs(domain.host.main_domain).start(
+        res = core.hostjobs.DomainJobs(domain.host.main_domain, user.username).start(
             {'user': user.username, 'domain': domain.domain_name}
         )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
@@ -131,7 +131,7 @@ class Domains(ApiLoginRequiredMixin, View):
             domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
         except ObjectDoesNotExist:
             return makeError( 'Invalid domain id: {domain}', reqData )
-        res = core.hostjobs.DomainJobs(domain.host.main_domain).stop(
+        res = core.hostjobs.DomainJobs(domain.host.main_domain, user.username).stop(
             {'user': user.username, 'domain': domain.domain_name}
         )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
@@ -171,7 +171,7 @@ class DomainsAdd(ApiLoginRequiredMixin, View):
         reqData = parseJson(request.body)
         reqData = mandatoryParams(reqData, 'domain', 'app_type', 'host')
         # Filter for current user
-        reqData['user'] = request.user.username
+        user = request.user
         try:
             core.models.DomainModel.objects.get( domain_name=reqData['domain'] )
             return makeError( 'Domain already exists: {domain}', reqData )
@@ -186,7 +186,7 @@ class DomainsAdd(ApiLoginRequiredMixin, View):
         except ObjectDoesNotExist:
             return makeError( 'app_type does not exists: {host}', reqData )
         reqData['app_type'] = app_type.to_dict(json=True)
-        res = core.hostjobs.DomainJobs(host.main_domain).create( reqData )
+        res = core.hostjobs.DomainJobs(host.main_domain, user.username).create( reqData )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
@@ -216,7 +216,7 @@ class DomainsSsl(ApiLoginRequiredMixin, View):
             domain = core.models.DomainModel.objects.get(domain_name=reqData['domain'], user=user)
         except core.models.DomainModel.DoesNotExist:
             return makeError( 'Invalid domain id: {domain}', reqData )
-        res = core.hostjobs.DomainJobs(domain.host.main_domain).enableSsl( reqData )
+        res = core.hostjobs.DomainJobs(domain.host.main_domain, user.username).enableSsl( reqData )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
@@ -226,7 +226,7 @@ class DomainsRecreate(ApiLoginRequiredMixin, View):
         reqData = parseJson(request.body)
         reqData = mandatoryParams(reqData, 'domain')
         # Filter for current user
-        reqData['user'] = request.user.username
+        user = request.user
         try:
             domain = core.models.DomainModel.objects.get( domain_name=reqData['domain'] )
         except ObjectDoesNotExist:
@@ -235,7 +235,7 @@ class DomainsRecreate(ApiLoginRequiredMixin, View):
             return makeError( 'Domain [{domain}] has no host attached.', reqData )
         reqData['host'] = domain.host.main_domain
         reqData['app_type'] = domain.app_type.to_dict(json=True)
-        res = core.hostjobs.DomainJobs(domain.host.main_domain).create( reqData )
+        res = core.hostjobs.DomainJobs(domain.host.main_domain, user.username).create( reqData )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
@@ -253,7 +253,7 @@ class DomainsDelete(ApiLoginRequiredMixin, View):
             return makeError( 'Invalid domain id: {domain}', reqData )
         if not domain.host:
             return makeError( 'Domain [{domain}] has no host attached.', reqData )
-        res = core.hostjobs.DomainJobs(domain.host.main_domain).remove( reqData )
+        res = core.hostjobs.DomainJobs(domain.host.main_domain, user.username).remove( reqData )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
@@ -271,7 +271,7 @@ class DomainsPublickey(ApiLoginRequiredMixin, View):
             return makeError( 'Invalid domain id: {domain}', reqData )
         if not domain.host:
             return makeError( 'Domain [{domain}] has no host attached.', reqData )
-        res = core.hostjobs.DomainJobs(domain.host.main_domain).addPublicKey( reqData )
+        res = core.hostjobs.DomainJobs(domain.host.main_domain, user.username).addPublicKey( reqData )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 

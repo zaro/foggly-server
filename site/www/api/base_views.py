@@ -24,13 +24,12 @@ class DatabasesBaseAdd(ApiLoginRequiredMixin, View):
     def post(self, request):
         reqData = parseJson(request.body)
         params = mandatoryParams(reqData, 'db_user', 'db_pass', 'db_name', 'host')
-        params['user'] = request.user.username
         try:
             host = core.models.Host.objects.get( main_domain=params['host'] )
         except core.models.Host.DoesNotExist:
             return makeError( 'Host does not exists: {host}', params )
         params['db_type'] = self.DB_TYPE
-        res = core.hostjobs.DatabaseJobs(host.main_domain).create( params )
+        res = core.hostjobs.DatabaseJobs(host.main_domain, request.user.username).create( params )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
 
 
@@ -39,11 +38,10 @@ class DatabasesBaseDelete(ApiLoginRequiredMixin, View):
     def delete(self, request):
         reqData = parseJson(request.body)
         params = mandatoryParams(reqData, 'db_user', 'db_name', 'host')
-        params['user'] = request.user.username
         try:
             host = core.models.Host.objects.get( main_domain=params['host'] )
         except core.models.Host.DoesNotExist:
             return makeError( 'Host does not exists: {host}', params )
         params['db_type'] = self.DB_TYPE
-        res = core.hostjobs.DatabaseJobs(host.main_domain).remove( params )
+        res = core.hostjobs.DatabaseJobs(host.main_domain, request.user.username).remove( params )
         return JsonResponse({ 'completed': False, 'id': taskToId(res) })
