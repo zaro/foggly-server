@@ -13,6 +13,7 @@ class JobsDecriptorBase:
 
     def cfgDefaults(self, cfg):
         cfg['user'] = self.user
+        cfg['host'] = self.hostMainDomain
 
 
 class DomainJobs(JobsDecriptorBase):
