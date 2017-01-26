@@ -92,7 +92,7 @@ def createDomain(cfg):
     d.popd()
 
     masterDomain = socket.getfqdn()
-    hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
+    hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone(True).filename('*/*/.hostcfg'))
     # Generate container UUID accorging to https://www.freedesktop.org/wiki/Software/systemd/ContainerInterface/
     hostCfg.set('container_uuid', uuid.uuid4().hex)
     hostCfg.override(True)

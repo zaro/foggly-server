@@ -134,8 +134,12 @@ class DirCreate:
     def getDockerLocation(self, topDir='/srv'):
         return re.sub('^' + TOP_DIR, "/srv", self.path, 1 )
 
-    def clone(self):
-        return DirCreate(self.base)
+    def clone(self, baseOnly=False):
+        d = DirCreate(self.base)
+        if not baseOnly:
+            d.paths = self.paths
+            d.path = self.path
+        return d
 
     def pushd(self, path):
         if path:
