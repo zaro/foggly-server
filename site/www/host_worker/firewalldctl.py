@@ -10,7 +10,7 @@ if platform.system() == 'Linux':
 class FirewalldCtl:
     def __init__(self):
         # self.bus = SystemBus()
-        self.bus = connect('unix:path=/host_run/dbus/system_bus_socket')
+        self.bus = connect('unix:path=/var/run/dbus/system_bus_socket')
         self.firewallD = self.bus.get('org.fedoraproject.FirewallD1')
 
     def addPort(self, port, zone='public', proto='tcp'):

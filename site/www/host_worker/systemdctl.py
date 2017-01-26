@@ -11,7 +11,7 @@ if platform.system() == 'Linux':
 class SystemdCtl:
     def __init__(self):
         # self.bus = SystemBus()
-        self.bus = connect('unix:path=/host_run/dbus/system_bus_socket')
+        self.bus = connect('unix:path=/var/run/dbus/system_bus_socket')
         self.systemd = self.bus.get(".systemd1")
         self.manager = self.systemd[".Manager"]
 
