@@ -313,7 +313,7 @@ def prepareQueryList(cfg, qList):
 
 
 def executeMysqlQueryList(queryList):
-    db = MySQLdb.connect(user="root", unix_socket="/var/lib/mysql/mysql.sock")
+    db = MySQLdb.connect(user="root", unix_socket="/var/run/mysqld/mysqld.sock")
     cur = db.cursor()
     res = []
     for query in queryList:
