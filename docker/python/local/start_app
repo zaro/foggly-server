@@ -2,6 +2,7 @@
 
 cd /srv/home/www
 
+. /srv/home/.hostcfg
 . /usr/local/deploy_hook.f
 
 activate_pyvenv
