@@ -20,7 +20,6 @@ RUN apt-get clean && \
     rm -rf /var/log/*.log
 
 RUN sed -i 's,;upload_tmp_dir =,upload_tmp_dir =/srv/home/tmp,;s,upload_max_filesize = 2M,upload_max_filesize = 1024M,;s,post_max_size = 8M,post_max_size = 0,' /etc/php/7.0/apache2/php.ini && \
-    sed -i 's,mysqli\?\.default_socket *=,\0/var/lib/mysql/mysql.sock,;' /etc/php/7.0/apache2/php.ini /etc/php/7.0/cli/php.ini && \
     rm /etc/apache2/sites-available/default-ssl.conf && \
     rm /lib/systemd/system/apache2.service.d/apache2-systemd.conf
 
