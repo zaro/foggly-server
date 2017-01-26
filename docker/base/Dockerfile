@@ -1,4 +1,4 @@
-FROM aarch64/ubuntu:xenial
+FROM ubuntu:xenial
 
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 ENV container=docker LC_ALL=C DEBIAN_FRONTEND=noninteractive
