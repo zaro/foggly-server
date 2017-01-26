@@ -22,4 +22,3 @@ ADD etc/  /etc/
 ENV WWW_ROOT=$ROOT_DIR/www/
 
 EXPOSE 3000
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

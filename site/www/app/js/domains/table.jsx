@@ -25,7 +25,7 @@ class DomainRow extends React.Component {
     status: React.PropTypes.string.isRequired,
     state: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired,
-    created: React.PropTypes.number,
+    created: React.PropTypes.string,
     domain: React.PropTypes.string.isRequired,
     removeRow: React.PropTypes.func.isRequired,
     showError: React.PropTypes.func.isRequired,
@@ -158,7 +158,7 @@ class DomainRow extends React.Component {
         <td style={rowStyle}>{this.props.domain}</td>
         <td style={rowStyle}>{_.truncate(this.props.type)}</td>
         <td style={rowStyle}>{this.props.created
-            ? new Date(this.props.created * 1000).toISOString()
+            ? new Date(this.props.created).toLocaleString('en-GB')
             : '-'}</td>
         <td style={rowStyle}>{this.props.status}</td>
         <td>

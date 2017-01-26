@@ -1,18 +1,23 @@
 #!/bin/bash
 
-cd "/srv/home/www/${WWW_ROOT_SUBDIR}"
+cd "${ROOT_DIR}/www/${WWW_ROOT_SUBDIR}"
 
-CMD=$(node -e 'fs=require("fs"); a = JSON.parse(fs.readFileSync("package.json")); console.log(a.scripts ? a.scripts.start: undefined)' )
-if [ "$CMD" = "undefined" ]; then
+CMD="undefined"
+
+if [[ -f package.json ]]; then
+  CMD=$(node -e 'fs=require("fs"); a = JSON.parse(fs.readFileSync("package.json")); console.log(a.scripts ? a.scripts.start: undefined)' )
+fi
+
+if [[ "$CMD" = "undefined" ]]; then
   for f in index.js app.js run.js; do
-    if [ -f "$f" ]; then
+    if [[ -f "$f" ]]; then
       CMD="node $f"
       break
     fi
   done
 fi
 
-if [ "$CMD" = "undefined" ]; then
+if [[ "$CMD" = "undefined" ]]; then
 echo "Cannot find app to start."
 exit 1
 fi

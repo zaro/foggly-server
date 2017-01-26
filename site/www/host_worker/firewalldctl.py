@@ -3,30 +3,31 @@
 """
 import platform
 if platform.system() == 'Linux':
-    import dbus
+    # from pydbus import SystemBus
+    from pydbus.bus import connect
 
 
 class FirewalldCtl:
     def __init__(self):
-        self.bus = dbus.SystemBus()
-        dbusObj = self.bus.get_object('org.fedoraproject.FirewallD1', '/org/fedoraproject/FirewallD1')
-        self.fwZone = dbus.Interface(dbusObj, dbus_interface='org.fedoraproject.FirewallD1.zone')
+        # self.bus = SystemBus()
+        self.bus = connect('unix:path=/host_run/dbus/system_bus_socket')
+        self.firewallD = self.bus.get('org.fedoraproject.FirewallD1')
 
     def addPort(self, port, zone='public', proto='tcp'):
         try:
-            self.fwZone.addPort(zone, str(port), proto, 0)
+            self.firewallD.addPort(zone, str(port), proto, 0)
             return True
-        except dbus.exceptions.DBusException as e:
-            if e.get_dbus_message().startswith('ALREADY_ENABLED'):
+        except Exception as e:
+            if e.message.find('ALREADY_ENABLED:'):
                 return True
             raise e
 
     def removePort(self, port, zone='public', proto='tcp'):
         try:
-            self.fwZone.removePort(zone, str(port), proto)
+            self.firewallD.removePort(zone, str(port), proto)
             return True
-        except dbus.exceptions.DBusException as e:
-            if e.get_dbus_message().startswith('NOT_ENABLED'):
+        except Exception as e:
+            if e.message.find('NOT_ENABLED:'):
                 return True
             raise e
 

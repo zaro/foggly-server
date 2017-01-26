@@ -7,6 +7,7 @@ site/www/static/
 site/www/webpack-stats.json
 site/www/assets/bundles/
 site/www/persistent/
+.*.swp
 *.DS_Store
 __pycache__
 db.sqlite3

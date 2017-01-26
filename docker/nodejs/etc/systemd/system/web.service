@@ -1,0 +1,15 @@
+[Unit]
+Description=nodejs web application
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/start_app
+WorkingDirectory=/srv/home/www/
+SyslogIdentifier=web
+User = www-data
+Group = www-data
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,64 +1,55 @@
 """
     Docker interface module
 """
-from docker import Client
+import docker
 from .task_utils import getDomainDir, DomainConfig
 
 
-import os, tarfile, io
-
-
-class DockerCtl(Client):
+class DockerCtl:
     """
         Simple docker interface class
     """
-    def __init__(self, baseUrl):
-        super().__init__(base_url=baseUrl)
+    _statusMap = {'exited': 'down', 'removal': 'down', 'dead': 'down', 'running': 'up', 'created': 'up'}
 
-    def getFileUNFINISHED(self, containerId):
-        container = self.create_container(image=containerId, command='/bin/true')
-        (tarSteam, stats) = self.get_archive(container, '/etc/')
-        print(stats)
-        tarFile = io.BytesIO(tarSteam.read())
-        tar = tarfile.open(fileobj=tarFile)
-        print(tar.extractfile('etc/passwd').read())
-        self.remove_container(container, v=True)
-
-    def getWwwDataUser(self, containerId):
-        container = self.create_container(image=containerId, command="sh -c \"grep www-data /etc/passwd /etc/group | cut -d ':' -f 4\"")
-        self.start( container )
-        response = self.logs( container, stdout=True, stderr=True)
-        self.remove_container(container, v=True)
-        u, g, _ = response.split(b'\n')
-        return (int(u), int(g))
+    def __init__(self, baseUrl=None):
+        if not baseUrl:
+            baseUrl = 'unix://host_run/docker.sock'
+        self.client = docker.DockerClient(base_url=baseUrl)
 
     def _stateFromStatus(self, status):
-        return status.split(' ')[0].lower()
+        return self._statusMap.get(status, status)
 
     def listContainers(self):
-        containers = self.containers(all=True)
+        containers = self.client.containers.list(all=True)
+        result = []
         for cont in containers:
-            cont['state'] = self._stateFromStatus( cont['Status'] )
-        return containers
+            result.append({
+                'domain': cont.name,
+                'type': cont.attrs['Config']['Image'],
+                'status': cont.status,
+                'created': cont.attrs['Created'],
+                'state': self._stateFromStatus(cont.status),
+            })
+        return result
 
-    def getContainerStatus(self, username, domain):
-        containers = self.containers(all=True)
-        name = '/' + domain
-        for container in containers:
-            if name in container['Names']:
-                # status will be on of ['up, 'exited', 'restarting', 'removal', 'dead']
-                # explanation about dead/removal : http://stackoverflow.com/questions/30550472/docker-container-with-status-dead-after-consul-healthcheck-runs
-                return self._stateFromStatus( container['Status'] )
-        return None
+    def getContainerState(self, username, domain):
+        try:
+            container = self.client.containers.get(domain)
+            return self._stateFromStatus(container.status)
+        except docker.errors.NotFound:
+            return None
 
     def stopContainer(self, username, domain, **options):
-        self.stop(domain)
+        container = self.client.containers.get(domain)
+        container.stop()
 
     def rmContainer(self, username, domain, **options):
-        self.remove_container(domain)
+        container = self.client.containers.get(domain)
+        container.remove()
 
     def runContainer(self, username, domain, containerId, **options):
         domainDir = getDomainDir(username, domain)
+        logDir = domainDir.clone().pushd('log')
         if not domainDir.exists():
             raise Exception('Invalid username and/or domain')
         if containerId.find(':') < 0:
@@ -69,11 +60,34 @@ class DockerCtl(Client):
             SSH_PORT = int(cfg.get('SSH_PORT'))
         except:
             raise Exception('Invalid port configuration for domain')
-        host_config = self.create_host_config(
-            binds={
+        # Stopping docker container with systed inside :
+        #  https://bugzilla.redhat.com/show_bug.cgi?id=1201657
+        #  https://rhn.redhat.com/errata/RHEA-2016-1057.html
+        self.client.containers.run(
+            detach=True,
+            image=containerId,
+            hostname=domain,
+            name=domain,
+            environment=cfg.asDict(),
+            cap_add=['SYS_ADMIN'],
+            stop_signal='RTMIN+3',
+            mem_limit=(options.get('mem_limit') or '1024m'),
+            ports={
+                22: SSH_PORT,
+                3000: WWW_PORT
+            },
+            volumes={
                 domainDir.getDockerLocation(): {
                     'bind': '/srv/home',
                     'mode': 'rw',
+                },
+                logDir.getDockerLocation(): {
+                    'bind': '/var/log',
+                    'mode': 'rw',
+                },
+                '/sys/fs/cgroup': {
+                    'bind': '/sys/fs/cgroup',
+                    'mode': 'ro'
                 },
                 '/var/lib/mysql/': {
                     'bind': '/var/lib/mysql/',
@@ -84,18 +98,17 @@ class DockerCtl(Client):
                     'mode': 'ro',
                 }
             },
-            port_bindings={
-                22: SSH_PORT,
-                3000: WWW_PORT
-            },
-            mem_limit=(options.get('mem_limit') or '1024m'),
         )
-        print('runContainer: host_config=' + str(host_config))
-        container = self.create_container(
-            image=containerId,
-            hostname=domain,
-            name=domain,
-            host_config=host_config,
-            environment=cfg.asDict(),
-        )
-        self.start( container )
+
+# if __name__ == '__main__':
+#     import time
+#     d = DockerCtl()
+#     print(d.listContainers())
+#     container = d.client.containers.get('test2.domain')
+#     print(container.attrs['Config']['Image'])
+    # d.runContainer('admin', 'test2.domain', 'foggly/nodejs')
+    # print(d.listContainers())
+    # time.sleep(10)
+    # d.stopContainer('admin', 'test2.domain')
+    # time.sleep(3)
+    # d.rmContainer('admin', 'test2.domain')

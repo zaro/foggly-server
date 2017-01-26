@@ -1,0 +1,14 @@
+[Unit]
+Description=Postfix Mail Daemon
+After=network.target
+
+[Service]
+Type=forking
+ExecStartPre=/usr/local/postfix_exec_pre
+ExecStart=/usr/sbin/postfix -c /srv/home/etc/postfix/ start
+ExecStop=/usr/sbin/postfix -c /srv/home/etc/postfix/ stop
+WorkingDirectory=/srv/home/etc/postfix/
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

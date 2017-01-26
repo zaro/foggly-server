@@ -22,7 +22,7 @@ host_controller:  python ## build the host_controller container
 	if [ "${FULL}" ]; then \
 		cd site/www ; \
 		npm install ; \
-		bower --allow-root install ; \
+		node_modules/.bin/bower --allow-root install ; \
 		./manage.py collectstatic --noinput; \
 		node_modules/.bin/webpack --progress --colors; \
 		./manage.py collectstatic --noinput; \

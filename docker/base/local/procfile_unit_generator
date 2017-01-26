@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd ${ROOT_DIR}/www
+
+# Look at https://www.freedesktop.org/wiki/Software/systemd/Generators/ for meaning of $1 $2 $3
+
+RUNTIME_UNIT_DIR=$2
+. /usr/local/procfile_to_systemd
+procfile_process

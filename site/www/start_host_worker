@@ -13,4 +13,4 @@ fi
 [ -f /srv/home/pyvenv/bin/activate ] && . /srv/home/pyvenv/bin/activate
 export HOST_WORKER_QUEUE
 echo "Running worker for queue: $HOST_WORKER_QUEUE"
-exec celery -A hosting worker -I host_worker.updatedockerstatus --loglevel=info --queues "$HOST_WORKER_QUEUE,any_host,every_host" --heartbeat-interval=15 --concurrency=2
+exec celery -P gevent -A hosting worker -I host_worker.updatedockerstatus --loglevel=info --queues "$HOST_WORKER_QUEUE,any_host,every_host" --heartbeat-interval=15 --concurrency=2

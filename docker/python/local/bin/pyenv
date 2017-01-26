@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /usr/local/path.add
+
 if [ ! -d /srv/home/pyvenv ]; then
   pyvenv-3.5 --system-site-packages /srv/home/pyvenv
 fi

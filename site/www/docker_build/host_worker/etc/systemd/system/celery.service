@@ -1,0 +1,16 @@
+[Unit]
+Description=celery host worker
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pyenv /srv/home/www/start_host_worker
+WorkingDirectory=/srv/home/www/
+SyslogIdentifier=celery
+User = root
+Group = root
+Restart=always
+PassEnvironment=REDIS_URL
+
+[Install]
+WantedBy=multi-user.target

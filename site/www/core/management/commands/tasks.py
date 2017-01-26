@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-import core.hostjobs as tasks
+from host_worker import tasks
 import tempfile, os, re
 
 
@@ -10,10 +10,12 @@ class Command(BaseCommand):
         parser.add_argument('task', nargs=1, type=str)
         parser.add_argument('user', nargs=1, type=str)
         parser.add_argument('domain', nargs=1, type=str)
+        parser.add_argument('--host', required=True, type=str)
         parser.add_argument('--mysql_user', type=str)
         parser.add_argument('--mysql_password', type=str)
         parser.add_argument('--mysql_db', type=str)
-        parser.add_argument('--app_type', type=str, default='foggly/php7')
+        parser.add_argument('--container_id', type=str, default='foggly/php7')
+        parser.add_argument('--proxy_type', type=str, default='http')
 
     def handle(self, *args, **options):
         for k in options.keys():
@@ -42,5 +44,10 @@ class Command(BaseCommand):
                 print('You must specify public key to add')
                 return
             options['publicKey'] = line
-        result = task.delay(options)
+        params = dict(options)
+        params['app_type'] = {
+            'container_id': options['container_id'],
+            'proxy_type': options['proxy_type'],
+        }
+        result = task.s(params).set(queue=options['host']).apply_async()
         print(result.get())

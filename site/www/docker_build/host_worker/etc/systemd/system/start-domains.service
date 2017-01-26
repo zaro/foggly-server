@@ -1,0 +1,15 @@
+[Unit]
+Description=start domains on startup
+After=celery.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/pyenv /srv/home/www/start_domains
+WorkingDirectory=/srv/home/www/
+SyslogIdentifier=start_domains
+User = root
+Group = root
+PassEnvironment=REDIS_URL
+
+[Install]
+WantedBy=multi-user.target

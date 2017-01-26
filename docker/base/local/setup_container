@@ -1,5 +1,0 @@
-#!/bin/sh
-
-echo "=== Begin setup contaier `date -Iseconds` ==="
-run-parts /usr/local/setup_container.d
-echo "=== End setup contaier `date -Iseconds` ==="

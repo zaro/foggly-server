@@ -1,0 +1,12 @@
+#!/bin/sh
+
+
+mkdir -p /srv/home/var/spool/postfix
+
+# Fix some permissions about which postfix complains
+chmod 644 /srv/home/etc/postfix/*.cf /srv/home/etc/postfix/postfix-files
+chmod 644  /srv/home/etc/postfix/virtual
+chmod 755 /srv/home/etc/postfix/post-install /srv/home/etc/postfix/postfix-script
+
+/usr/sbin/postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/vmailbox
+/usr/sbin/postmap -c /srv/home/etc/postfix/ /srv/home/etc/postfix/virtual

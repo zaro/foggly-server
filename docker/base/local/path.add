@@ -1,0 +1,8 @@
+#!/bin/sh
+
+PATH=/srv/home/www/node_modules/.bin/:$PATH
+
+export PATH
+
+
+

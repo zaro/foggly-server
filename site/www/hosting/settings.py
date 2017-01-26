@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p!m^kp0mjmi9gpbi+vka*#4l#o@qi$y@7kdc53iwm)%og8gfim'
 try:
-    with open('/srv/home/secret_key.txt') as f:
+    with open('/srv/home/www/persistent/secret_key.txt') as f:
         SECRET_KEY = f.read().strip()
 except FileNotFoundError:
     pass

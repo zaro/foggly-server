@@ -3,7 +3,7 @@ FROM foggly/python:latest
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 
 RUN apt-get update && \
-    apt-get install -y redis-server python3-dbus && \
+    apt-get install -y redis-server python3-gi python3-gevent && \
     apt-get clean && \
     rm -rf /usr/share/locale/* \
       /usr/share/doc/* \
@@ -21,7 +21,7 @@ ADD docker_build/host_controller/Procfile  /srv/home/www/
 ADD docker_build/host_controller/local  /usr/local/
 ADD docker_build/host_controller/etc/  /etc/
 
-RUN cd /srv/home/www/ && /usr/local/deploy_hook && rm -r /root/.cache
+RUN cd /srv/home/www/ && /usr/local/deploy_hook && rm -fr /root/.cache
 RUN cd /srv/home/www/ ; \
       pyenv python3 -B -c 'import host_worker.tasks; host_worker.tasks.createDomain({"user":0, "domain":"home", "app_type":{"proxy_type":"http", "container_id":"python"}})'
 
@@ -32,4 +32,3 @@ ENV WWW_ROOT=$ROOT_DIR/www/
 
 VOLUME [ "/srv/home/www/persistent" ]
 EXPOSE 3000 6379
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

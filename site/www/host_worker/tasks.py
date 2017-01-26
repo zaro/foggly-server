@@ -1,5 +1,5 @@
 from celery import shared_task
-from .task_utils import *
+from .task_utils import getDomainDir, TemplateDir, DomainConfig, LETSENCRYPT_DIR, DirCreate, AuthorizedKeysFile
 from .dockerctl import DockerCtl
 from .systemdctl import SystemdCtl
 from .firewalldctl import FirewalldCtl
@@ -12,6 +12,8 @@ import os
 import MySQLdb
 import psycopg2
 import socket
+import uuid
+from pwd import getpwnam
 
 THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,7 +39,7 @@ def mandatoryParams(cfg, *params):
 def getDomainConfig(cfg):
     mandatoryParams(cfg, 'user', 'domain')
 
-    d = getDomainDir(user, domain)
+    d = getDomainDir(cfg['user'], cfg['domain'])
     if d.existing():
         return {'success': True, 'domainConfig': d.asDict()}
     raise HostWorkerError('Invalid user/domain')
@@ -51,23 +53,17 @@ def createDomain(cfg):
     domain = cfg['domain']
     app_type = cfg['app_type']
 
-    # hardcode www-data user for now
-    nginxUID = 33
-    nginxGID = 33
+    wwwDataPwdEntry = getpwnam('www-data')
+    nginxUID = wwwDataPwdEntry.pw_uid
+    nginxGID = wwwDataPwdEntry.pw_gid
 
-    postfixUID = 105
-    postfixGID = 108
+    postfixPwdEntry = getpwnam('postfix')
+    postfixUID = postfixPwdEntry.pw_uid
+    postfixGID = postfixPwdEntry.pw_gid
 
     d = getDomainDir(user, domain)
     d.mkdir(uid=nginxUID, gid=nginxGID)
     d.mkdir('tmp', mode=0o777)
-    d.mkdir('tmp/rsyslog')
-
-    d.mkdir('var/run')
-    d.mkdir('var/lock')
-    d.mkdir('var/spool/postfix')
-    d.mkdir('var/spool/rsyslog')
-    d.mkdir('var/spool/sessions', nginxUID, mode=0o1733)
 
     if not d.exists('.bashrc'):
         with open(d.filename('.bashrc'), 'w') as f:
@@ -86,9 +82,7 @@ def createDomain(cfg):
     d.run("chown -R {}:{} .git".format(nginxUID, nginxGID))
     d.popd()
 
-    d.mkdir('run', nginxUID, nginxGID)
-    d.mkdir(['log', 'log/nginx', 'log/apache2'], nginxUID, nginxGID)
-    d.mkdir(['log/supervisor'])
+    d.mkdir(['log', 'log/nginx', 'log/journal'], nginxUID, nginxGID)
 
     d.pushd('.ssh')
     d.mkdir([], nginxUID, nginxGID, 0o700)
@@ -99,6 +93,8 @@ def createDomain(cfg):
 
     masterDomain = socket.getfqdn()
     hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone().filename('*/*/.hostcfg'))
+    # Generate container UUID accorging to https://www.freedesktop.org/wiki/Software/systemd/ContainerInterface/
+    hostCfg.set('container_uuid', uuid.uuid4().hex)
     hostCfg.override(True)
     hostCfg.set('OWNER', user)
     hostCfg.set('MASTER_DOMAIN', masterDomain)
@@ -107,6 +103,7 @@ def createDomain(cfg):
     hostCfg.set('DOMAIN_ID', domain.translate(str.maketrans(".-", "__")))
     hostCfg.set('USE_CONTAINER', app_type['container_id'])
     hostCfg.set('PROXY_TYPE', app_type['proxy_type'])
+
     hostCfg.override(False)
 
     if 'ssh' in ports:
@@ -149,6 +146,11 @@ def createDomain(cfg):
 
     td = TemplateDir(os.path.join(THIS_FILE_DIR, '../etc_template/'), hostCfg.asDict())
     td.copyTo(d.path)
+
+    # TODO:
+    # chmod 644 /srv/home/etc/postfix/*.cf /srv/home/etc/postfix/postfix-files
+    # chmod 644 /srv/home/etc/postfix/virtual
+    # chmod 755 /srv/home/etc/postfix/post-install /srv/home/etc/postfix/postfix-script
 
     return {'success': True, 'domainConfig': hostCfg.asDict()}
 
@@ -208,8 +210,8 @@ def removeDomain(cfg):
     if not d.exists():
         raise HostWorkerError('Invalid user/domain')
 
-    dctl = DockerCtl(baseUrl='unix://')
-    status = dctl.getContainerStatus(cfg['user'], cfg['domain'])
+    dctl = DockerCtl()
+    status = dctl.getContainerState(cfg['user'], cfg['domain'])
     if status is not None:
         # stop/rm container
         if status == 'up':
@@ -232,8 +234,8 @@ def startDomain(cfg):
     if not d.exists() or not hostCfg.exists():
         raise HostWorkerError('Invalid user/domain')
     # start container
-    dctl = DockerCtl(baseUrl='unix://')
-    status = dctl.getContainerStatus(cfg['user'], cfg['domain'])
+    dctl = DockerCtl()
+    status = dctl.getContainerState(cfg['user'], cfg['domain'])
     print('Current status :', status)
     if status is not None:
         # stop/rm container
@@ -266,8 +268,8 @@ def stopDomain(cfg):
     hostCfg = DomainConfig(d.filename('.hostcfg'))
     if not d.exists() or not hostCfg.exists():
         raise HostWorkerError('Invalid user/domain')
-    dctl = DockerCtl(baseUrl='unix://')
-    status = dctl.getContainerStatus(cfg['user'], cfg['domain'])
+    dctl = DockerCtl()
+    status = dctl.getContainerState(cfg['user'], cfg['domain'])
     if status is not None:
         # stop/rm container
         if status == 'up':
@@ -355,7 +357,7 @@ def addMysqlDatabase(cfg):
         "GRANT ALL PRIVILEGES ON `{db_name}`.* TO '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';"
     ])
     res = executeMysqlQueryList(queryList)
-    return {'success': True, 'result': res }
+    return {'success': True, 'result': res}
 
 
 @shared_task(name='host.removeMysqlDatabase')
@@ -368,7 +370,7 @@ def removeMysqlDatabase(cfg):
         ("REVOKE ALL PRIVILEGES ON `{db_name}`.* FROM '{db_user}'@'localhost';", 1141)
     ])
     res = executeMysqlQueryList(queryList)
-    return {'success': True, 'result': res }
+    return {'success': True, 'result': res}
 
 
 def executePgQueryList(queryList, dbname='template1'):
@@ -407,7 +409,7 @@ def addPostgresDatabase(cfg):
     ])
     res = executePgQueryList(queryList)
 
-    return {'success': True, 'result': res }
+    return {'success': True, 'result': res}
 
 
 @shared_task(name='host.removePostgresDatabase')
@@ -421,7 +423,7 @@ def removePostgresDatabase(cfg):
         # ('DROP ROLE "{db_name}"', '42704'),
     ])
     res = executePgQueryList(queryList)
-    return {'success': True, 'result': res }
+    return {'success': True, 'result': res}
 
 
 @shared_task(name='host.addPublicKey')
@@ -469,18 +471,10 @@ def getRedisConnection():
 
 
 def getDockerStatus():
-    containersList = DockerCtl('unix://').listContainers()
+    containersList = DockerCtl().listContainers()
     containers = {}
-    statusMap = {'exited': 'down', 'removal': 'down', 'dead': 'down'}
     for cont in containersList:
-        domain = cont['Names'][0][1:]
-        containers[domain] = {
-            'domain': domain,
-            'type': cont['Image'],
-            'status': cont['Status'],
-            'created': cont['Created'],
-            'state': statusMap[cont['state']] if cont['state'] in statusMap else cont['state'],
-        }
+        containers[cont['domain']] = cont
     return containers
 
 

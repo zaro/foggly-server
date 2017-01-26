@@ -3,7 +3,7 @@ FROM foggly/python:latest
 MAINTAINER "Svetlozar Argirov" <zarrro@gmail.com>
 
 RUN apt-get update && \
-    apt-get install -y python3-dbus && \
+    apt-get install -y python3-gi python3-gevent && \
     apt-get install -y libpython-dev libpython2.7 libpython2.7-dev python2.7-dev python3-virtualenv zlib1g-dev augeas-lenses dialog libaugeas0 libffi-dev libssl-dev python-dev python-virtualenv virtualenv&&\
     curl -o /usr/local/bin/certbot  https://dl.eff.org/certbot-auto && \
     chmod +x /usr/local/bin/certbot && \
@@ -25,13 +25,13 @@ ADD docker_build/host_worker/etc/  /etc/
 ADD docker_build/host_worker/Procfile  /srv/home/www/
 ADD docker_build/host_worker/app.py  /srv/home/www/
 
-RUN cd /srv/home/www/ && /usr/local/deploy_hook && rm -r /root/.cache
+RUN cd /srv/home/www/ && /usr/local/deploy_hook && rm -fr /root/.cache
 RUN . /srv/home/pyvenv/bin/activate ; cd /srv/home/www/ ; \
       python3 -B -c 'import host_worker.tasks; host_worker.tasks.createDomain({"user":0, "domain":"home", "app_type":{"proxy_type":"http", "container_id":"python"}})'
 RUN chown -R www-data.www-data /srv/home/www
+RUN rm -f /etc/systemd/system/multi-user.target.wants/redis-server.service
 
 
 ENV WWW_ROOT=$ROOT_DIR/www/
 
 EXPOSE 3000
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

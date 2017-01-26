@@ -1,4 +1,5 @@
 celery[redis]
+gevent
 Django==1.10.5
 django-celery
 django-extensions
@@ -6,10 +7,11 @@ django-material>=0.8.0
 django-model-utils
 django-jwt-auth
 django-webpack-loader
-docker-py
+docker
 Jinja2
 ansible
 mysqlclient
 psycopg2
+pydbus
 django-markdown-deux
 pygments

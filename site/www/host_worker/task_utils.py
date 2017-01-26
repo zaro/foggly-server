@@ -144,6 +144,7 @@ class DirCreate:
             self.path = os.path.join( *self.paths )
             self.path = os.path.abspath(self.path)
         print("pushd :" + self.path)
+        return self
 
     def popd(self):
         self.paths.pop()
@@ -151,6 +152,7 @@ class DirCreate:
             self.path = os.path.join( *self.paths )
         self.path = os.path.abspath(self.path)
         print("popd " + self.path)
+        return self
 
     def filename(self, filename):
         return os.path.join( self.path, filename )
@@ -164,6 +166,7 @@ class DirCreate:
             os.chown(self.path, uid, gid)
         if mode:
             os.chmod(self.path, mode)
+        return self
 
     def mkdir(self, paths=None, uid=-1, gid=-1, mode=None):
         if not paths or len(paths) == 0:
@@ -175,6 +178,7 @@ class DirCreate:
             self.pushd(path)
             self._mkdir(uid, gid, mode)
             self.popd()
+        return self
 
     def exists(self, *paths):
         if len(paths) == 0:
@@ -192,6 +196,7 @@ class DirCreate:
                 os.unlink( os.path.join( self.path, path ) )
             except FileNotFoundError:
                 pass
+        return self
 
     def rmtree(self, *paths):
         if len(paths) == 0:
@@ -201,18 +206,21 @@ class DirCreate:
                 shutil.rmtree( os.path.join( self.path, path ), ignore_errors=False )
             except FileNotFoundError:
                 pass
+        return self
 
     def chmod(self, mode, *paths):
         if len(paths) == 0:
             os.chmod( self.path, mode )
         for path in paths:
             os.chmod( os.path.join( self.path, path ), mode  )
+        return self
 
     def chown(self, uid, gid, *paths):
         if len(paths) == 0:
             os.chown(self.path, uid, gid)
         for path in paths:
             os.chown(os.path.join( self.path, path ), uid, gid)
+        return self
 
     def ln_sf(self, src, dest):
         if not os.path.isabs(dest):
@@ -220,10 +228,12 @@ class DirCreate:
         if os.path.exists(dest):
             os.unlink(dest)
         os.symlink(src, dest)
+        return self
 
     def mv(self, fromFile, toFile):
         print("mv " + str(fromFile) + " " + str(toFile))
         os.rename( os.path.join( self.path, fromFile ), os.path.join( self.path, toFile ) )
+        return self
 
     def cp(self, fromFile, toFile=None):
         print("cp " + str(fromFile) + " " + str(toFile))
@@ -231,6 +241,7 @@ class DirCreate:
             toFile = os.path.join( self.path, os.path.basename(fromFile))
         shutil.copyfile(fromFile, toFile)
         shutil.copymode(fromFile, toFile)
+        return self
 
     def cpIfExist(self, fromFile, toFile=None):
         print("cpIfExist " + str(fromFile) + " " + str(toFile))
@@ -238,13 +249,16 @@ class DirCreate:
             self.cp(fromFile, toFile)
         else:
             print("cpIfExist missing: " + str(fromFile))
+        return self
 
     def run(self, cmd, *args):
         subprocess.check_call(cmd, shell=True, cwd=self.path, *args)
+        return self
 
     def writeFile(self, path, contents):
         with open(self.filename(path), 'w') as f:
             f.write(contents)
+        return self
 
     def readFile(self, path):
         try:

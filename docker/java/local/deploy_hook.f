@@ -14,5 +14,5 @@ function deploy_hook_install {
 
 
 function deploy_hook_reload {
-  /usr/bin/supervisorctl restart web
+  systemctl restart web
 }

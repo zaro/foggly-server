@@ -59,16 +59,17 @@ function procfile_entry {
   #skip, do not generate entry
   return 0
 }
+
 function procfiles_clean {
   return 0
 }
 
-. /usr/local/procfile_to_supervisor
+. /usr/local/procfile_to_systemd
 procfile_process
 
 cd "$APP_DIR"
 
-if [ "$WSGI_FILE" = "undefined" ]; then
+if [[ "$WSGI_FILE" = "undefined" ]]; then
   for f in wsgi.py index.py app.py run.py ; do
     if [ -f "$f" ]; then
       WSGI_FILE="$f"
@@ -77,13 +78,13 @@ if [ "$WSGI_FILE" = "undefined" ]; then
   done
 fi
 
-if [ "$COMMAND" = "undefined" ]; then
+if [[ "$WSGI_FILE" = "undefined" ]]; then
   echo "Cannot find app to start."
   exit 1
 fi
 
 UWSGI_SOCKET_OPTION="--http-socket"
-if [ "$PROXY_TYPE" = "uwsgi" ]; then
+if [[ "$PROXY_TYPE" = "uwsgi" ]]; then
   UWSGI_SOCKET_OPTION="--socket"
 fi
 

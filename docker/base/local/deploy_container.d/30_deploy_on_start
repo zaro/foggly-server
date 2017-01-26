@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cd /srv/home/www
-exec /usr/local/deploy_hook

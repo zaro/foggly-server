@@ -13,26 +13,11 @@ function activate_pyvenv {
 
 }
 
-function procfile_entry {
-  if [[ "$1" == "web" ]]; then
-    return 0
-  fi
-  return 1
-}
-
-function procfile_entry_append {
-  FILE="$1"
-  # echo "environment=PATH=/srv/home/pyvenv/bin:%(ENV_PATH)s" >> "${FILE}"
-}
-function procfile_comand {
-  echo /usr/local/bin/pyenv "$@"
-}
-
 function deploy_hook_init {
 
   activate_pyvenv
 
-  export PATH=`pwd`/node_modules/.bin/:$PATH
+ . /usr/local/path.add
 }
 
 function deploy_hook_install {
@@ -45,5 +30,5 @@ function deploy_hook_install {
 
 
 function deploy_hook_reload {
-  /usr/bin/supervisorctl restart web
+  systemctl restart web
 }

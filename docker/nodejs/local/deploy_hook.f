@@ -1,17 +1,19 @@
 #!/bin/bash
 
 function deploy_hook_init {
-  export PATH=`pwd`/node_modules/.bin/:$PATH
+  . /usr/local/path.add
 }
 
 function deploy_hook_install {
   echo '*** BEGIN npm install in '`pwd`
-  npm install
+  if [ -f package.json ]; then
+    npm install
+  fi
   echo '*** END npm install'
 }
 
 function deploy_hook_reload {
 
-  /usr/bin/supervisorctl restart web
+  systemctl restart web
 
 }

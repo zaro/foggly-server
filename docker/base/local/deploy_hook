@@ -34,13 +34,12 @@ if [ -x .hooks/on_deploy ]; then
   echo '*** END on_deploy'
 fi
 
-echo '*** BEGIN generate supervisor entries'
-. /usr/local/procfile_to_supervisor
+echo '*** BEGIN generate systemd entries'
+. /usr/local/procfile_to_systemd
 procfile_process
 
-/usr/bin/supervisorctl reread
-/usr/bin/supervisorctl update
-echo '*** END generate supervisor entries'
+systemctl daemon-reload
+echo '*** END generate systemd entries'
 
 deploy_hook_reload
 
