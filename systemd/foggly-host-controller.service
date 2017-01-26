@@ -8,7 +8,7 @@ Restart=always
 ExecStartPre=-/usr/bin/docker stop host_controller
 ExecStartPre=-/usr/bin/docker rm host_controller
 
-ExecStart=/usr/bin/docker run --stop-signal=RTMIN+3 --name 'host_controller' -h 'foggly-ctrl.%H' --cap-add=SYS_ADMIN -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /srv/_host_controller/log:/var/log -v /srv/_host_controller:/srv/home/www/persistent -e 'REDIS_URL=redis://172.17.0.1' -p 3000:3000 -p 6379:6379  foggly/host_controller
+ExecStart=/usr/bin/docker run --stop-signal=RTMIN+3 --name 'host_controller' -h 'foggly-ctrl.%H' --cap-add=SYS_ADMIN -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /srv/_host_controller/log:/var/log -v /srv/_host_controller:/srv/home/www/persistent --tmpfs /run --tmpfs /tmp -e 'REDIS_URL=redis://172.17.0.1' -p 3000:3000 -p 6379:6379  foggly/host_controller
 
 ExecStop=/usr/bin/docker stop host_controller
 

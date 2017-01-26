@@ -12,8 +12,8 @@ class DockerCtl:
     _statusMap = {'exited': 'down', 'removal': 'down', 'dead': 'down', 'running': 'up', 'created': 'up'}
 
     def __init__(self, baseUrl=None):
-        if not baseUrl:
-            baseUrl = 'unix://host_run/docker.sock'
+        # if not baseUrl:
+        #     baseUrl = 'unix://host_run/docker.sock'
         self.client = docker.DockerClient(base_url=baseUrl)
 
     def _stateFromStatus(self, status):
@@ -89,14 +89,18 @@ class DockerCtl:
                     'bind': '/sys/fs/cgroup',
                     'mode': 'ro'
                 },
-                '/var/lib/mysql/': {
-                    'bind': '/var/lib/mysql/',
+                '/var/run/mysqld/': {
+                    'bind': '/var/run/mysqld/',
                     'mode': 'ro',
                 },
                 '/var/run/postgresql/': {
                     'bind': '/var/run/postgresql/',
                     'mode': 'ro',
                 }
+            },
+            tmpfs={
+                '/run': '',
+                '/tmp': '',
             },
         )
 
