@@ -7,16 +7,8 @@ def getDomainsList(user):
         # Filter for current user
         containersList = DockerCtl().listContainers();
         containers = {}
-        statusMap={'exited':'down', 'removal':'down', 'dead':'down'}
         for cont in containersList:
-            domain = cont['Names'][0][1:]
-            containers[domain] = {
-                'domain' : domain,
-                'type' : cont['Image'],
-                'status' : cont['Status'],
-                'created': cont['Created'],
-                'state': statusMap[cont['state']] if cont['state'] in statusMap else cont['state'],
-            }
+            containers[cont['domain']] = cont
 
         response = []
         for domain in  core.models.DomainModel.objects.filter(user=user):
@@ -26,7 +18,7 @@ def getDomainsList(user):
                 response.append({
                     'domain' : domain.domain_name,
                     'type' : domain.app_type.container_id,
-                    'status' : 'Exited',
+                    'status' : 'exited',
                     'created': None,
                     'state' : 'down'
                 })

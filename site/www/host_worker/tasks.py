@@ -94,7 +94,7 @@ def createDomain(cfg):
     masterDomain = socket.getfqdn()
     hostCfg = DomainConfig(d.filename('.hostcfg'), d.clone(True).filename('*/*/.hostcfg'))
     # Generate container UUID accorging to https://www.freedesktop.org/wiki/Software/systemd/ContainerInterface/
-    hostCfg.set('container_uuid', uuid.uuid4().hex)
+    hostCfg.set('container_uuid', str(uuid.uuid4()))
     hostCfg.override(True)
     hostCfg.set('OWNER', user)
     hostCfg.set('MASTER_DOMAIN', masterDomain)
@@ -217,7 +217,7 @@ def removeDomain(cfg):
         if status == 'up':
             dctl.stopContainer(cfg['user'], cfg['domain'])
             dctl.rmContainer(cfg['user'], cfg['domain'])
-        elif status == 'exited':
+        elif status == 'down':
             dctl.rmContainer(cfg['user'], cfg['domain'])
 
     d.rmtree()
@@ -242,7 +242,7 @@ def startDomain(cfg):
         if status == 'up':
             dctl.stopContainer(cfg['user'], cfg['domain'])
             dctl.rmContainer(cfg['user'], cfg['domain'])
-        elif status == 'exited':
+        elif status == 'down':
             dctl.rmContainer(cfg['user'], cfg['domain'])
         else:
             raise HostWorkerError('Cannot start {} container'.format(status))
@@ -275,7 +275,7 @@ def stopDomain(cfg):
         if status == 'up':
             dctl.stopContainer(cfg['user'], cfg['domain'])
             dctl.rmContainer(cfg['user'], cfg['domain'])
-        elif status == 'exited':
+        elif status == 'down':
             dctl.rmContainer(cfg['user'], cfg['domain'])
     # write domain state
     d.writeFile('.domainstate', 'stopped')

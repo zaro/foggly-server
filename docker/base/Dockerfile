@@ -88,4 +88,8 @@ EXPOSE 22
 
 ENV init /lib/systemd/systemd
 VOLUME [ "/sys/fs/cgroup" ]
+
+# Terminate systemd with the proper signal (inits shutdown)
+# "--stop-signal=$(kill -l RTMIN+3)
+STOPSIGNAL 37
 CMD ["/lib/systemd/systemd"]
