@@ -19,7 +19,7 @@ RUN apt-get update && \
 ADD .  /srv/home/www/
 ADD docker_build/host_controller/Procfile  /srv/home/www/
 ADD docker_build/host_controller/local  /usr/local/
-ADD docker_build/host_controller/etc/  /etc/
+#ADD docker_build/host_controller/etc/  /etc/
 
 RUN cd /srv/home/www/ && /usr/local/deploy_hook && rm -fr /root/.cache
 RUN cd /srv/home/www/ ; \
