@@ -45,7 +45,6 @@ class DomainConfig:
 
     def readFile(self, path, handler):
         print("Reading: ", path)
-        cfgVars = []
         with open(path, 'r') as cfgFile:
             for line in cfgFile.readlines():
                 if re.match(r'^\s*#', line):
@@ -105,7 +104,7 @@ class DomainConfig:
                     if v is not None:
                         v = shlex.quote(str(v))
                     else:
-                        v=''
+                        v = ''
                 cfgFile.write("{}={}\n".format(k, v))
 
 
@@ -155,7 +154,9 @@ class DirCreate:
         return self
 
     def filename(self, filename):
-        return os.path.join( self.path, filename )
+        if not os.path.isabs(filename):
+            return os.path.join( self.path, filename )
+        return filename
 
     def _mkdir(self, uid=-1, gid=-1, mode=None):
         try:
@@ -184,7 +185,7 @@ class DirCreate:
         if len(paths) == 0:
             return os.path.exists( self.path )
         for path in paths:
-            if not os.path.exists( os.path.join( self.path, path ) ):
+            if not os.path.exists( self.filename( path ) ):
                 return False
         return True
 
@@ -193,7 +194,7 @@ class DirCreate:
             paths = ('',)
         for path in paths:
             try:
-                os.unlink( os.path.join( self.path, path ) )
+                os.unlink( self.filename( path ) )
             except FileNotFoundError:
                 pass
         return self
@@ -203,7 +204,7 @@ class DirCreate:
             paths = ('',)
         for path in paths:
             try:
-                shutil.rmtree( os.path.join( self.path, path ), ignore_errors=False )
+                shutil.rmtree( self.filename( path ), ignore_errors=False )
             except FileNotFoundError:
                 pass
         return self
@@ -212,14 +213,14 @@ class DirCreate:
         if len(paths) == 0:
             os.chmod( self.path, mode )
         for path in paths:
-            os.chmod( os.path.join( self.path, path ), mode  )
+            os.chmod( self.filename( path ), mode  )
         return self
 
     def chown(self, uid, gid, *paths):
         if len(paths) == 0:
             os.chown(self.path, uid, gid)
         for path in paths:
-            os.chown(os.path.join( self.path, path ), uid, gid)
+            os.chown(self.filename( path ), uid, gid)
         return self
 
     def ln_sf(self, src, dest):
@@ -230,15 +231,20 @@ class DirCreate:
         os.symlink(src, dest)
         return self
 
+    def glob(self, pattern):
+        if not os.path.isabs(pattern):
+            pattern = self.filename(pattern)
+        return glob.glob(pattern)
+
     def mv(self, fromFile, toFile):
         print("mv " + str(fromFile) + " " + str(toFile))
-        os.rename( os.path.join( self.path, fromFile ), os.path.join( self.path, toFile ) )
+        os.rename( self.filename( fromFile ), self.filename( toFile ) )
         return self
 
     def cp(self, fromFile, toFile=None):
         print("cp " + str(fromFile) + " " + str(toFile))
         if not toFile:
-            toFile = os.path.join( self.path, os.path.basename(fromFile))
+            toFile = self.filename( os.path.basename(fromFile) )
         shutil.copyfile(fromFile, toFile)
         shutil.copymode(fromFile, toFile)
         return self
@@ -351,5 +357,5 @@ class AuthorizedKeysFile:
                 break
 
 if __name__ == '__main__':
-    dc = DomainConfig(sys.argv[1],override=True)
+    dc = DomainConfig(sys.argv[1], override=True)
     print(dc.asDict())

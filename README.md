@@ -10,26 +10,30 @@ In top dir:
 
 ### Setup
 
+Disable docker iptables integration :
+
+https://fralef.me/docker-and-iptables.html
+or else all the ports that containers expose will be public.
+
+add --iptables=false to docker startup
+docker --iptables=false
+
 Setup firewall:
 
+    # masquerade traffic to containers
+    firewall-cmd --permanent --zone=public --add-masquerade
     # add docker interface to the trusted zone
     firewall-cmd --permanent --zone=trusted --change-interface=docker0
     # allow redis port
     firewall-cmd --permanent --zone=trusted --add-port=6379/tcp
     firewall-cmd --reload
 
-It is good to disable docker iptables integration :
-
-https://fralef.me/docker-and-iptables.html
-
-or else all the ports that containers expose will be public.
-
 Create directory for host_controller persistent storage:
 
 ```
-    mkdir /srv/_host_controller
+    mkdir -p /srv/_host_controller/log
     chown 33.33 -R /srv/_host_controller/
-    mkdir /srv/_host_worker
+    mkdir -p /srv/_host_worker/log
     chown 33.33 -R /srv/_host_worker/
 ```
 
@@ -80,6 +84,7 @@ https://support.google.com/mail/answer/81126
 
 - Rebase the images on https://hub.docker.com/r/maci0/systemd/ and https://rhatdan.wordpress.com/2014/04/30/running-systemd-within-a-docker-container/
 - or use [rkt](https://coreos.com/rkt/docs/latest/) instead of docker
+- Investigate https://github.com/oderwat/hubic2swiftgate , for backup using duplicity
 
 ## DB Notes
 
