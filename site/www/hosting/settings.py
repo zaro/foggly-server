@@ -156,7 +156,6 @@ MARKDOWN_DEUX_STYLES = {
             "code-friendly": None,
             "fenced-code-blocks": None,
         },
-        "safe_mode": "escape",
     }
 }
 
