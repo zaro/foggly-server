@@ -27,6 +27,7 @@ RUN apt-get clean && \
     mkdir -p /var/run/sshd && \
     ln -s /srv/home/www /www && \
     ln -s /usr/bin/mariadb_config /usr/bin/mysql_config && \
+    usermod -a -G systemd-journal www-data && \
     /bin/echo -e "\nwww-data	ALL= (root) NOPASSWD: /bin/systemctl" >> /etc/sudoers && \
     usermod -d /srv/home/ -s /bin/bash www-data && \
     curl -o /usr/local/bin/rmate https://raw.githubusercontent.com/aurora/rmate/master/rmate && \
