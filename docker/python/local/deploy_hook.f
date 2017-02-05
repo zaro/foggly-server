@@ -30,5 +30,5 @@ function deploy_hook_install {
 
 
 function deploy_hook_reload {
-  systemctl restart web
+  sudo systemctl restart web
 }

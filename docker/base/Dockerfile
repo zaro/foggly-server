@@ -10,7 +10,7 @@ RUN echo "postfix postfix/mailname string example.com" | debconf-set-selections
 RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
 RUN apt-get clean && \
     apt-get update && \
-    apt-get install -y ca-certificates curl psmisc nano less vim unzip rsync postfix mariadb-client-core-10.0 libmariadb-client-lgpl-dev redis-server && \
+    apt-get install -y ca-certificates curl psmisc nano sudo less vim unzip rsync postfix mariadb-client-core-10.0 libmariadb-client-lgpl-dev redis-server && \
     apt-get install -y git make openssh-server opendkim opendkim-tools && \
     apt-get clean && \
     rm -fr /etc/postfix && \
@@ -27,6 +27,7 @@ RUN apt-get clean && \
     mkdir -p /var/run/sshd && \
     ln -s /srv/home/www /www && \
     ln -s /usr/bin/mariadb_config /usr/bin/mysql_config && \
+    /bin/echo -e "\nwww-data	ALL= (root) NOPASSWD: /bin/systemctl" >> /etc/sudoers && \
     usermod -d /srv/home/ -s /bin/bash www-data && \
     curl -o /usr/local/bin/rmate https://raw.githubusercontent.com/aurora/rmate/master/rmate && \
     chmod a+x /usr/local/bin/rmate

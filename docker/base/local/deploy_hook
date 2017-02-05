@@ -38,7 +38,7 @@ echo '*** BEGIN generate systemd entries'
 . /usr/local/procfile_to_systemd
 procfile_process
 
-systemctl daemon-reload
+sudo systemctl daemon-reload
 echo '*** END generate systemd entries'
 
 deploy_hook_reload
