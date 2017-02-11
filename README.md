@@ -15,8 +15,8 @@ Disable docker iptables integration :
 https://fralef.me/docker-and-iptables.html
 or else all the ports that containers expose will be public.
 
-add --iptables=false to docker startup
-docker --iptables=false
+add --iptables=false to docker daemon startup
+dockerd --iptables=false
 
 Setup firewall:
 
@@ -82,9 +82,8 @@ https://support.google.com/mail/answer/81126
 
 ## Todo
 
-- Rebase the images on https://hub.docker.com/r/maci0/systemd/ and https://rhatdan.wordpress.com/2014/04/30/running-systemd-within-a-docker-container/
-- or use [rkt](https://coreos.com/rkt/docs/latest/) instead of docker
 - Investigate https://github.com/oderwat/hubic2swiftgate , for backup using duplicity
+- make a demo using : https://dply.co/button
 
 ## DB Notes
 
@@ -132,4 +131,19 @@ pid-file=/var/run/mariadb/mariadb.pid
 # include all files from the config directory
 #
 !includedir /etc/my.cnf.d
+
+$ cat /etc/my.cnf.d/client.cnf
+#
+# These two groups are read by the client library
+# Use it for options that affect all clients, but not the server
+#
+
+
+[client]
+socket=/var/run/mysqld/mysqld.sock
+
+# This group is not read by mysql client library,
+# If you use the same .cnf file for MySQL and MariaDB,
+# use it for MariaDB-only client options
+[client-mariadb]
 ```
