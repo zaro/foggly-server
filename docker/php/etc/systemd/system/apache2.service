@@ -13,6 +13,7 @@ Restart=always
 PermissionsStartOnly=true
 
 RuntimeDirectory=apache2
+EnvironmentFile=/srv/home/.hostcfg
 
 Environment=APACHE_RUN_USER=www-data
 Environment=APACHE_RUN_GROUP=www-data
@@ -20,9 +21,6 @@ Environment=APACHE_LOCK_DIR=/var/run/apache2/
 Environment=APACHE_RUN_DIR=/var/run/apache2/
 Environment=APACHE_LOG_DIR=/var/log/apache2
 Environment=APACHE_PID_FILE=/var/run/apache2/apache2.pid
-PassEnvironment=VHOST_DOMAIN
-PassEnvironment=WWW_ROOT
-PassEnvironment=WWW_ROOT_SUBDIR
 
 [Install]
 WantedBy=multi-user.target

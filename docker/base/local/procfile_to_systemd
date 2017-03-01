@@ -35,6 +35,7 @@ SyslogIdentifier=${NAME}
 Restart=always
 User = www-data
 Group = www-data
+EnvironmentFile=/srv/home/.hostcfg
 
 [Install]
 WantedBy=multi-user.target
