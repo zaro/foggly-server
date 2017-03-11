@@ -60,7 +60,7 @@ class DockerCtl:
             SSH_PORT = int(cfg.get('SSH_PORT'))
         except:
             raise Exception('Invalid port configuration for domain')
-        # Stopping docker container with systed inside :
+        # Stopping docker container with systemd inside :
         #  https://bugzilla.redhat.com/show_bug.cgi?id=1201657
         #  https://rhn.redhat.com/errata/RHEA-2016-1057.html
         self.client.containers.run(
@@ -72,6 +72,7 @@ class DockerCtl:
             cap_add=['SYS_ADMIN'],
             stop_signal='RTMIN+3',
             mem_limit=(options.get('mem_limit') or '1024m'),
+            security_opt=['seccomp=unconfined'],
             ports={
                 22: SSH_PORT,
                 3000: WWW_PORT
@@ -100,6 +101,7 @@ class DockerCtl:
             },
             tmpfs={
                 '/run': '',
+                '/run/lock': '',
                 '/tmp': '',
             },
         )
