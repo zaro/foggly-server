@@ -17,7 +17,7 @@ RUN apt-get update && \
     rm -rf /var/log/*.log
 
 ADD local/  /usr/local/
-ADD etc/  /etc/
+# ADD etc/  /etc/
 
 ENV WWW_ROOT=$ROOT_DIR/www/
 
