@@ -15,11 +15,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/log/*.log
 
+RUN sed -i "/^port /c\port 6389" /etc/redis/redis.conf \
+  && sed -i "/unixsocket /c\unixsocket /var/run/redis/redis.sock" /etc/redis/redis.conf
 
 ADD .  /srv/home/www/
 ADD docker_build/host_controller/Procfile  /srv/home/www/
 ADD docker_build/host_controller/local  /usr/local/
-#ADD docker_build/host_controller/etc/  /etc/
+ADD docker_build/host_controller/etc/  /etc/
 
 RUN cd /srv/home/www/ && /usr/local/deploy_hook && rm -fr /root/.cache
 RUN cd /srv/home/www/ ; \

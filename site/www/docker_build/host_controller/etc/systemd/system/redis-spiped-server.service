@@ -1,0 +1,11 @@
+[Unit]
+Description=spiped receive for Redis
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStartPre=/usr/local/generate_redis_key
+ExecStart=/usr/bin/spiped -F -d -s [0.0.0.0]:6379 -t /var/run/redis/redis.sock -k /srv/home/www/persistent/redis-spiped.key
+
+[Install]
+WantedBy=multi-user.target

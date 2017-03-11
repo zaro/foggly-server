@@ -1,0 +1,11 @@
+[Unit]
+Description=spiped sending for Redis
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+PassEnvironment=REDIS_HOST
+ExecStart=/usr/bin/spiped -F -e -s [127.0.0.1]:6379 -t [${REDIS_HOST}]:6379 -k /srv/home/www/persistent/redis-spiped.key
+
+[Install]
+WantedBy=multi-user.target

@@ -197,6 +197,8 @@ CELERYBEAT_SCHEDULE = {
 
 if 'REDIS_URL' in os.environ:
     REDIS_URL = os.environ['REDIS_URL']
+elif os.path.exists('/var/run/redis/redis.sock'):
+    REDIS_URL = 'unix:///var/run/redis/redis.sock'
 else:
     REDIS_URL = 'redis://127.0.0.1'
 

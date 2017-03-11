@@ -11,7 +11,7 @@ RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set
 RUN apt-get clean && \
     apt-get update && \
     apt-get install -y ca-certificates curl psmisc nano sudo less vim unzip rsync postfix mariadb-client-core-10.0 libmariadb-client-lgpl-dev redis-server && \
-    apt-get install -y git make openssh-server opendkim opendkim-tools && \
+    apt-get install -y git make openssh-server opendkim opendkim-tools spiped && \
     apt-get clean && \
     rm -fr /etc/postfix && \
     ln -s /srv/home/etc/postfix/ /etc/postfix && \
@@ -44,7 +44,7 @@ RUN set -ex \
     B9AE9905FFD7803F25714661B63B535A4C206CA9 \
     C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
   ; do \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+    gpg --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
   done
 
 ENV NPM_CONFIG_LOGLEVEL info

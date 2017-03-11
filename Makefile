@@ -18,7 +18,7 @@ python: nodejs ## build python app runtime container
 java: nodejs ## build java app runtime container
 		cd docker/java && docker build -t foggly/java .
 
-host_controller:  python ## build the host_controller container
+host_controller: python ## build the host_controller container
 	if [ "${FULL}" ]; then \
 		cd site/www ; \
 		npm install ; \

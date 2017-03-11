@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ ! -s /srv/home/www/persistent/redis-spiped.key ] ; then \
+  dd if=/dev/urandom of=/srv/home/www/persistent/redis-spiped.key bs=32 count=1; \
+fi

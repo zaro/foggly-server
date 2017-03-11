@@ -40,9 +40,12 @@ Create directory for host_controller persistent storage:
 
 ### Run with systemd
 
+```
     cp systemd/foggly-host-* /etc/systemd/system/
-    systemctl start foggly-host-worker.service
     systemctl start foggly-host-controller.service
+    sudo cp /srv/_host_controller/redis-spiped.key /srv/_host_worker/
+    systemctl start foggly-host-worker.service
+```
 
     # if you want them to start at boot
     systemctl enable foggly-host-controller.service
