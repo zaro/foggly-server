@@ -16,7 +16,8 @@ RUN apt-get update && \
     rm -rf /var/log/*.log
 
 RUN sed -i "/^port /c\port 6389" /etc/redis/redis.conf \
-  && sed -i "/unixsocket /c\unixsocket /var/run/redis/redis.sock" /etc/redis/redis.conf
+  && sed -i "/unixsocket /c\unixsocket /var/run/redis/redis.sock" /etc/redis/redis.conf \
+  && sed -i "/unixsocketperm /c\unixsocketperm 777" /etc/redis/redis.conf
 
 ADD .  /srv/home/www/
 ADD docker_build/host_controller/Procfile  /srv/home/www/
