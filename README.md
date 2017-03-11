@@ -25,6 +25,7 @@ Setup firewall:
     # add docker interface to the trusted zone
     firewall-cmd --permanent --zone=trusted --change-interface=docker0
     # allow redis port
+    firewall-cmd --permanent --zone=public --add-port=80/tcp
     firewall-cmd --permanent --zone=trusted --add-port=6379/tcp
     firewall-cmd --reload
 

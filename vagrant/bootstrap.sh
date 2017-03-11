@@ -9,6 +9,14 @@ apt-get install -y --force-yes curl mariadb-server  nginx firewalld postgresql l
 
 ln -s /usr/bin/mariadb_config /usr/bin/mysql_config
 
+# curl -L -o /usr/local/bin/direnv  https://github.com/direnv/direnv/releases/download/v2.11.3/direnv.linux-amd64
+# chmod +x /usr/local/bin/direnv
+
+# # Load direnv, must be the last line
+# echo "export NODE_VERSIONS=~/.nvm/versions/node/"
+# echo "export NODE_VERSION_PREFIX=v" >> ~/.bashrc
+# echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+
 # Install nodejs
 (
 cd /tmp/
@@ -51,6 +59,12 @@ sudo usermod -aG docker ubuntu
 
 systemctl enable docker
 systemctl start docker
+
+cat <<EOC > /etc/nginx/conf.d/main_log.conf
+log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+EOC
 
 sed -i "/include.*sites-enabled/a \
       include /srv/*/*/etc/site.conf;" /etc/nginx/nginx.conf
