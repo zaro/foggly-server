@@ -25,8 +25,8 @@ Setup firewall:
     # add docker interface to the trusted zone
     firewall-cmd --permanent --zone=trusted --change-interface=docker0
     # allow redis port
+    firewall-cmd --permanent --zone=public --add-port=6379/tcp
     firewall-cmd --permanent --zone=public --add-port=80/tcp
-    firewall-cmd --permanent --zone=trusted --add-port=6379/tcp
     firewall-cmd --reload
 
 Create directory for host_controller persistent storage:
@@ -43,6 +43,8 @@ Create directory for host_controller persistent storage:
 ```
     cp systemd/foggly-host-* /etc/systemd/system/
     systemctl start foggly-host-controller.service
+    # It may take a few seconds for the spiped key to be generated
+    sleep 5
     sudo cp /srv/_host_controller/redis-spiped.key /srv/_host_worker/
     systemctl start foggly-host-worker.service
 ```
