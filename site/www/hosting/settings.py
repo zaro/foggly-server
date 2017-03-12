@@ -202,8 +202,8 @@ elif os.path.exists('/var/run/redis/redis.sock'):
 else:
     REDIS_URL = 'redis://127.0.0.1'
 
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_BROKER_URL = REDIS_URL.replace('unix://', 'redis+socket://')
+CELERY_RESULT_BACKEND = REDIS_URL.replace('unix://', 'redis+socket://')
 
 HOST_WORKER_PG_USER = 'foggly'
 HOST_WORKER_PG_PASS = 'very_secret_pass'

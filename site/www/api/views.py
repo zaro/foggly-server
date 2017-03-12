@@ -23,7 +23,7 @@ redisPool = None
 def getRedisConnection():
     global redisPool
     if redisPool is None:
-        redisPool = redis.ConnectionPool.from_url(settings.CELERY_RESULT_BACKEND)
+        redisPool = redis.ConnectionPool.from_url(settings.REDIS_URL)
     return redis.StrictRedis(connection_pool=redisPool)
 
 
