@@ -39,9 +39,9 @@ def createDomainRecord(createDomainResult, cfg):
     except ObjectDoesNotExist:
         raise HostControllerError('Invalid username: {}'.format(cfg['user']))
     try:
-        app_type = ContainerRuntime.objects.get(container_id=cfg['app_type']['container_id'])
+        app_type = ContainerRuntime.objects.get(id=cfg['app_type']['id'])
     except ObjectDoesNotExist:
-        raise HostControllerError('Invalid application type: {}'.format(cfg['app_type']['container_id']))
+        raise HostControllerError('Invalid application type id: {}'.format(cfg['app_type']['id']))
     try:
         host = Host.objects.get(main_domain=cfg['host'])
     except ObjectDoesNotExist:
