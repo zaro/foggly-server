@@ -6,6 +6,11 @@ ENV container=docker LC_ALL=C DEBIAN_FRONTEND=noninteractive
 COPY dpkg_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
 COPY apt_config /etc/apt/apt.conf.d/01_buildconfig
 
+# Add redis ppa
+RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB9316A7BC7917B12
+RUN echo deb http://ppa.launchpad.net/chris-lea/redis-server/ubuntu xenial main | tee /etc/apt/sources.list.d/redis-server.list
+
+
 RUN echo "postfix postfix/mailname string example.com" | debconf-set-selections
 RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
 RUN apt-get clean && \
