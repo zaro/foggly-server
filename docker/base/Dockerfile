@@ -58,6 +58,7 @@ RUN export NODE_ARCH=$(uname -m | sed 's/aarch64/arm64/;s/x86_64/x64/') \
   && tar -xzf "node-v$NODE_VERSION-linux-$NODE_ARCH.tar.gz" -C /usr/local --strip-components=1 \
   && rm "node-v$NODE_VERSION-linux-$NODE_ARCH.tar.gz" SHASUMS256.txt.asc
 
+# TODO: Make this step optional so that we can build tar images for systemd nspawn
 RUN cd /lib/systemd/system/sysinit.target.wants/; ls | grep -v 'systemd-tmpfiles-setup\|systemd-journal' | xargs rm -f $1; \
     rm -f /lib/systemd/system/multi-user.target.wants/*;\
     rm -f /lib/systemd/system/local-fs.target.wants/*; \
@@ -76,6 +77,16 @@ RUN cd /lib/systemd/system/sysinit.target.wants/; ls | grep -v 'systemd-tmpfiles
     rm -rf /etc/rc{0,1,2,3,4,5,6,S}.d; \
     rm -f /etc/machine-id; \
     rm -f /usr/lib/tmpfiles.d/systemd-nologin.conf
+
+
+# This works better for systemd-nspawn
+# RUN rm -f /etc/rc.local; \
+#     rm -f /lib/systemd/system/rc{.,-}local.service; \
+#     rm -f /etc/init.d/ondemand; \
+#     rm -rf /etc/rc{0,1,2,3,4,5,6,S}.d; \
+#     rm -f /etc/machine-id; \
+#     rm -f /usr/lib/tmpfiles.d/systemd-nologin.conf
+#
 
 ADD local/  /usr/local/
 ADD etc/  /etc/

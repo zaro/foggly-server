@@ -60,6 +60,7 @@ sudo usermod -aG docker ubuntu
 systemctl enable docker
 systemctl start docker
 
+# TODO: This is the same log format as combined, so just swotch to using combined
 cat <<EOC > /etc/nginx/conf.d/main_log.conf
 log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '

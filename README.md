@@ -153,3 +153,10 @@ socket=/var/run/mysqld/mysqld.sock
 # use it for MariaDB-only client options
 [client-mariadb]
 ```
+
+## Run using systemd-nspawn
+
+```
+systemd-nspawn --boot --directory=/var/lib/machines/nodejs --machine='test.domain' --bind=/srv/admin/test.domain/:/srv/home --bind=/srv/admin/test.domain/log:/var/log --bind=/srv/_host_controller:/srv/home/www/persistent --read-only --network-veth -p 3000:3000 -p 6379:6379  
+
+```

@@ -1,24 +1,34 @@
 all: base nodejs python php php5 java host_controller host_worker
 
-base: ## build the base container
-	cd docker/base && docker build -t foggly/base .
 
-nodejs: base ## build nodejs app runtime container
-	cd docker/nodejs && docker build -t foggly/nodejs .
+docker_%:
+	cd docker/$* && docker build -t foggly/$* .
 
-php: base ## build php app runtime container
-	cd docker/php && docker build -t foggly/php .
+images/%.tar:
+	@if [ "$(TAR_IMAGES)" ]; then  \
+		echo -n "Exporting $*.tar ... "; \
+		mkdir -p images/;\
+		docker export "$$(docker create foggly/$* true)" > images/$*.tar;\
+		echo "DONE"; \
+	else true; fi
 
-php5: base ## build php5 app runtime container
-	cd docker/php5 && docker build -t foggly/php5 .
+# Build docker and tar image (disabled right now)
+build_runtime_%: docker_% # images/%.tar
+	@echo Done building $*
 
-python: nodejs ## build python app runtime container
-	cd docker/python && docker build -t foggly/python .
+base: build_runtime_base ## build the base container
 
-java: nodejs ## build java app runtime container
-		cd docker/java && docker build -t foggly/java .
+nodejs: base build_runtime_nodejs ## build nodejs app runtime container
 
-host_controller: python ## build the host_controller container
+php: base build_runtime_php ## build php app runtime container
+
+php5: base build_runtime_php5 ## build php5 app runtime container
+
+python: base build_runtime_python ## build python app runtime container
+
+java: base build_runtime_java ## build java app runtime container
+
+host_controller: build_runtime_python ## build the host_controller container
 	if [ "${FULL}" ]; then \
 		cd site/www ; \
 		npm install ; \
@@ -30,7 +40,7 @@ host_controller: python ## build the host_controller container
 	node -e 'try{s = JSON.parse(require("fs").readFileSync("site/www/webpack-stats.json")).status;} catch(e){s=null}; if(s !== "done"){console.log("Webpack bundles not compiled"); process.exit(1) }'
 	cd site/www && docker build -f Dockerfile.host_controller -t foggly/host_controller .
 
-host_worker: python ## build the host_worker container
+host_worker: build_runtime_python ## build the host_worker container
 	cd site/www && docker build -f Dockerfile.host_worker -t foggly/host_worker .
 
 clean_junk_images: ## clean all non-tagged docker images
@@ -39,7 +49,8 @@ clean_junk_images: ## clean all non-tagged docker images
 rm_stopped_containers: ## remove all stopped containers
 	docker rm `docker ps -f status=exited -q`
 
-.PHONY: base nodejs python php php5 java host_controller host_worker
+.PHONY: base nodejs python php php5 java host_controller host_worker docker_% build_runtime_%
+.PRECIOUS: images/%.tar
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
