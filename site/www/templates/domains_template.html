@@ -8,7 +8,7 @@
   }
   window.fConfig.appTypes = {
     {% for appType in appTypes %}
-    "{{ appType.container_id }}" : "{{ appType.description }}",
+    "{{ appType.id }}" : "{{ appType.description }}",
     {% endfor %}
   };
   window.fConfig.hosts = {

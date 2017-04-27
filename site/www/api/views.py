@@ -182,7 +182,7 @@ class DomainsAdd(ApiLoginRequiredMixin, View):
         except ObjectDoesNotExist:
             return makeError( 'Host does not exists: {host}', reqData )
         try:
-            app_type = core.models.ContainerRuntime.objects.get( container_id=reqData['app_type'] )
+            app_type = core.models.ContainerRuntime.objects.get( id=reqData['app_type'] )
         except ObjectDoesNotExist:
             return makeError( 'app_type does not exists: {host}', reqData )
         reqData['app_type'] = app_type.to_dict(json=True)
