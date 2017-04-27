@@ -7,6 +7,7 @@ cd /srv/home/www
 
 activate_pyvenv
 
+RAW_COMMAND=
 APP_DIR="/srv/home/www/${WWW_ROOT_SUBDIR}"
 WSGI_SWITCH="--wsgi-file"
 WSGI_FILE="undefined"
@@ -17,7 +18,11 @@ MAX_REQUESTS=5000
 function procfile_entry {
   NAME="$1"
   if [[ "$NAME" = "web" ]]; then
+    ORIGINAL_WEB_CMD="$2"
     eval set -- "$2"
+    if [ "$1" == "python" ]; then
+      RAW_COMMAND="$ORIGINAL_WEB_CMD"
+    fi
     while [ $# -ge 1 ]; do
       case "$1" in
         --module)
@@ -92,4 +97,7 @@ fi
 . /usr/local/start_app_hook.f
 start_app_preexecute
 
+if [ "$RAW_COMMAND" ]; then
+    exec $RAW_COMMAND
+fi
 exec uwsgi --chdir "$APP_DIR" --plugin python35,http --master --virtualenv /srv/home/pyvenv --die-on-term --offload-threads 4 --static-gzip-all --thunder-lock --max-requests=$MAX_REQUESTS --processes=$NUM_PROCESSES  "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"
