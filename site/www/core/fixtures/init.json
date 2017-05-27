@@ -48,4 +48,14 @@
         "description": "JVM app",
         "proxy_type": "http"
     }
+}, {
+    "model": "core.containerruntime",
+    "pk": 6,
+    "fields": {
+        "created_at": "2016-02-14T14:30:42.288Z",
+        "modified_at": "2016-02-14T14:30:51.616Z",
+        "container_id": "foggly/python36",
+        "description": "Python 3.6 uWSGI",
+        "proxy_type": "uwsgi"
+    }
 }]

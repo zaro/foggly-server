@@ -1,0 +1,103 @@
+#!/bin/bash
+
+cd /srv/home/www
+
+. /srv/home/.hostcfg
+. /usr/local/deploy_hook.f
+
+activate_pyvenv
+
+RAW_COMMAND=
+APP_DIR="/srv/home/www/${WWW_ROOT_SUBDIR}"
+WSGI_SWITCH="--wsgi-file"
+WSGI_FILE="undefined"
+WSGI_OPTS=()
+NUM_PROCESSES=5
+MAX_REQUESTS=5000
+
+function procfile_entry {
+  NAME="$1"
+  if [[ "$NAME" = "web" ]]; then
+    ORIGINAL_WEB_CMD="$2"
+    eval set -- "$2"
+    if [ "$1" == "python" ]; then
+      RAW_COMMAND="$ORIGINAL_WEB_CMD"
+    fi
+    while [ $# -ge 1 ]; do
+      case "$1" in
+        --module)
+          WSGI_SWITCH="--module"
+          WSGI_FILE="$2"
+          shift
+          ;;
+        --wsgi-file)
+          WSGI_SWITCH="--wsgi-file"
+          WSGI_FILE="$2"
+          shift
+          ;;
+        --static-map)
+          WSGI_OPTS+=('--static-map')
+          WSGI_OPTS+=("$2")
+          shift
+          ;;
+        --processes)
+          if [ "$2" -ge 1 -a "$2" -le 30 ]; then
+            NUM_PROCESSES="$2"
+          fi
+          shift
+          ;;
+        --max-requests)
+          MAX_REQUESTS="$2"
+          shift
+          ;;
+        --chdir)
+          APP_DIR="$2"
+          shift
+          ;;
+        *)
+          # just ignore everythign else
+          ;;
+      esac
+
+      shift
+    done
+  fi
+  #skip, do not generate entry
+  return 0
+}
+
+function procfiles_clean {
+  return 0
+}
+
+. /usr/local/procfile_to_systemd
+procfile_process
+
+cd "$APP_DIR"
+
+if [[ "$WSGI_FILE" = "undefined" ]]; then
+  for f in wsgi.py index.py app.py run.py ; do
+    if [ -f "$f" ]; then
+      WSGI_FILE="$f"
+      break
+    fi
+  done
+fi
+
+if [[ "$WSGI_FILE" = "undefined" ]]; then
+  echo "Cannot find app to start."
+  exit 1
+fi
+
+UWSGI_SOCKET_OPTION="--http-socket"
+if [[ "$PROXY_TYPE" = "uwsgi" ]]; then
+  UWSGI_SOCKET_OPTION="--socket"
+fi
+
+. /usr/local/start_app_hook.f
+start_app_preexecute
+
+if [ "$RAW_COMMAND" ]; then
+    exec $RAW_COMMAND
+fi
+exec uwsgi --chdir "$APP_DIR" --plugin python36,http --master --virtualenv /srv/home/pyvenv --die-on-term --offload-threads 4 --static-gzip-all --thunder-lock --max-requests=$MAX_REQUESTS --processes=$NUM_PROCESSES  "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"

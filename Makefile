@@ -1,4 +1,4 @@
-all: base nodejs python php php5 java host_controller host_worker
+all: base nodejs python python36 php php5 java host_controller host_worker
 
 
 docker_%:
@@ -25,6 +25,8 @@ php: base build_runtime_php ## build php app runtime container
 php5: base build_runtime_php5 ## build php5 app runtime container
 
 python: base build_runtime_python ## build python app runtime container
+
+python36: base build_runtime_python36 ## build python3.6 app runtime container
 
 java: base build_runtime_java ## build java app runtime container
 
