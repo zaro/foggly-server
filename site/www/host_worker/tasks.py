@@ -70,6 +70,10 @@ def createDomain(cfg):
             f.write('[ -f ~/pyvenv/bin/activate ] && . ~/pyvenv/bin/activate\n')
             f.write('export PATH=$PATH:~/www/node_modules/.bin/\n')
 
+    if not d.exists('.bash_profile'):
+        with open(d.filename('.bash_profile'), 'w') as f:
+            f.write('[[ -r ~/.bashrc ]] && . ~/.bashrc\n')
+
     d.pushd('www')
 
     d.mkdir([], nginxUID, nginxGID)
