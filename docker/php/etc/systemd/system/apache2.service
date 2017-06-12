@@ -14,6 +14,7 @@ PermissionsStartOnly=true
 
 RuntimeDirectory=apache2
 EnvironmentFile=/srv/home/.hostcfg
+EnvironmentFile=-/srv/home/www/.env
 
 Environment=APACHE_RUN_USER=www-data
 Environment=APACHE_RUN_GROUP=www-data

@@ -11,6 +11,7 @@ User = www-data
 Group = www-data
 Restart=always
 EnvironmentFile=/srv/home/.hostcfg
+EnvironmentFile=-/srv/home/www/.env
 
 [Install]
 WantedBy=multi-user.target
