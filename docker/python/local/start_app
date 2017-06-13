@@ -100,4 +100,4 @@ start_app_preexecute
 if [ "$RAW_COMMAND" ]; then
     exec $RAW_COMMAND
 fi
-exec uwsgi --chdir "$APP_DIR" --plugin python35,http --master --virtualenv /srv/home/pyvenv --die-on-term --offload-threads 4 --static-gzip-all --thunder-lock --max-requests=$MAX_REQUESTS --processes=$NUM_PROCESSES  "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"
+exec uwsgi --chdir "$APP_DIR" --plugin python35,http --master --virtualenv /srv/home/pyvenv --die-on-term --enable-threads --offload-threads 4 --static-gzip-all --thunder-lock --max-requests=$MAX_REQUESTS --processes=$NUM_PROCESSES  "$UWSGI_SOCKET_OPTION" :3000 "${WSGI_OPTS[@]}" "$WSGI_SWITCH" "$WSGI_FILE"
