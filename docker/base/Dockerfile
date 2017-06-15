@@ -53,7 +53,7 @@ RUN set -ex \
   done
 
 ENV NPM_CONFIG_LOGLEVEL info
-ENV NODE_VERSION 7.4.0
+ENV NODE_VERSION 8.1.1
 
 RUN export NODE_ARCH=$(uname -m | sed 's/aarch64/arm64/;s/x86_64/x64/') \
   && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-$NODE_ARCH.tar.gz" \
