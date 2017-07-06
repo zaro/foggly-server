@@ -4,6 +4,10 @@ upstream {{DOMAIN_ID}} {
 
 {% for redirect_alias in REDIRECT_ALIASES %}
 server {
+				listen      80;
+				{% if HAS_SSL or SSL_ONLY == 'yes' %}
+				listen 443;
+				{% endif %}
         server_name {{redirect_alias}};
         return 301 $scheme://{{DOMAIN}}$request_uri;
 }
