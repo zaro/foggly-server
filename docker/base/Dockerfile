@@ -16,7 +16,7 @@ RUN echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set
 RUN apt-get clean && \
     apt-get update && \
     apt-get install -y ca-certificates curl psmisc nano sudo less vim unzip rsync postfix mariadb-client-core-10.0 libmariadb-client-lgpl-dev postgresql-client-common postgresql-client-9.5 redis-server && \
-    apt-get install -y git make openssh-server opendkim opendkim-tools spiped gettext && \
+    apt-get install -y git make openssh-server opendkim opendkim-tools spiped gettext libfontconfig1 libfreetype6 && \
     apt-get clean && \
     rm -fr /etc/postfix && \
     ln -s /srv/home/etc/postfix/ /etc/postfix && \
