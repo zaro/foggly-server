@@ -1,0 +1,22 @@
+---
+- hosts: foggly-hosts
+  vars:
+    RKT_VERSION: 1.22.0
+    ACBUILD_VERSION: 0.4.0
+  tasks:
+    - name: Add GPG key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 18AD5014C99EF7E3BA5F6CE950BDD3E0FC8A365E
+    - name: Install systemd-nspawn
+      apt:
+        name: systemd-container
+    - name: Download & Install rkt
+      apt:
+        deb: https://github.com/coreos/rkt/releases/download/v{{ RKT_VERSION }}/rkt_{{ RKT_VERSION }}-1_amd64.deb
+    - name: Download & Install acbuild
+      unarchive:
+        remote_src: yes
+        extra_opts: ['--strip-components=1']
+        src: https://github.com/containers/build/releases/download/v{{ ACBUILD_VERSION }}/acbuild-v{{ ACBUILD_VERSION }}.tar.gz
+        dest: /usr/local/bin
