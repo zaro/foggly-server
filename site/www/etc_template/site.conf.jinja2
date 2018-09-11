@@ -71,6 +71,10 @@ server {
 	location /.well-known/ {
 					root /srv/{{OWNER}}/{{DOMAIN}}/.well-known;
 	}
+	
+    location /.git/ {
+        return 404;
+    }
 
 	{%if PROXY_TYPE == "http" %}
 	location / {
