@@ -197,9 +197,14 @@ def enableDomainSsl(cfg):
 
 @shared_task(name='host.certbotRenew')
 def certbotRenew():
-    DirCreate('/tmp').run("certbot --agree-tos --non-interactive --config-dir {cfgdir} renew".format(
-        cfgdir=LETSENCRYPT_DIR,
-    ))
+    try:
+        DirCreate('/tmp').run("certbot --agree-tos --non-interactive --config-dir {cfgdir} renew".format(
+            cfgdir=LETSENCRYPT_DIR,
+        ))
+    except:
+        # this will fail even if only one domain fails
+        # so ignore it
+        pass
 
     SystemdCtl().reloadUnit('nginx.service')
 
