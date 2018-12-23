@@ -1,0 +1,17 @@
+celery[redis]==4.0.2
+gevent
+Django==1.10.5
+django-celery==3.1.17
+django-extensions
+django-material==0.11.0
+django-model-utils
+django-jwt-auth
+django-webpack-loader
+docker
+Jinja2
+ansible
+mysqlclient
+psycopg2
+pydbus
+django-markdown-deux
+pygments
