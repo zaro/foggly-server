@@ -20,7 +20,7 @@ RUN add-apt-repository ppa:ondrej/php && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/log/*.log
 
-RUN sed -i 's,;upload_tmp_dir =,upload_tmp_dir =/srv/home/tmp,;s,upload_max_filesize = 2M,upload_max_filesize = 1024M,;s,post_max_size = 8M,post_max_size = 0,' /etc/php/7.2/apache2/php.ini && \
+RUN sed -i 's,memory_limit = 128M,memory_limit = 512M,;s,;upload_tmp_dir =,upload_tmp_dir =/srv/home/tmp,;s,upload_max_filesize = 2M,upload_max_filesize = 1024M,;s,post_max_size = 8M,post_max_size = 0,' /etc/php/7.2/apache2/php.ini && \
     rm /etc/apache2/sites-available/default-ssl.conf && \
     rm /lib/systemd/system/apache2.service.d/apache2-systemd.conf
 
